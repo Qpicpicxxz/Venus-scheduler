@@ -31,5 +31,5 @@ for arg in args:
       f.write(task)
       f.write('"))) = {')
       for value in new_array:
-          f.write(hex(value) + ', ')
+          f.write(hex(value) + ',\n')
       f.write('};\n')
