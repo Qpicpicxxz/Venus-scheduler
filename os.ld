@@ -134,6 +134,13 @@ SECTIONS
 		PROVIDE(_task3_end = .);
 	} >ram
 
+/*	.[taskName] :{
+		PROVIDE(_[taskName]_start = .);
+		*(.[taskName])
+		PROVIDE(_[taskName]_end = .);
+	} >ram
+*/
+
 	.bss :{
 		/*
 		 * https://sourceware.org/binutils/docs/ld/Input-Section-Common.html
