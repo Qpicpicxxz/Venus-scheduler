@@ -133,6 +133,7 @@ SECTIONS
 		*(.task3)
 		PROVIDE(_task3_end = .);
 	} >ram
+
 	.bss :{
 		/*
 		 * https://sourceware.org/binutils/docs/ld/Input-Section-Common.html

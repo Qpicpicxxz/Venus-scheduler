@@ -1,3 +1,8 @@
+# this python script is for binary to c converting
+# 1. read binary files from command line (task.bin)
+# 2. catch the binary data and convert it to instructions (0x00000000)
+# 3. rewrite this data to a c file as a certain format
+
 import sys
 
 args = sys.argv[1:]

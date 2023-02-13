@@ -30,7 +30,7 @@ SRCS_C = \
 SRCS_TASKS = \
 				task1.c \
 				task2.c \
-				task3.c
+				task3.c 
 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 				
