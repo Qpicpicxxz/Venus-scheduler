@@ -14,11 +14,11 @@ word:
 
 elf: ${ELF}
 
-task%.elf : task%.c
+%.elf : %.c
 	@${CC} ${CFLAGS} -o $@ $<
 	@echo "  $< ---> $@"
 
-task%.bin : task%.elf
+%.bin : %.elf
 	@${OBJCOPY} -O binary $< $@
 	@echo "  $< ---> $@"
 
