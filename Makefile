@@ -72,8 +72,7 @@ static: libtask.a os.elf
 
 .PHONY : clean
 clean:
-	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c *.a
-	@cd task && ${MAKE} clean
+	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c *.a *.map
 
 
 
