@@ -115,7 +115,7 @@ SECTIONS
 		PROVIDE(_data_end = .);
 	} >ram
 
-
+/*
 	.task1 :{
 		PROVIDE(_task1_start = .);
 		*(.task1)
@@ -133,6 +133,7 @@ SECTIONS
 		*(.task3)
 		PROVIDE(_task3_end = .);
 	} >ram
+*/
 
 /*	.[taskName] :{
 		PROVIDE(_[taskName]_start = .);

@@ -19,4 +19,7 @@ extern void panic(char *s);
 //extern void *page_alloc(int npages);
 //extern void page_free(void *p);
 
+/* qemu numa configuration */
+//#include <numa.h>
+
 #endif /* __OS_H__ */

@@ -23,23 +23,23 @@ RODATA_START: .word _rodata_start
 .global RODATA_END
 RODATA_END: .word _rodata_end
 
-.global TASK1_START
-TASK1_START: .word _task1_start
+# .global TASK1_START
+# TASK1_START: .word _task1_start
 
-.global TASK1_END
-TASK1_END:	.word _task1_end
+# .global TASK1_END
+# TASK1_END:	.word _task1_end
 
-.global TASK2_START
-TASK2_START: .word _task2_start
+# .global TASK2_START
+# TASK2_START: .word _task2_start
 
-.global TASK2_END
-TASK2_END:	.word _task2_end
+# .global TASK2_END
+# TASK2_END:	.word _task2_end
 
-.global TASK3_START
-TASK3_START: .word _task3_start
+# .global TASK3_START
+# TASK3_START: .word _task3_start
 
-.global TASK3_END
-TASK3_END:	.word _task3_end
+# .global TASK3_END
+# TASK3_END:	.word _task3_end
 
 #.global [TASKNAME]_START
 #[TASKNAME]_START: .word _[taskName]_start
