@@ -1,8 +1,8 @@
 CROSS_COMPILE = riscv32-unknown-elf-
 CFLAGS = -nostdlib -fno-builtin -march=rv32ima -mabi=ilp32 -g -Wall
 QEMU = qemu-system-riscv32
-QFLAGS = -nographic -machine virt -bios none \
-				 -smp cores=8,threads=1,sockets=1 \
+QFLAGS = -nographic -machine virt -bios none -smp 1\
+#				 -smp cores=8,threads=1,sockets=1 \
 				 -object memory-backend-ram,size=1M,id=m0 \
 				 -object memory-backend-ram,size=127M,id=m1 \
 				 -numa node,cpus=0,nodeid=0,memdev=m0 \
@@ -16,7 +16,8 @@ NM = ${CROSS_COMPILE}nm
 
 SRCS_ASM = \
 					 start.S \
-					 mem.S
+					 mem.S \
+					 entry.S
 
 
 SRCS_C = \
@@ -24,7 +25,9 @@ SRCS_C = \
 			 	 uart.c \
 				 printf.c \
 				 debug.c \
-				 user.c
+				 sched.c \
+				 scheduler.c \
+				 fifo.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \

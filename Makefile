@@ -7,7 +7,7 @@ OBJS += $(SRCS_C:.c=.o)
 OBJS += $(patsubst %.c,%.o,$(SRCS_BIN))
 
 # start.o must be the first in dependency!
-os.elf: taskgenerate word ${OBJS}
+os.elf: taskgenerate  word ${OBJS}
 	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS}
 
 $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c 

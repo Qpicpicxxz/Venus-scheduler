@@ -1,7 +1,7 @@
 #include "platform.h"
 
 	# size of each hart's stack is 1024 bytes
-	.equ	STACK_SIZE, 1024
+	.equ	STACK_SIZE, 16384 
 
 	.global	_start
 
