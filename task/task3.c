@@ -1,4 +1,4 @@
-void _start(){
+void main(){
 	while (1){
 		// do nothing
 	}

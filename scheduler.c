@@ -11,10 +11,10 @@ void user_task0(void)
 	init_fifo(&F1); // zero wptr, rptr
 	put_fifo(&F1, 5);
 	put_fifo(&F1, 6);
+	put_fifo(&F1, 6);
+	put_fifo(&F1, 6);
 	printf("fifo size: %d\nand get token: %d\nthen fifo size:%d\n", fifo_size(&F1), get_fifo(&F1), fifo_size(&F1));
-	while (1)
-	{
-	};
+	while (1){};
 }
 
 void user_task1(void)

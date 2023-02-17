@@ -15,7 +15,7 @@ word:
 elf: ${ELF}
 
 %.elf : %.c
-	@${CC} ${CFLAGS} -o $@ $<
+	@${CC} ${CFLAGS} -T task.ld -o $@ $<
 	@echo "  $< ---> $@"
 
 %.bin : %.elf
@@ -34,8 +34,16 @@ all: word ${BINARY}
 	@cp *_bin.c ../
 	@echo "  all the generated files have been copied to the root directory"
 	@echo ""
+	
+.PHONY: code
+code: all
+	@echo ""
+	@echo "=========== DISASSEMBLING ========="
+	@echo ""
+	@${OBJDUMP} --disassemble-all task1.elf > objdump.txt
+	@open objdump.txt
 
 .PHONY: clean
 clean:
-	rm -rf *.elf *.bin *_bin.c
+	rm -rf *.elf *.bin *_bin.c *.txt
 

@@ -1,5 +1,5 @@
 CROSS_COMPILE = riscv32-unknown-elf-
-CFLAGS = -nostdlib -fno-builtin -march=rv32ima -mabi=ilp32 -g -Wall
+CFLAGS = -nostdlib -static -fno-builtin -march=rv32ima -mabi=ilp32 -g -Wall 
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -machine virt -bios none -smp 1\
 #				 -smp cores=8,threads=1,sockets=1 \

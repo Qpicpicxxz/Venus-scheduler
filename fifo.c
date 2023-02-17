@@ -1,9 +1,11 @@
 #include "fifo.h"
+#include <assert.h>
 
 void init_fifo(fifo_t *F)
 {
   F->wptr = F->rptr = 0;
 }
+
 // a method to put elements into the queue
 void put_fifo(fifo_t *F, uint32_t d)
 {
@@ -11,14 +13,17 @@ void put_fifo(fifo_t *F, uint32_t d)
   {
     F->data[F->wptr] = d;
     F->wptr = (F->wptr + 1) % MAXFIFO;
-    //assert(fifo_size(F) <= 10);
+    //assert(fifo_size(F)<=10);
+  }
+  else {
+  	printf("warning: fifo is full! token %d write failed\n", d);
   }
 }
 
 // a method to get elements from the queue
 uint32_t get_fifo(fifo_t *F)
 {
-  int r;
+  uint32_t r;
   if (F->rptr != F->wptr)
   {
     r = F->data[F->rptr];
@@ -28,6 +33,7 @@ uint32_t get_fifo(fifo_t *F)
   return -1;
 }
 
+// the max fifo_size(uint8_t) is 255
 uint8_t fifo_size(fifo_t *F)
 {
   if (F->wptr >= F->rptr)

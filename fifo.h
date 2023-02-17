@@ -1,5 +1,6 @@
 #include "types.h"
-#define MAXFIFO 128
+#include "os.h"
+#define MAXFIFO 3
 
 typedef struct fifo
 {
