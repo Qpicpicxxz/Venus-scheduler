@@ -5,7 +5,7 @@ void init_fifo(fifo_t *F)
   F->wptr = F->rptr = 0;
 }
 // a method to put elements into the queue
-void put_fifo(fifo_t *F, int d)
+void put_fifo(fifo_t *F, uint32_t d)
 {
   if (((F->wptr + 1) % MAXFIFO) != F->rptr) // a circular queue
   {
@@ -16,7 +16,7 @@ void put_fifo(fifo_t *F, int d)
 }
 
 // a method to get elements from the queue
-int get_fifo(fifo_t *F)
+uint32_t get_fifo(fifo_t *F)
 {
   int r;
   if (F->rptr != F->wptr)
@@ -28,7 +28,7 @@ int get_fifo(fifo_t *F)
   return -1;
 }
 
-int fifo_size(fifo_t *F)
+uint8_t fifo_size(fifo_t *F)
 {
   if (F->wptr >= F->rptr)
     return F->wptr - F->rptr;
