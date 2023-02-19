@@ -1,12 +1,8 @@
 CROSS_COMPILE = riscv32-unknown-elf-
-CFLAGS = -nostdlib -static -fno-builtin -march=rv32ima -mabi=ilp32 -g -Wall 
+CFLAGS = -nostdlib -fno-builtin -ffreestanding -march=rv32ima -mabi=ilp32 -g -Wall
 QEMU = qemu-system-riscv32
-QFLAGS = -nographic -machine virt -bios none -smp 1\
-#				 -smp cores=8,threads=1,sockets=1 \
-				 -object memory-backend-ram,size=1M,id=m0 \
-				 -object memory-backend-ram,size=127M,id=m1 \
-				 -numa node,cpus=0,nodeid=0,memdev=m0 \
-				 -numa node,cpus=1-7,nodeid=1,memdev=m1
+QFLAGS = -nographic -machine virt -bios none \
+				 -smp cores=1,threads=1,sockets=1
 
 GDB = gdb-multiarch
 CC = ${CROSS_COMPILE}gcc
@@ -26,15 +22,17 @@ SRCS_C = \
 				 printf.c \
 				 debug.c \
 				 sched.c \
+				 fifo.c \
 				 scheduler.c \
-				 fifo.c
+				 dma.c \
+				 taskrule.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \
 				task1.c \
 				task2.c \
-				task3.c 
+				task3.c
 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
-				
+
 .DEFAULT_GOAL := all

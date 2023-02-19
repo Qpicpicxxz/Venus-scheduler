@@ -1,5 +1,4 @@
 #include "fifo.h"
-#include <assert.h>
 
 void init_fifo(fifo_t *F)
 {
@@ -13,10 +12,11 @@ void put_fifo(fifo_t *F, uint32_t d)
   {
     F->data[F->wptr] = d;
     F->wptr = (F->wptr + 1) % MAXFIFO;
-    //assert(fifo_size(F)<=10);
+    // assert(fifo_size(F)<=10);
   }
-  else {
-  	printf("warning: fifo is full! token %d write failed\n", d);
+  else
+  {
+    printf("warning: fifo is full! token %d write failed\n", d);
   }
 }
 
@@ -29,6 +29,15 @@ uint32_t get_fifo(fifo_t *F)
     r = F->data[F->rptr];
     F->rptr = (F->rptr + 1) % MAXFIFO;
     return r;
+  }
+  return -1;
+}
+
+uint32_t read_fifo(fifo_t *F)
+{
+  if (F->rptr != F->wptr)
+  {
+    return F->data[F->rptr];
   }
   return -1;
 }

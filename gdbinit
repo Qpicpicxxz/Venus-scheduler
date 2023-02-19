@@ -8,6 +8,7 @@ b start_kernel
 b os_main
 b task_create
 b user_task0
+b task1
 target remote : 1234
 c
 

@@ -8,7 +8,8 @@ OBJS += $(patsubst %.c,%.o,$(SRCS_BIN))
 
 # start.o must be the first in dependency!
 os.elf: taskgenerate  word ${OBJS}
-	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS}
+	@echo " start compile elf ... "
+	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS} -lc
 
 $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c 
 	@${CC} ${CFLAGS} -c -o $@ $<
@@ -55,7 +56,7 @@ code: all
 	@echo ""
 	@echo "==============================================="
 	@echo "Compiling all the object files above together"
-	@echo "TOBE an ELF file and disassemble into a textfile"
+	@echo "TOBE an ELF file and disassemble into objdump.txt"
 	@echo "================================================"
 	@${OBJDUMP} --disassemble-all os.elf > objdump.txt
 	@open objdump.txt
