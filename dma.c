@@ -1,4 +1,4 @@
-#include "fifo.h"
+#include "actor.h"
 
 // for test, simulate block process and pass the data to the task
 static fifo_t d1;

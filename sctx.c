@@ -1,6 +1,6 @@
 #include "os.h"
 
-/* defined in entry.S */
+/* defined in switch.S */
 extern void switch_to(struct context *next);
 
 #define MAX_TASKS 10

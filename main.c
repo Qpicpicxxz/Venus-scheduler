@@ -1,5 +1,4 @@
-#include "os.h"
-#include "fifo.h"
+#include "actor.h"
 
 uint32_t data1 = 888;
 uint32_t data2 = 555;

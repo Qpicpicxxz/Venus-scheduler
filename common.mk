@@ -13,7 +13,7 @@ NM = ${CROSS_COMPILE}nm
 SRCS_ASM = \
 					 start.S \
 					 mem.S \
-					 entry.S
+					 switch.S
 
 
 SRCS_C = \
@@ -21,9 +21,9 @@ SRCS_C = \
 			 	 uart.c \
 				 printf.c \
 				 debug.c \
-				 sched.c \
+				 sctx.c \
 				 fifo.c \
-				 scheduler.c \
+				 main.c \
 				 dma.c \
 				 taskrule.c
 

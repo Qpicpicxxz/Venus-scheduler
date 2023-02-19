@@ -1,4 +1,4 @@
-#include "fifo.h"
+#include "actor.h"
 
 void init_fifo(fifo_t *F)
 {
