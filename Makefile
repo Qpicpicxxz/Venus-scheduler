@@ -8,7 +8,7 @@ OBJS += $(patsubst %.c,%.o,$(SRCS_BIN))
 
 # start.o must be the first in dependency!
 os.elf: taskgenerate  word ${OBJS}
-	@echo " start compile elf ... "
+	@echo "  *.o os.ld ---> os.elf"
 	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS} -lc
 
 $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c 

@@ -14,8 +14,9 @@ word:
 
 elf: ${ELF}
 
+# in this step will output linker script(ld) warning: task1.elf has a LOAD segment with RWX permissions
 %.elf : %.c
-	@${CC} ${CFLAGS} -T task.ld -o $@ $<
+	@${CC} ${CFLAGS} -T task.ld -o $@ $< 2>/dev/null
 	@echo "  $< ---> $@"
 
 %.bin : %.elf

@@ -12,12 +12,19 @@ void put_fifo(fifo_t *F, uint32_t d)
   {
     F->data[F->wptr] = d;
     F->wptr = (F->wptr + 1) % MAXFIFO;
-    // assert(fifo_size(F)<=10);
   }
   else
   {
     printf("warning: fifo is full! token %d write failed\n", d);
   }
+}
+
+uint8_t fifo_size(fifo_t *F)
+{
+  if (F->wptr >= F->rptr)
+    return F->wptr - F->rptr;
+  else
+    return MAXFIFO - (F->rptr - F->wptr) + 1;
 }
 
 // a method to get elements from the queue
@@ -33,6 +40,7 @@ uint32_t get_fifo(fifo_t *F)
   return -1;
 }
 
+// a method to just read the margin data pointer
 uint32_t read_fifo(fifo_t *F)
 {
   if (F->rptr != F->wptr)
@@ -42,12 +50,47 @@ uint32_t read_fifo(fifo_t *F)
   return -1;
 }
 
-// the max fifo_size(uint8_t) is 255
-uint8_t fifo_size(fifo_t *F)
+uint32_t read_else_fifo(fifo_t *F, uint8_t dist)
 {
-  if (F->wptr >= F->rptr)
-    return F->wptr - F->rptr;
-  else
-    return MAXFIFO - (F->rptr - F->wptr) + 1;
+  if (F->rptr != F->wptr)
+  {
+    return F->data[F->rptr + dist];
+  }
+  return -1;
+}
+
+// a method to get the margin data pointer
+uint32_t *get_addr_fifo(fifo_t *F)
+{
+  uint32_t *a;
+  if (F->rptr != F->wptr)
+  {
+    a = &(F->data[F->rptr]);
+    F->rptr = (F->rptr + 1) % MAXFIFO;
+    return a;
+  }
+  // may cause some warning, later to fix it
+  return NULL;
+}
+
+// a method to just read the margin data pointer
+uint32_t *read_addr_fifo(fifo_t *F)
+{
+  if (F->rptr != F->wptr)
+  {
+    return &(F->data[F->rptr]);
+  }
+  // may cause some warning, later to fix it
+  return NULL;
+}
+
+// a method to just read inside data pointer
+uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist)
+{
+  if (F->rptr != F->wptr)
+  {
+    return &(F->data[F->rptr + dist]);
+  }
+  return NULL;
 }
 

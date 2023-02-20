@@ -29,7 +29,8 @@
 │   ├── task2.c
 │   ├── task3.c
 │   └── task.ld       // linker script to control task's compilation
-├── taskrule.c        // define the rules to fire a certain task
+├── taskrule.c  // define the rules on how the actor fires upon every invocation
 ├── types.h     // define the standard word length
 └── uart.c      // UART functions for print
 ```
+
