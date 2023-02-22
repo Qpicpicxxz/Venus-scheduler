@@ -5,6 +5,7 @@
 	2. DATAx_ADDR ---> we should told DMA the destination of the data moving to the block --- <daddr.h>
 	3. DATA_LEN   ---> we should get the length of every data segment --- <daddr.h>
 	4. &datax_mem ---> we should allocate the memory in DDR for block's compute result
+	5. block_task ---> we should have a handler to catch unoccupied blocks and schedule them
 */
 
 // intermediate result storage address
@@ -24,6 +25,7 @@ void task1(actorio_t *g_in, actorio_t *g_out)
     dma_code(SPM1_ADDR, TASK1_START, TASK1_END - TASK1_START);
     // dma_data(dst, data, len) which data represents a pointer
     dma_data(DATA1_ADDR, get_fifo(g_in->in[0]), DATA1_LEN);
+    // the block would notify the scheduler that the task has finished
     block_task1(g_in);
     // scheduler obtain the result ( it's data itself )
     printf("in * in = out = %d\n", read_fifo(g_in->out[0]));

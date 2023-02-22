@@ -21,6 +21,7 @@ SRCS_C = \
 			 	 uart.c \
 				 printf.c \
 				 debug.c \
+				 page.c \
 				 sctx.c \
 				 fifo.c \
 				 main.c \

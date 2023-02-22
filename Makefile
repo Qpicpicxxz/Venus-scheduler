@@ -64,6 +64,17 @@ code: all
 .PHONY : symbol
 symbol: all
 	@${NM} -n os.elf
+	
+	
+.PHONY : bin
+bin: all
+	@echo ""
+	@echo "==============================================="
+	@echo "  Objcopy .elf file to binary files .bin"
+	@echo "==============================================="
+	@${OBJCOPY} -O binary os.elf os.bin
+	@hexdump os.bin > bin.txt
+	@open bin.txt 
 
 .PHONY : clean
 clean:
