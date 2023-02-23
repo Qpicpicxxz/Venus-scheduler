@@ -17,6 +17,7 @@ static uint32_t _alloc_end = 0;
 static uint32_t _num_pages = 0;
 
 /* the minimum memory allocate unit
+   so if we call malloc(), it would at least allocate 256bits
    if want to adjust, you should modify three macro below
    the minimum metadata index size is RAM_SIZE / PAGE_SIZE^2
 */
@@ -29,11 +30,11 @@ static uint32_t _num_pages = 0;
   (1 << 2) is bit shift operation,
   shifts the binary representation of the integer 1
   two places to the left, which represent the value of 0b00000100
+  pageNum implement round up to an integer
 */
 #define PAGE_TAKEN (uint8_t)(1 << 0)
 #define PAGE_LAST (uint8_t)(1 << 1)
-#define HUGE_BLOCK (uint8_t)(1 << 2)
-#define pageNum(x) ((x) / ((PAGE_SIZE) + 1)) + 1
+#define pageNum(x) ((x - 1) / (PAGE_SIZE)) + 1
 
 /*
   Page descriptor flags:

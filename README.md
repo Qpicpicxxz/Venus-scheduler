@@ -10,13 +10,12 @@
 ├── gdbinit     // initialize GNU debuger script
 ├── kernel.c    // initialize all the scheduler functions
 ├── main.c      // main function to fire dataflow tasks
-├── malloc.c    // malloc handlers
 ├── Makefile    // compile option
 ├── mem.S       // define some macros for catch section's address
 ├── os.h        // include all the header file and define tasks context
 ├── os.ld       // linker script
-├── page.c      // dynamic allocation for page (4KiB)
-├── page.h      // header file for page_alloc and malloc
+├── page.c      // dynamic allocation for memory
+├── page.h      // header file for malloc
 ├── platform.h  // define machine's physical property
 ├── printf.c    // print strings to QEMU terminal
 ├── README.md   // introduction

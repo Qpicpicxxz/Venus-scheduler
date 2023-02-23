@@ -96,15 +96,27 @@ void page_test() {
   printf("p1 = 0x%x\n", p1);	// 0x80099600
   void *p2 = malloc(256);
   printf("p2 = 0x%x\n", p2);	// 0x80099700
-  void *p3 = malloc(1024);
+  void *p3 = malloc(513);
   printf("p3 = 0x%x\n", p3);	// 0x80099800
   /*
      the basic allocate size is 256bit ---> 0x0000_0100
-     1024 / 256 = 4 times larger
-     base_addr + 0x0000_0300 ---> 8 + 3 = c
+        ⌈513 / 256⌉ =  3 times larger
+     the malloc will allocates 3 blocks for the request
+     base_addr + 0x0000_0300 ---> 8 + 3 = b
+     Before Allocation:
+
+	+----+    +----+    +----+    +----+    +----+
+	| 00 | -> | 00 | -> | 00 | -> | 00 | -> | 00 |
+	+----+    +----+    +----+    +----+    +----+
+
+     After Allocation:
+
+	+----+    +----+    +----+    +----+    +----+
+	| 01 | -> | 01 | -> | 11 | -> | 00 | -> | 00 |
+	+----+    +----+    +----+    +----+    +----+
   */
   void *p4 = malloc(2048);
-  printf("p4 = 0x%x\n", p4);	// 0x80099c00
+  printf("p4 = 0x%x\n", p4);	// 0x80099b00
   free(p);
   free(p1);
   free(p2);
