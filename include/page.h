@@ -16,8 +16,13 @@ static uint32_t _alloc_start = 0;
 static uint32_t _alloc_end = 0;
 static uint32_t _num_pages = 0;
 
-#define PAGE_SIZE 4096 // 4KiB
-#define PAGE_ORDER 12
+/* the minimum memory allocate unit
+   if want to adjust, you should modify three macro below
+   the minimum metadata index size is RAM_SIZE / PAGE_SIZE^2
+*/
+#define PAGE_SIZE 256  // 256 Byte
+#define PAGE_ORDER 8   // 256 = 2^8
+#define META_SIZE 2048 // 0x0800_0000 / (256 * 256)
 
 /* 
   a preprocessor directive which defines a constant macro,
@@ -28,6 +33,7 @@ static uint32_t _num_pages = 0;
 #define PAGE_TAKEN (uint8_t)(1 << 0)
 #define PAGE_LAST (uint8_t)(1 << 1)
 #define HUGE_BLOCK (uint8_t)(1 << 2)
+#define pageNum(x) ((x) / ((PAGE_SIZE) + 1)) + 1
 
 /*
   Page descriptor flags:
@@ -97,3 +103,4 @@ static inline uint32_t _align_page(uint32_t address) {
 }
 
 #endif
+

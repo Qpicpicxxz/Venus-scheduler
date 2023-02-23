@@ -79,7 +79,7 @@ bin: all
 .PHONY : clean
 clean:
 	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c
-	@cd src && rm -rf *.o *.bin *.elf *.txt *.out *_bin.cs
+	@cd src && rm -rf *.o *.bin *.elf *.txt
 	@cd task && ${MAKE} clean
 
 

@@ -19,10 +19,8 @@ extern int  printf(const char* s, ...);
 extern void panic(char *s);
 
 /* memory management */
-extern void *page_alloc(int npages);
-extern void page_free(void *ptr);
 // returns a void pointer to the allocated space, or NULL if there is insufficient memory available
-extern void *malloc(int size);
+extern void *malloc(int bit);	// input the bit size
 extern void free(void *ptr);
 
 /* task management */

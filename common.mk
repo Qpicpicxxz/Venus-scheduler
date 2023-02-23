@@ -23,7 +23,6 @@ SRCS_C = \
 				 $(SOURCE)printf.c \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)page.c \
-				 $(SOURCE)malloc.c \
 				 $(SOURCE)sctx.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)main.c \
