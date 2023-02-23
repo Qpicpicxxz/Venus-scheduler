@@ -1,7 +1,11 @@
 # save all General-Purpose(GP) registers to context
+# both caller and callee need two pieces of assembly code 
+# matching the save and restore registers due to the calling behaviour
+# Prologue and Epilogue
+# abouve will be automatically inserted by the compiler
+# to complete the storage and recovery of relevant registers
 # struct context *base = &ctx_task;
 # base->ra = ra;
-# ......
 .macro reg_save base
 	sw ra, 0(\base)
 	sw sp, 4(\base)

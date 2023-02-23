@@ -1,18 +1,13 @@
 #include "platform.h"
-
-	# size of each hart's stack is 1024 bytes
-	.equ	STACK_SIZE, 1024
-
+	
+	.equ STACK_SIZE, 4096 *16	# 64KiB stack space
+	
 	.global	_start
 
 	.text
 _start:
-	# park harts with id != 0
-	csrr	t0, mhartid		# read current hart id
-	mv	tp, t0			# keep CPU's hartid in its tp for later usage.
-	bnez	t0, park		# if we're not on the hart 0
-					# we park the hart
-
+	csrr	t0, mhartid
+	mv	tp, t0
 	# Set all bytes in the BSS section to zero.
 	# to make sure every uninitialized variable to be zero
 	la	a0, _bss_start
@@ -25,19 +20,20 @@ _start:
 2:
 	# Setup stacks, the stack grows from bottom to top, so we put the
 	# stack pointer to the very end of the stack range.
-	slli	t0, t0, 10		# shift left the hart id by 1024
-	la	sp, stacks + STACK_SIZE	# set the initial stack pointer
-					# to the end of the first stack space
-	add	sp, sp, t0		# move the current hart stack pointer
-					# to its place in the stack space
+	# Prologue
+	la	sp, _stack_top
+	add	sp, sp, t0
 
 	j	start_kernel		# hart 0 jump to c
 
-park:
-	wfi
-	j	park
+	.section .bss.stack
+	
+	.globl _stack_lower_bound
+_stack_lower_bound:
 
-stacks:
-	.skip	STACK_SIZE * MAXNUM_CPU # allocate space for all the harts stacks
+	.space	STACK_SIZE
+
+	.globl _stack_top
+_stack_top:
 
 	.end				# End of file

@@ -4,6 +4,7 @@
 #include "types.h"
 #include "platform.h"
 #include "riscv.h"
+#include "page.h"
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -18,20 +19,23 @@ extern int  printf(const char* s, ...);
 extern void panic(char *s);
 
 /* memory management */
-//extern void *page_alloc(int npages);
-//extern void page_free(void *p);
+extern void *page_alloc(int npages);
+extern void page_free(void *ptr);
+// returns a void pointer to the allocated space, or NULL if there is insufficient memory available
+extern void *malloc(int size);
+extern void free(void *ptr);
 
 /* task management */
 struct context {
 	/* ignore x0 */
 	reg_t ra;
-	reg_t sp;
-	reg_t gp;
-	reg_t tp;
+	reg_t sp;	// stack pointer
+	reg_t gp;	
+	reg_t tp;	
 	reg_t t0;
 	reg_t t1;
 	reg_t t2;
-	reg_t s0;
+	reg_t s0;	// frame pointer
 	reg_t s1;
 	reg_t a0;
 	reg_t a1;

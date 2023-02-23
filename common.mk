@@ -22,6 +22,7 @@ SRCS_C = \
 				 printf.c \
 				 debug.c \
 				 page.c \
+				 malloc.c \
 				 sctx.c \
 				 fifo.c \
 				 main.c \

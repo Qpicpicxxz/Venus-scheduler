@@ -65,18 +65,6 @@ SECTIONS
 	} >ram
 
 
-	.bss :{
-		/*
-		 # https://sourceware.org/binutils/docs/ld/Input-Section-Common.html
-		 */
-		PROVIDE(_bss_start = .);
-		*(.sbss .sbss.*)
-		*(.bss .bss.*)
-		*(COMMON)
-		PROVIDE(_bss_end = .);
-	} >ram
-
-
 	.task1 :{
 		PROVIDE(_task1_start = .);
 		*(.task1)
@@ -101,6 +89,18 @@ SECTIONS
 		PROVIDE(_[taskName]_end = .);
 	} >ram
 */
+
+	.bss :{
+		/*
+		 # https://sourceware.org/binutils/docs/ld/Input-Section-Common.html
+		 */
+		PROVIDE(_bss_start = .);
+		*(.bss.stack)
+		*(.sbss .sbss.*)
+		*(.bss .bss.*)
+		*(COMMON)
+		PROVIDE(_bss_end = .);
+	} >ram
 
 	PROVIDE(_memory_start = ORIGIN(ram));
 	PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
