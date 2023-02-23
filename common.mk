@@ -1,9 +1,10 @@
 CROSS_COMPILE = riscv32-unknown-elf-
-CFLAGS = -nostdlib -fno-builtin -ffreestanding -march=rv32ima -mabi=ilp32 -g -Wall
+CFLAGS = -I./include -nostdlib -fno-builtin -ffreestanding -march=rv32ima -mabi=ilp32 -g -Wall
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -machine virt -bios none \
 				 -smp cores=1,threads=1,sockets=1
 
+SOURCE = src/
 GDB = gdb-multiarch
 CC = ${CROSS_COMPILE}gcc
 OBJCOPY = ${CROSS_COMPILE}objcopy
@@ -11,23 +12,23 @@ OBJDUMP = ${CROSS_COMPILE}objdump
 NM = ${CROSS_COMPILE}nm
 
 SRCS_ASM = \
-					 start.S \
-					 mem.S \
-					 switch.S
+					 $(SOURCE)start.S \
+					 $(SOURCE)mem.S \
+					 $(SOURCE)switch.S
 
 
 SRCS_C = \
-				 kernel.c \
-			 	 uart.c \
-				 printf.c \
-				 debug.c \
-				 page.c \
-				 malloc.c \
-				 sctx.c \
-				 fifo.c \
-				 main.c \
-				 dma.c \
-				 taskrule.c
+				 $(SOURCE)kernel.c \
+			 	 $(SOURCE)uart.c \
+				 $(SOURCE)printf.c \
+				 $(SOURCE)debug.c \
+				 $(SOURCE)page.c \
+				 $(SOURCE)malloc.c \
+				 $(SOURCE)sctx.c \
+				 $(SOURCE)fifo.c \
+				 $(SOURCE)main.c \
+				 $(SOURCE)dma.c \
+				 $(SOURCE)taskrule.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \
