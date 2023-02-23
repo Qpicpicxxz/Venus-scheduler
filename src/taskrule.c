@@ -8,11 +8,6 @@
 	5. block_task ---> we should have a handler to catch unoccupied blocks and schedule them
 */
 
-// intermediate result storage address
-// suppose the scheduler know the starting address of the result data return from every block
-static fifo_t data1_mem;
-static fifo_t data2_mem;
-static fifo_t data3_mem;
 
 // task1: in[0]  --> out[0]
 void task1(actorio_t *g_in, actorio_t *g_out)

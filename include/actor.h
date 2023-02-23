@@ -1,3 +1,6 @@
+#ifndef __ACTOR_H__
+#define __ACTOR_H__
+
 #include "os.h"
 #include "saddr.h"
 #include "daddr.h"
@@ -52,3 +55,5 @@ extern uint32_t TASK2_START;
 extern uint32_t TASK2_END;
 extern uint32_t TASK3_START;
 extern uint32_t TASK3_END;
+
+#endif /* __ACTOR_H__ */

@@ -32,11 +32,12 @@ void block_task1(actorio_t *g) {
   // block will return the data result, hence scheduler should have to allocate
   // the address for the result Note: I have no idea how to get the data size
   printf("\nSCHEDULER: Allocating result...\n");
-  void *p = malloc(1);
+  // Note: the minimum allocate unit is 256, so malloc(1) and malloc(256) have the same effect
+  void *p = malloc(32);
   // *(int *)p point to the result data
   *(int *)p = result;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
+  put_fifo(g->out[0], (uint32_t)p);
 }
 
 void block_task2(actorio_t *g) {
@@ -46,10 +47,10 @@ void block_task2(actorio_t *g) {
   uint32_t *t2 = (uint32_t *)get_fifo(&dma_trans);
   int result = *t1 + *t2;
   printf("\nSCHEDULER: Allocating result...\n");
-  void *p = malloc(1);
+  void *p = malloc(32);
   *(int *)p = result;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
+  put_fifo(g->out[0], (uint32_t)p);
 }
 
 void block_task3(actorio_t *g) {
@@ -65,17 +66,17 @@ void block_task3(actorio_t *g) {
   void *p = malloc(32);
   *(int *)p = result_1;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
-  p = malloc(sizeof(int));
+  put_fifo(g->out[0], (uint32_t)p);
+  p = malloc(32);
   *(int *)p = result_2;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
+  put_fifo(g->out[0], (uint32_t)p);
   p = malloc(32);
   *(int *)p = result_3;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
+  put_fifo(g->out[0], (uint32_t)p);
   p = malloc(32);
   *(int *)p = result_4;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], p);
+  put_fifo(g->out[0], (uint32_t)p);
 }

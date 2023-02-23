@@ -43,6 +43,8 @@ struct context {
 	reg_t a5;
 	reg_t a6;
 	reg_t a7;
+	
+	// sx: callee-saved
 	reg_t s2;
 	reg_t s3;
 	reg_t s4;

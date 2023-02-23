@@ -7,19 +7,14 @@
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
 
-/*
- _alloc_start --- the actual start address of heap pool
- _alloc_end --- the actual end address of heap pool
- _num_pages --- the actual max number of pages we can allocate.
-*/
 static uint32_t _alloc_start = 0;
-static uint32_t _alloc_end = 0;
-static uint32_t _num_pages = 0;
 
-/* the minimum memory allocate unit
+/* 
+the minimum memory allocate unit, called Chunk
    so if we call malloc(), it would at least allocate 256bits
    if want to adjust, you should modify three macro below
    the minimum metadata index size is RAM_SIZE / PAGE_SIZE^2
+   matedata is the Chunk header
 */
 #define PAGE_SIZE 256  // 256 Byte
 #define PAGE_ORDER 8   // 256 = 2^8

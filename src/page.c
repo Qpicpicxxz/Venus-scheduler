@@ -3,6 +3,14 @@
 #include "page.h"
 
 /*
+ _alloc_start --- the actual start address of heap pool
+ _alloc_end --- the actual end address of heap pool
+ _num_pages --- the actual max number of pages we can allocate.
+*/
+static uint32_t _num_pages = 0;
+static uint32_t _alloc_end = 0;
+
+/*
          we reserved 8 Page (8 x 4096) to hold the Page structures
          it should be enough to manage at most 128 MB (8 x 4096 x 4096)
          page initialze to allocate page control infomation and store blocks
