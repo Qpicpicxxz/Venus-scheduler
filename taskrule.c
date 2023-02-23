@@ -27,14 +27,10 @@ void task1(actorio_t *g_in, actorio_t *g_out)
     dma_data(DATA1_ADDR, get_fifo(g_in->in[0]), DATA1_LEN);
     // the block would notify the scheduler that the task has finished
     block_task1(g_in);
-    // scheduler obtain the result ( it's data itself )
-    printf("in * in = out = %d\n", read_fifo(g_in->out[0]));
-    // !!!! do not just pass the result to the next one!!!!! allocate the memory address for these data!!!!
-    // put the data back to the memory ( we use data_addr fifo temporarily at present, to simulate memory allocation )
-    // 1. block return the data itself, we put it in a data fifo
-    put_fifo(&data2_mem, get_fifo(g_in->out[0]));
-    // 2. pass the data's address (fifo pointer) to the next actor's token
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data2_mem));
+    // scheduler obtain the result
+    printf("in * in = out = %d\n", *(uint32_t *)read_fifo(g_in->out[0]));
+    // pass the result data pointer to the successor
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
   }
 }
 
@@ -51,11 +47,9 @@ void task2(actorio_t *g_in, actorio_t *g_out)
     dma_data(DATA4_ADDR, get_fifo(g_in->in[0]), DATA4_LEN);
     // 3. start block computing
     block_task2(g_in);
-    printf("in1 + in2 = out = %d\n", read_fifo(g_in->out[0]));
-    // 4. restore the block returned value to the DDR
-    put_fifo(&data3_mem, get_fifo(g_in->out[0]));
-    // 5. pass the data pointer(token) to the next actor
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data3_mem));
+    printf("in1 + in2 = out = %d\n", *(uint32_t *)read_fifo(g_in->out[0]));
+    // 4. pass the result data pointer to the successor
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
   }
 }
 
@@ -69,17 +63,13 @@ void task3(actorio_t *g_in, actorio_t *g_out)
     dma_data(DATA3_ADDR, get_fifo(g_in->in[0]), DATA3_LEN);
     dma_data(DATA4_ADDR, get_fifo(g_in->in[0]), DATA4_LEN);
     block_task3(g_in);
-    put_fifo(&data1_mem, get_fifo(g_in->out[0]));
-    put_fifo(&data1_mem, get_fifo(g_in->out[0]));
-    put_fifo(&data1_mem, get_fifo(g_in->out[0]));
-    put_fifo(&data1_mem, get_fifo(g_in->out[0]));
-    printf("in1 + in2 = out = %d\n", read_fifo(&data1_mem));
-    printf("in1 - in2 = out = %d\n", read_else_fifo(&data1_mem,1));
-    printf("in1 * in2 = out = %d\n", read_else_fifo(&data1_mem,2));
-    printf("in1s / in2 = out = %d\n", read_else_fifo(&data1_mem,3));
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data1_mem));
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data1_mem));
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data1_mem));
-    put_fifo(g_out->in[0], (uint32_t)get_addr_fifo(&data1_mem));
+    printf("in1 + in2 = out = %d\n", *(uint32_t *)read_fifo(g_in->out[0]));
+    printf("in1 - in2 = out = %d\n", *(uint32_t *)read_else_fifo(g_in->out[0],1));
+    printf("in1 * in2 = out = %d\n", *(uint32_t *)read_else_fifo(g_in->out[0],2));
+    printf("in1 / in2 = out = %d\n", *(uint32_t *)read_else_fifo(g_in->out[0],3));
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
+    put_fifo(g_out->in[0], (uint32_t)get_fifo(g_in->out[0]));
   }
 }

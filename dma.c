@@ -4,8 +4,7 @@
 static fifo_t dma_trans;
 
 // dma should move the code to the designated place
-void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len)
-{
+void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len) {
   task_delay(5000);
   printf("\n");
   printf("DMA: Received i_spm_addr 0x%x\n", i_spm_addr);
@@ -14,8 +13,7 @@ void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len)
 }
 
 // dma should move the data to the designated place
-void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len)
-{
+void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
   task_delay(5000);
   printf("\n");
   // dma get the data address
@@ -25,32 +23,59 @@ void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len)
   printf("DMA: Received data_len 0x%x\n", data_len);
 }
 
-void block_task1(actorio_t *g)
-{
+void block_task1(actorio_t *g) {
   printf("\nBLOCK: Computing task1...\n");
   task_delay(10000);
+  // simulate the data transmit from DMA
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);
-  // block will return the data result, hence scheduler should have to allocate the address for the result
-  put_fifo(g->out[0], *t1 * *t1);
+  int result = *t1 * *t1;
+  // block will return the data result, hence scheduler should have to allocate
+  // the address for the result Note: I have no idea how to get the data size
+  printf("\nSCHEDULER: Allocating result...\n");
+  void *p = malloc(1);
+  // *(int *)p point to the result data
+  *(int *)p = result;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
 }
 
-void block_task2(actorio_t *g)
-{
+void block_task2(actorio_t *g) {
   printf("\nBLOCK: Computing task2...\n");
   task_delay(10000);
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);
   uint32_t *t2 = (uint32_t *)get_fifo(&dma_trans);
-  put_fifo(g->out[0], *t1 + *t2);
+  int result = *t1 + *t2;
+  printf("\nSCHEDULER: Allocating result...\n");
+  void *p = malloc(1);
+  *(int *)p = result;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
 }
 
-void block_task3(actorio_t *g)
-{
+void block_task3(actorio_t *g) {
   printf("\nBLOCK: Computing task3...\n");
   task_delay(10000);
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);
   uint32_t *t2 = (uint32_t *)get_fifo(&dma_trans);
-  put_fifo(g->out[0], *t1 + *t2);
-  put_fifo(g->out[0], *t1 - *t2);
-  put_fifo(g->out[0], *t1 * *t2);
-  put_fifo(g->out[0], *t1 / *t2);
- }
+  int result_1 = *t1 + *t2;
+  int result_2 = *t1 - *t2;
+  int result_3 = *t1 * *t2;
+  int result_4 = *t1 / *t2;
+  printf("\nSCHEDULER: Allocating result...\n");
+  void *p = malloc(1);
+  *(int *)p = result_1;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
+  p = malloc(1);
+  *(int *)p = result_2;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
+  p = malloc(1);
+  *(int *)p = result_3;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
+  p = malloc(1);
+  *(int *)p = result_4;
+  printf("The result data is stored in 0x%x\n", p);
+  put_fifo(g->out[0], p);
+}
