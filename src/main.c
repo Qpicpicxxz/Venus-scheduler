@@ -4,8 +4,10 @@ uint32_t data1 = 4;
 uint32_t data2 = 3;
 uint32_t data3 = 2;
 uint32_t data4 = 1;
+extern void trap_test(void);
 void actor_task(void) {
   uart_puts("\nVENUS: Started...\n");
+  trap_test();
   // use static variables to avoid stack overflow
   // static keyword means that it can only be called from other functions in the same source file
   static fifo_t q1, q2, q3, q4, q5, q6;

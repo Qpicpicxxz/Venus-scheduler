@@ -117,7 +117,40 @@ switch_to:
 
 	# Do actual context switching.
 	ret
-
+	
+.globl trap_vector
+.align 4
+trap_vector:
+	# save current control flow's context 
+	csrrw t6, mscratch, t6
+	reg_save t6
+	
+	# save actual t6
+	mv t5, t6
+	csrr t6, mscratch
+	sw t6, 120(t5)
+	
+	# restore the context pointer back to mscratch
+	csrw mscratch, t5
+	
+	# call C trap handler in trap.c
+	csrr a0, mepc
+	csrr a1, mcause
+	call trap_handler
+	
+	# trap_handler return parameter is a0 (may be changed)
+	csrw mepc, a0
+	
+	# restore context
+	csrr t6, mscratch
+	reg_restore t6
+	
+	# return to wherever we are doing before trap
+	# hart would restore previous authority level
+	# pc = mepc
+	# different privilege has different return instruction
+	mret
+	
 .end
 
 

@@ -3,17 +3,17 @@
 #include "page.h"
 
 /*
- _alloc_start --- the actual start address of heap pool
- _alloc_end --- the actual end address of heap pool
- _num_pages --- the actual max number of pages we can allocate.
+  _alloc_start --- the actual start address of heap pool
+  _alloc_end --- the actual end address of heap pool
+  _num_pages --- the actual max number of pages we can allocate.
 */
 static uint32_t _num_pages = 0;
 static uint32_t _alloc_end = 0;
 
 /*
-         we reserved 8 Page (8 x 4096) to hold the Page structures
-         it should be enough to manage at most 128 MB (8 x 4096 x 4096)
-         page initialze to allocate page control infomation and store blocks
+  we reserved 8 Page (8 x 4096) to hold the Page structures
+  it should be enough to manage at most 128 MB (8 x 4096 x 4096)
+  page initialze to allocate page control infomation and store blocks
 */
 void page_init() {
   // the first META_SIZE pages can be used for metadata
@@ -29,9 +29,7 @@ void page_init() {
   _alloc_start = _align_page(HEAP_START + META_SIZE * PAGE_SIZE);
   _alloc_end = _alloc_start + (PAGE_SIZE * _num_pages);
   uint32_t HEAP = _alloc_end - _alloc_start;
-  printf(
-      "\nHeap section:  start = 0x%x    SIZE:   0x%x\nTotal num of pages: %d\n",
-      HEAP_START, HEAP_SIZE, _num_pages);
+  printf("\nHeap section:  start = 0x%x    SIZE:   0x%x\nMalloc Unit:   %d bit\nTotal num of pages: %d\n",HEAP_START, HEAP_SIZE, PAGE_SIZE, _num_pages);
   printf("\nALLOC:   0x%x -> 0x%x", _alloc_start, _alloc_end);
   printf("    SIZE:   0x%x\n", HEAP);
 }

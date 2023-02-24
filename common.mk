@@ -24,6 +24,7 @@ SRCS_C = \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)page.c \
 				 $(SOURCE)sctx.c \
+				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \

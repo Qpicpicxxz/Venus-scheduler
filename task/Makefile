@@ -9,7 +9,7 @@ BINARY = $(patsubst %.c,%.bin,$(SRCS_TASKS))
 .PHONY: word
 word:
 	@echo ""
-	@echo "============ COMPILING ============"
+	@echo "============ COMPILING ============="
 	@echo ""
 
 elf: ${ELF}
