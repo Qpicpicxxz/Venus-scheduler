@@ -10,11 +10,14 @@ extern uint32_t HEAP_SIZE;
 static uint32_t _alloc_start = 0;
 
 /* 
-the minimum memory allocate unit, called Chunk
+   The minimum memory allocate unit, called Chunk
    so if we call malloc(), it would at least allocate 256bits
-   if want to adjust, you should modify three macro below
+   If want to adjust, you should modify three macro below
    the minimum metadata index size is RAM_SIZE / PAGE_SIZE^2
-   matedata is the Chunk header
+   Matedata is the Chunk header
+   Note: The finer grained memory control would cause 
+         larger matadata occupation, we need to make a tradeoff
+         based on the actual situation.
 */
 #define PAGE_SIZE 256  // 256 Byte
 #define PAGE_ORDER 8   // 256 = 2^8

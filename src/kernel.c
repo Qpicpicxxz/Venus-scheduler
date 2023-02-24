@@ -9,6 +9,7 @@ extern void page_init(void);
 extern void sched_init(void);
 extern void mem_init(void);
 extern void trap_init(void);
+extern void plic_init(void);
 extern void schedule(void);
 extern void os_main(void);
 
@@ -19,6 +20,8 @@ void start_kernel(void) {
   mem_init();
   // put trap handler entry address to mtvec
   trap_init();
+  // initialize plic interrupt component
+  plic_init();
   // initialize page allocation and print out heap range
   page_init();
   sched_init();

@@ -11,6 +11,7 @@
 #include "os.h"
 
 extern void trap_vector(void);
+extern void uart_isr(void);
 
 /*
     set the trap-vector base-address for machine-mode
@@ -33,6 +34,21 @@ void trap_init() {
   w_mtvec((reg_t)trap_vector);
 }
 
+void external_interrupt_handler() {
+
+  int irq = plic_claim();
+
+  if (irq == UART0_IRQ) {
+    uart_isr();
+  } else if (irq) {
+    printf("unexpected interrupt irq = %d\n", irq);
+  }
+
+  if (irq) {
+    plic_complete(irq);
+  }
+}
+
 /*
   In switch.S:
       a0 --> mepc  a1 --> mcause
@@ -52,11 +68,22 @@ void trap_init() {
 */
 reg_t trap_handler(reg_t epc, reg_t cause) {
   reg_t return_pc = epc;
-  reg_t cause_code = cause & 0xfff;   // catch the highest order
+  reg_t cause_code = cause & 0xfff; // catch the highest order
 
   // if highest order = 1, then it's an interrupt
   if (cause & 0x80000000) {
     /* Asynchronous trap - interrupt */
+    /*
+      1. local interrupt
+        - software interrupt (0-3)
+        - timer interrupt    (4-7)
+      2. global interrupt
+        - externel interrupt (8-11)
+      <mie>: Machine Interrupt Enable  (write)
+      <mip>: Machine Interrupt Pending (read)
+        -0: close
+        -1: open
+    */
     switch (cause_code) {
     case 3:
       uart_puts("software interruption!\n");
@@ -66,6 +93,7 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
       break;
     case 11:
       uart_puts("external interruption!\n");
+      external_interrupt_handler();
       break;
     default:
       uart_puts("unknown async exception!\n");
@@ -75,28 +103,29 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
   } else {
     /* Synchronous trap - exception */
     printf("Exception code = %d\n", cause_code);
-    /* 
+    /*
       panic is a dead loop
       because exception will back to where it trigger
       so without any other operation, it would trigge it again
       to avoid this happen
       we process a dead loop to prevent it return back
     */
-    //panic("OOPS! What can I do!");
-    // we can change return address by ourself
-     return_pc += 4;
+    // panic("OOPS! What can I do!");
+    //  we can change return address by ourself
+    return_pc += 4;
   }
 
   return return_pc;
 }
 
 void trap_test() {
-  /*
-    raise a memory access failure exception 
-    synchronous exception code = 7
-     store/AMO access fault
-  */
   uart_puts("\nSCHEDULER: Testing trap function...\n");
+  /*
+    raise a memory access failure exception
+    synchronous exception code = 7
+    store/AMO access fault
+    then hart would complete top-trap handler
+  */
   *(int *)0x00000000 = 100;
 
   /*
