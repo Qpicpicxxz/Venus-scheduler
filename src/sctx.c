@@ -70,7 +70,7 @@ void task_yield()
  */
 void task_delay(volatile int count)
 {
-	count *= 10000;
+	count *= 100000;
 	while (count--);
 }
 

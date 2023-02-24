@@ -25,7 +25,6 @@ SRCS_C = \
 				 $(SOURCE)page.c \
 				 $(SOURCE)sctx.c \
 				 $(SOURCE)trap.c \
-				 $(SOURCE)plic.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \

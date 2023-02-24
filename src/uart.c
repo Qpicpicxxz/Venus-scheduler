@@ -9,14 +9,14 @@
 /*
  * Reference
  * [1]: TECHNICAL DATA ON 16550, http://byterunner.com/16550.html
- */
+*/
 
 /*
  * UART control registers map. see [1] "PROGRAMMING TABLE"
  * note some are reused by multiple functions
  * 0 (write mode): THR/DLL
  * 1 (write mode): IER/DLM
- */
+*/
 #define RHR 0	// Receive Holding Register (read mode)
 #define THR 0	// Transmit Holding Register (write mode)
 #define DLL 0	// LSB of Divisor Latch (write mode)
@@ -68,44 +68,18 @@
 
 void uart_init()
 {
-	/* disable interrupts. */
+	// disable interrupts
 	uart_write_reg(IER, 0x00);
-
-	/*
-	 * Setting baud rate. Just a demo here if we care about the divisor,
-	 * but for our purpose [QEMU-virt], this doesn't really do anything.
-	 *
-	 * Notice that the divisor register DLL (divisor latch least) and DLM (divisor
-	 * latch most) have the same base address as the receiver/transmitter and the
-	 * interrupt enable register. To change what the base address points to, we
-	 * open the "divisor latch" by writing 1 into the Divisor Latch Access Bit
-	 * (DLAB), which is bit index 7 of the Line Control Register (LCR).
-	 *
-	 * Regarding the baud rate value, see [1] "BAUD RATE GENERATOR PROGRAMMING TABLE".
-	 * We use 38.4K when 1.8432 MHZ crystal, so the corresponding value is 3.
-	 * And due to the divisor register is two bytes (16 bits), so we need to
-	 * split the value of 3(0x0003) into two bytes, DLL stores the low byte,
-	 * DLM stores the high byte.
-	 */
 	uint8_t lcr = uart_read_reg(LCR);
 	uart_write_reg(LCR, lcr | (1 << 7));
 	uart_write_reg(DLL, 0x03);
 	uart_write_reg(DLM, 0x00);
 
-	/*
-	 * Continue setting the asynchronous data communication format.
-	 * - number of the word length: 8 bits
-	 * - number of stop bits：1 bit when word length is 8 bits
-	 * - no parity
-	 * - no break control
-	 * - disabled baud latch
-	 */
+	
 	lcr = 0;
 	uart_write_reg(LCR, lcr | (3 << 0));
 
-	/*
-	 * enable receive interrupts.
-	 */
+	// enalbe receive interrupts
 	uint8_t ier = uart_read_reg(IER);
 	uart_write_reg(IER, ier | (1 << 0));
 }
@@ -123,6 +97,7 @@ void uart_puts(char *s)
 	}
 }
 
+// we have to remove this inturrpt, otherwise it will triggle forever
 int uart_getc(void)
 {
 	if (uart_read_reg(LSR) & LSR_RX_READY){

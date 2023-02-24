@@ -11,7 +11,8 @@
 #include "os.h"
 
 extern void trap_vector(void);
-extern void uart_isr(void);
+// extern void uart_isr(void);
+extern int uart_getc(void);
 
 /*
     set the trap-vector base-address for machine-mode
@@ -32,12 +33,27 @@ void trap_init() {
     identify trap status jump to this processor
   */
   w_mtvec((reg_t)trap_vector);
+  
+  int hart = r_tp();
+  *(uint32_t *)PLIC_PRIORITY(UART0_IRQ) = 1;
+  // enalbe UART0
+  *(uint32_t *)PLIC_MENABLE(hart) = (1 << UART0_IRQ);
+  // set priority threshold for UART0
+  // if we change it to 10, then the system would not handle UART IRQ
+  *(uint32_t *)PLIC_MTHRESHOLD(hart) = 0;
+  
+  /* Enable machine-mode external interrupts. */
+  // first read <mie>, then OR certain bit, and write back
+  w_mie(r_mie() | MIE_MEIE);
+
+  /* enable machine-mode global interrupts. */
+  w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
 void external_interrupt_handler() {
 
-  int irq = plic_claim();
-
+  /*int irq = plic_claim();
+  // It's an external interrupt, call the corresponding UART operation
   if (irq == UART0_IRQ) {
     uart_isr();
   } else if (irq) {
@@ -46,8 +62,11 @@ void external_interrupt_handler() {
 
   if (irq) {
     plic_complete(irq);
-  }
+  }*/
+  //printf("trigger interrupt!");
+  uart_getc();
 }
+
 
 /*
   In switch.S:
@@ -84,19 +103,21 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
         -0: close
         -1: open
     */
+    // cause_code defined in Table 3.6: mcause values after trap
     switch (cause_code) {
     case 3:
-      uart_puts("software interruption!\n");
+      uart_puts("SCHEDULER: Software interruption...\n");
       break;
     case 7:
-      uart_puts("timer interruption!\n");
+      uart_puts("SCHEDULER: Timer interruption...\n");
       break;
     case 11:
-      uart_puts("external interruption!\n");
+      uart_puts("SCHEDULER: External interruption...\n");
+      // in this handler we will read irq number
       external_interrupt_handler();
       break;
     default:
-      uart_puts("unknown async exception!\n");
+      uart_puts("SCHEDULER: Unknown async exception...\n");
       break;
     }
     // else highest order = 0, then it's an exception
