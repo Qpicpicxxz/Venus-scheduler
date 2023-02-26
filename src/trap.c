@@ -9,10 +9,14 @@
   4. back to normal
 */
 #include "os.h"
+#include "block.h"
 
 extern void trap_vector(void);
-// extern void uart_isr(void);
 extern int uart_getc(void);
+extern void block_recycle(block_f **block);
+static block_f *block1;
+// block_recycle(*block1);
+
 
 /*
     set the trap-vector base-address for machine-mode
@@ -33,7 +37,7 @@ void trap_init() {
     identify trap status jump to this processor
   */
   w_mtvec((reg_t)trap_vector);
-  
+
   int hart = r_tp();
   *(uint32_t *)PLIC_PRIORITY(UART0_IRQ) = 1;
   // enalbe UART0
@@ -41,7 +45,7 @@ void trap_init() {
   // set priority threshold for UART0
   // if we change it to 10, then the system would not handle UART IRQ
   *(uint32_t *)PLIC_MTHRESHOLD(hart) = 0;
-  
+
   /* Enable machine-mode external interrupts. */
   // first read <mie>, then OR certain bit, and write back
   w_mie(r_mie() | MIE_MEIE);
@@ -50,23 +54,65 @@ void trap_init() {
   w_mstatus(r_mstatus() | MSTATUS_MIE);
 }
 
+int catch_keyboard() { return uart_getc(); }
 void external_interrupt_handler() {
-
-  /*int irq = plic_claim();
-  // It's an external interrupt, call the corresponding UART operation
-  if (irq == UART0_IRQ) {
-    uart_isr();
-  } else if (irq) {
-    printf("unexpected interrupt irq = %d\n", irq);
+  // printf("trigger interrupt!");
+  /*
+    I use kayboard interrupt to simulate block interrupt,
+    so when I press a key, it would rise a interrupt,
+    and uart_getc() function acts as to clear this interrupt
+  */
+  int c = catch_keyboard();
+  /*
+    I use different key to represent different block's signal
+    suppose there are 8 VENUS blocks
+    ------------------------------------------
+      1 |  2 |  3 |  4 |  5 |  6 |  7 |  8 |
+    ------------------------------------------
+     49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 |
+    ------------------------------------------
+  */
+  // printf("key: %d number: ", c);
+  // uart_putc((char)c);
+  // uart_putc('\n');
+  switch ((int)c) {
+  case 49:
+    printf("\nBLOCK 1: Idle...\n");
+    block_recycle(&block1);
+    break;
+  case 50:
+    printf("BLOCK 2: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 51:
+    printf("BLOCK 3: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 52:
+    printf("BLOCK 4: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 53:
+    printf("BLOCK 5: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 54:
+    printf("BLOCK 6: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 55:
+    printf("BLOCK 7: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  case 56:
+    printf("BLOCK 8: Job done...\n");
+    //put_fifo(&blocks, 1);
+    break;
+  default:
+    printf("UNKNOWN EXTERNAL INTERRUPTION!");
+    break; 
   }
-
-  if (irq) {
-    plic_complete(irq);
-  }*/
-  //printf("trigger interrupt!");
-  uart_getc();
 }
-
 
 /*
   In switch.S:
@@ -105,19 +151,18 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
     */
     // cause_code defined in Table 3.6: mcause values after trap
     switch (cause_code) {
+    /* Software interruption */
     case 3:
-      uart_puts("SCHEDULER: Software interruption...\n");
       break;
+    /* Timer interruption */
     case 7:
-      uart_puts("SCHEDULER: Timer interruption...\n");
       break;
+    /* External interruption */
     case 11:
-      uart_puts("SCHEDULER: External interruption...\n");
-      // in this handler we will read irq number
       external_interrupt_handler();
       break;
+    /* Add interruption type here */
     default:
-      uart_puts("SCHEDULER: Unknown async exception...\n");
       break;
     }
     // else highest order = 0, then it's an exception

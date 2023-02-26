@@ -2,6 +2,7 @@
 #define __ACTOR_H__
 
 #include "os.h"
+#include "block.h"
 #include "saddr.h"
 #include "daddr.h"
 
@@ -39,9 +40,9 @@ extern uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist);	// read the inside
 extern void dma_code(uint32_t i_spm_addr,uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
 // simulate the block's behaviour
-extern void block_task1(actorio_t *g);
-extern void block_task2(actorio_t *g);
-extern void block_task3(actorio_t *g);
+extern void task1_exe(actorio_t *g, uint32_t n_block);
+extern void task2_exe(actorio_t *g);
+extern void task3_exe(actorio_t *g);
 
 // task rule
 extern void task1(actorio_t *g_in, actorio_t *g_out);

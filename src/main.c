@@ -11,7 +11,7 @@ void actor_task(void) {
   // use static variables to avoid stack overflow
   // static keyword means that it can only be called from other functions in the same source file
   static fifo_t q1, q2, q3, q4, q5, q6;
-  // create an actor task_io
+  // generate an actor task_io
   // q1: task1_io.in[0]  q5: task1_io.in[1] q2: task1_io.out[0] else: NULL
   static actorio_t task1_io = {{&q1}, {&q2}};
   static actorio_t task2_io = {{&q3}, {&q4}};

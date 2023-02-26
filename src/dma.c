@@ -23,9 +23,11 @@ void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
   printf("DMA: Received data_len 0x%x\n", data_len);
 }
 
-void block_task1(actorio_t *g) {
+void task1_exe(actorio_t *g, uint32_t n_block) {
   printf("\nBLOCK: Computing task1...\n");
-  task_delay(10000);
+  int job_done = _is_block_idle(&n_block);
+  printf("is_idle: %d\n",job_done);
+  // task_delay(10000);
   // simulate the data transmit from DMA
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);
   int result = *t1 * *t1;
@@ -37,10 +39,11 @@ void block_task1(actorio_t *g) {
   // *(int *)p point to the result data
   *(int *)p = result;
   printf("The result data is stored in 0x%x\n", p);
-  put_fifo(g->out[0], (uint32_t)p);
+  if(job_done){
+  put_fifo(g->out[0], (uint32_t)p);}
 }
 
-void block_task2(actorio_t *g) {
+void task2_exe(actorio_t *g) {
   printf("\nBLOCK: Computing task2...\n");
   task_delay(10000);
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);
@@ -53,7 +56,7 @@ void block_task2(actorio_t *g) {
   put_fifo(g->out[0], (uint32_t)p);
 }
 
-void block_task3(actorio_t *g) {
+void task3_exe(actorio_t *g) {
   printf("\nBLOCK: Computing task3...\n");
   task_delay(10000);
   uint32_t *t1 = (uint32_t *)get_fifo(&dma_trans);

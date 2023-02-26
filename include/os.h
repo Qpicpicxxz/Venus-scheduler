@@ -9,6 +9,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+
 /* uart */
 extern int uart_putc(char ch);
 extern void uart_puts(char *s);
