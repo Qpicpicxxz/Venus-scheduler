@@ -4,7 +4,6 @@
 #include "types.h"
 #include "platform.h"
 #include "riscv.h"
-#include "page.h"
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -61,7 +60,8 @@ struct context {
 	reg_t t6;
 };
 
-extern int  task_create(void (*task)(void));
+extern int task_create(void (*task)(void));
+extern void block_task_create(void (*task)(reg_t a, reg_t b), reg_t a, reg_t b);
 extern void task_delay(volatile int count);
 extern void task_yield();
 

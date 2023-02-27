@@ -13,10 +13,16 @@
 
 extern void trap_vector(void);
 extern int uart_getc(void);
-extern void block_recycle(block_f **block);
-static block_f *block1;
+extern void block_recycle(block_f *block);
+static block_f block1;
+static block_f block2;
+static block_f block3;
+static block_f block4;
+static block_f block5;
+static block_f block6;
+static block_f block7;
+static block_f block8;
 // block_recycle(*block1);
-
 
 /*
     set the trap-vector base-address for machine-mode
@@ -56,7 +62,6 @@ void trap_init() {
 
 int catch_keyboard() { return uart_getc(); }
 void external_interrupt_handler() {
-  // printf("trigger interrupt!");
   /*
     I use kayboard interrupt to simulate block interrupt,
     so when I press a key, it would rise a interrupt,
@@ -72,45 +77,42 @@ void external_interrupt_handler() {
      49 | 50 | 51 | 52 | 53 | 54 | 55 | 56 |
     ------------------------------------------
   */
-  // printf("key: %d number: ", c);
-  // uart_putc((char)c);
-  // uart_putc('\n');
   switch ((int)c) {
   case 49:
-    printf("\nBLOCK 1: Idle...\n");
+    printf("\nBLOCK 1: Interrupt...\n");
     block_recycle(&block1);
     break;
   case 50:
-    printf("BLOCK 2: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 2: Interrupt...\n");
+    block_recycle(&block2);
     break;
   case 51:
-    printf("BLOCK 3: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 3: Interrupt...\n");
+    block_recycle(&block3);
     break;
   case 52:
-    printf("BLOCK 4: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 4: Interrupt...\n");
+    block_recycle(&block4);
     break;
   case 53:
-    printf("BLOCK 5: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 5: Interrupt...\n");
+    block_recycle(&block5);
     break;
   case 54:
-    printf("BLOCK 6: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 6: Interrupt...\n");
+    block_recycle(&block6);
     break;
   case 55:
-    printf("BLOCK 7: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 7: Interrupt...\n");
+    block_recycle(&block7);
     break;
   case 56:
-    printf("BLOCK 8: Job done...\n");
-    //put_fifo(&blocks, 1);
+    printf("\nBLOCK 8: Interrupt...\n");
+    block_recycle(&block8);
     break;
   default:
-    printf("UNKNOWN EXTERNAL INTERRUPTION!");
-    break; 
+    printf("UNKNOWN external interruption!");
+    break;
   }
 }
 
@@ -169,6 +171,9 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
   } else {
     /* Synchronous trap - exception */
     printf("Exception code = %d\n", cause_code);
+    // TODO: implement all the exception warning
+    while (1) {
+    };
     /*
       panic is a dead loop
       because exception will back to where it trigger

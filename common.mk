@@ -28,7 +28,8 @@ SRCS_C = \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \
-				 $(SOURCE)taskrule.c
+				 $(SOURCE)taskrule.c \
+				 $(SOURCE)block.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \

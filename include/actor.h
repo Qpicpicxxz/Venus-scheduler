@@ -6,7 +6,7 @@
 #include "saddr.h"
 #include "daddr.h"
 
-#define MAXFIFO 16
+#define MAXFIFO 8
 #define MAXIO 4
 #define DELAY 500
 
@@ -25,6 +25,9 @@ typedef struct actorio
   fifo_t *out[MAXIO];
 } actorio_t;
 
+// get block-task recycle function's pointer
+typedef void (*Taskfunc)(actorio_t *g_in, actorio_t *g_out, uint32_t n_block);
+
 // fifo
 extern void init_fifo(fifo_t *F);
 extern void put_fifo(fifo_t *F, uint32_t d);
@@ -36,13 +39,21 @@ extern uint32_t *get_addr_fifo(fifo_t *F);	// < get_addr_fifo > represents the d
 extern uint32_t *read_addr_fifo(fifo_t *F);	// <*read_addr_fifo> represents the data itself and <read_addr_fifo> represents the pointer's address
 extern uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist);	// read the inside data address
 
-// dma && block
+// dma
 extern void dma_code(uint32_t i_spm_addr,uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
-// simulate the block's behaviour
-extern void task1_exe(actorio_t *g, uint32_t n_block);
-extern void task2_exe(actorio_t *g);
-extern void task3_exe(actorio_t *g);
+
+// for test, simulate block process and pass the data to the task
+extern fifo_t dma_trans;
+
+// entry for main Round-Robin dependency checking
+extern void actor_exe(void);
+
+// bind the task with block's flag
+extern void task1_bind(actorio_t *g, actorio_t *g_out, uint32_t n_block);
+extern void task2_bind(actorio_t *g, actorio_t *g_out, uint32_t n_block);
+//extern void task3_exe(actorio_t *g);
+extern void task3_bind(actorio_t *g, actorio_t *g_out, uint32_t n_block);
 
 // task rule
 extern void task1(actorio_t *g_in, actorio_t *g_out);

@@ -76,6 +76,11 @@ bin: all
 	@hexdump os.bin > bin.txt
 	@open bin.txt 
 
+.PHONY : tree
+tree:
+	tree > tree.txt
+	@open tree.txt
+
 .PHONY : clean
 clean:
 	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c

@@ -7,8 +7,10 @@ b _start
 b start_kernel
 b os_main
 b task_create
-b user_task0
-b trap_test
+b actor_init
+b schedule
+b task_yield
+b switch_to
 target remote : 1234
 c
 

@@ -25,12 +25,13 @@ void sched_init()
  */
 void schedule()
 {
+	printf("enterning schedule...\n");
 	if (_top <= 0) {
 		panic("Num of task should be greater than zero!");
 		return;
 	}
-
 	_current = (_current + 1) % _top;
+	printf("total number of tasks: %d\n", _top);
 	struct context *next = &(ctx_tasks[_current]);
 	switch_to(next);
 }
@@ -43,7 +44,7 @@ void schedule()
  * 	0: success
  * 	-1: if error occured
  */
-int task_create(void (*start_routin)(void))
+ int task_create(void (*start_routin)(void))
 {
 	if (_top < MAX_TASKS) {
 		ctx_tasks[_top].sp = (reg_t) &task_stack[_top][STACK_SIZE - 1];
@@ -55,6 +56,17 @@ int task_create(void (*start_routin)(void))
 	}
 }
 
+void block_task_create(void (*start_routin)(reg_t task, reg_t block), reg_t task, reg_t block)
+{
+		printf("entering task_create...\n");
+		ctx_tasks[_top].sp = (reg_t) &task_stack[_top][STACK_SIZE - 1];
+		ctx_tasks[_top].ra = (reg_t) start_routin;
+		ctx_tasks[_top].a0 = task;
+		ctx_tasks[_top].a1 = block;
+		_top++;
+		printf("A new task created, ");
+}
+
 /*
  * DESCRIPTION
  * 	task_yield()  causes the calling task to relinquish the CPU and a new 
@@ -62,6 +74,7 @@ int task_create(void (*start_routin)(void))
  */
 void task_yield()
 {
+	printf("enterning task_yield...\n");
 	schedule();
 }
 
@@ -70,7 +83,7 @@ void task_yield()
  */
 void task_delay(volatile int count)
 {
-	count *= 100000;
+	count *= 10000;
 	while (count--);
 }
 
