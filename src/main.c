@@ -4,8 +4,8 @@ uint32_t data1 = 4;
 uint32_t data2 = 3;
 uint32_t data3 = 2;
 uint32_t data4 = 1;
-extern void trap_test(void);
-extern void page_test(void);
+// extern void trap_test(void);
+// extern void page_test(void);
 static actorio_t task1_io;
 static actorio_t task2_io;
 static actorio_t task3_io;
@@ -18,9 +18,6 @@ void actor_exe(void) {
   };
 }
 void actor_init(void) {
-  // page_test();
-  uart_puts("\nVENUS: Started...\n");
-  // trap_test();
   //  use static variables to avoid stack overflow
   //  static keyword means that it can only be called from other functions in
   //  the same source file
@@ -34,14 +31,16 @@ void actor_init(void) {
   put_fifo(&q1, (uint32_t)&data3);
   put_fifo(&q1, (uint32_t)&data4);
   printf("\nVENUS: Input initial stimulators...\n");
-  printf("data1 = %d addr = 0x%x\n", data1, &data1);
-  printf("data2 = %d addr = 0x%x\n", data2, &data2);
-  printf("data3 = %d addr = 0x%x\n", data3, &data3);
-  printf("data4 = %d addr = 0x%x\n", data4, &data4);
-  printf("task1 actor addr = 0x%x\n", &task1_io);
-  // printf("in main %d\n", fifo_size(task1_io.in[0]));
-  printf("task2 actor addr = 0x%x\n", &task2_io);
-  printf("task3 actor addr = 0x%x\n", &task3_io);
+  // every initial stimulates has its own address
+  printf("Data1 = %d --- Addr = 0x%x\n", data1, &data1);
+  printf("Data2 = %d --- Addr = 0x%x\n", data2, &data2);
+  printf("Data3 = %d --- Addr = 0x%x\n", data3, &data3);
+  printf("Data4 = %d --- Addr = 0x%x\n", data4, &data4);
+  // every task actor(describe its dependencies) has its own address
+  printf("Task1 actor - Addr = 0x%x\n", &task1_io);
+  printf("Task2 actor - Addr = 0x%x\n", &task2_io);
+  printf("Task3 actor - Addr = 0x%x\n", &task3_io);
+  // main RR denpendency checking loop
   actor_exe();
 }
 

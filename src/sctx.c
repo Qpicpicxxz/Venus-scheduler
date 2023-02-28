@@ -25,13 +25,11 @@ void sched_init()
  */
 void schedule()
 {
-	printf("enterning schedule...\n");
 	if (_top <= 0) {
 		panic("Num of task should be greater than zero!");
 		return;
 	}
 	_current = (_current + 1) % _top;
-	printf("total number of tasks: %d\n", _top);
 	struct context *next = &(ctx_tasks[_current]);
 	switch_to(next);
 }

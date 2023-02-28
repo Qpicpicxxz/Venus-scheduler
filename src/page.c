@@ -2,20 +2,6 @@
 
 #include "os.h"
 
-/*
-  _alloc_start --- the actual start address of heap pool
-  _alloc_end --- the actual end address of heap pool
-  _num_pages --- the actual max number of pages we can allocate.
-*/
-static uint32_t _num_pages = 0;
-uint32_t _alloc_start = 0;
-uint32_t _alloc_end = 0;
-
-
-extern uint32_t HEAP_START;
-extern uint32_t HEAP_SIZE;
-
-
 /* 
    The minimum memory allocate unit, called Chunk
    so if we call malloc(), it would at least allocate 256bits
@@ -42,6 +28,19 @@ extern uint32_t HEAP_SIZE;
 #define pageNum(x) ((x - 1) / (PAGE_SIZE)) + 1
 
 /*
+  _alloc_start --- the actual start address of heap pool
+  _alloc_end --- the actual end address of heap pool
+  _num_pages --- the actual max number of pages we can allocate.
+*/
+static uint32_t _num_pages = 0;
+uint32_t _alloc_start = 0;
+uint32_t _alloc_end = 0;
+
+
+extern uint32_t HEAP_START;
+extern uint32_t HEAP_SIZE;
+
+/*
   Page descriptor flags:
   1. flags = 0 --- this page is allocated
   2. flags = 1 --- this page is the last page of the memory block allocated
@@ -49,25 +48,6 @@ extern uint32_t HEAP_SIZE;
 struct Page {
   uint8_t flags;
 };
-
-// get page index pointer
-static inline struct Page *_get_page(void *p) {
-  struct Page *page = (struct Page *)HEAP_START;
-  page += ((uint32_t)p - _alloc_start) / PAGE_SIZE;
-  return page;
-}
-
-// get alloc page pointer
-static inline void *_get_addr(struct Page *page) {
-  /*
-    1. page - (sturct *Page)HEAP_START 
-       calculates the offset of the given page from the beginning of the heap
-    2. each page is 32 `page` structures long
-    3. (num * PAGE_SIZE) to get the starting address of the page within the heap
-  */
-  uint32_t num = (uint32_t)(page - (struct Page *)HEAP_START) / 32;
-  return (void *)((uint32_t)_alloc_start + num * PAGE_SIZE);
-}
 
 static inline int _is_free(struct Page *page) {
   if (page->flags & PAGE_TAKEN) {
@@ -105,6 +85,7 @@ static inline uint32_t _align_page(uint32_t address) {
   // make the input address rounded up to the nearest multiple of the page size
   return (address + order) & (~order);
 }
+
 static inline void _clear(struct Page *page) { page->flags = 0; }
 
 /*
@@ -227,24 +208,5 @@ void page_test() {
   free(p2);
   free(p3);
   free(p4);
-  void *p5 = malloc(32);
-  printf("0x%x\n", p5);
-  void *p6 = malloc(32);
-  printf("0x%x\n", p6);
-  void *p7 = malloc(32);
-  printf("0x%x\n", p7);
-  void *p8 = malloc(32);
-  printf("0x%x\n", p8);
-  void *p9 = malloc(32);
-  printf("0x%x\n", p9);
-  void *p0 = malloc(32);
-  printf("0x%x\n", p0);
-  void *p11 = malloc(32);
-  printf("0x%x\n", p11);
-  void *p22 = malloc(32);
-  printf("0x%x\n", p22);
-  void *p33 = malloc(32);
-  printf("0x%x\n", p33);
-  while(1){};
 }
 
