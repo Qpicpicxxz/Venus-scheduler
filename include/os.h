@@ -17,8 +17,9 @@ extern void uart_puts(char *s);
 extern int  printf(const char* s, ...);
 extern void panic(char *s);
 
-/* memory management */
-// returns a void pointer to the allocated space, or NULL if there is insufficient memory available
+/* memory management
+ * returns a void pointer to the allocated space, or NULL if there is insufficient memory available
+ */
 extern void *malloc(int bit);	// input the bit size
 extern void free(void *ptr);
 

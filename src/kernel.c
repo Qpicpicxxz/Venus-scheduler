@@ -10,6 +10,7 @@ extern void sched_init(void);
 extern void mem_init(void);
 extern void trap_init(void);
 extern void schedule(void);
+extern void init_block_spm(void);
 extern void os_main(void);
 
 void start_kernel(void) {
@@ -22,6 +23,7 @@ void start_kernel(void) {
   // initialize page allocation and print out heap range
   page_init();
   sched_init();
+  init_block_spm();
   os_main();
   schedule();
   // stop here!

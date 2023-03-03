@@ -1,22 +1,8 @@
-#include "actor.h"
+#include "task.h"
 
 void init_fifo(fifo_t *F)
 {
   F->wptr = F->rptr = 0;
-}
-
-// a method to put elements into the queue
-void put_fifo(fifo_t *F, uint32_t d)
-{
-  if (((F->wptr + 1) % MAXFIFO) != F->rptr) // a circular queue
-  {
-    F->data[F->wptr] = d;
-    F->wptr = (F->wptr + 1) % MAXFIFO;
-  }
-  else
-  {
-    printf("warning: fifo is full! token %d write failed\n", d);
-  }
 }
 
 uint8_t fifo_size(fifo_t *F)
@@ -24,7 +10,27 @@ uint8_t fifo_size(fifo_t *F)
   if (F->wptr >= F->rptr)
     return F->wptr - F->rptr;
   else
-    return MAXFIFO - (F->rptr - F->wptr) + 1;
+    return MAXFIFO - (F->rptr - F->wptr) ;
+}
+
+/*
+ * a method to put elements into the queue
+ * due to condition checking, F->wptr cannot equal to F->rptr
+ * so the max fifo size = MAXFIFO - 1
+ */
+void put_fifo(fifo_t *F, uint32_t d)
+{
+  if (((F->wptr + 1) % MAXFIFO) != F->rptr) // a circular queue
+  {
+    F->data[F->wptr] = d;
+    F->wptr = (F->wptr + 1) % MAXFIFO;
+    // printf("w: %d r: %d\n", F->wptr, F->rptr);
+    // printf("put one thing into fifo, current fifo size = %d\n",fifo_size(F));
+  }
+  else
+  {
+    printf("SCHEDULER: Fifo is full! pointer 0x%x write failed\n", d);
+  }
 }
 
 // a method to get elements from the queue

@@ -1,7 +1,6 @@
 /*
-  Reference:
-                -
-  https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/riscv.h
+ * Reference:             -
+ * https://github.com/mit-pdos/xv6-riscv/blob/riscv/kernel/riscv.h
 */
 #ifndef __RISCV_H__
 #define __RISCV_H__
@@ -9,9 +8,9 @@
 #include "types.h"
 
 /*
-	<asm volatile>: directive that tells the compiler to tread the following text as inline assembly code
-	<%0>: a placeholder for the first operand of the instruction
-	<":"="=r"(x)>: a constraint that tells the compiler to assign to output of the instruction to the veriable "x", and use a register for the assignment
+ * <asm volatile>: directive that tells the compiler to tread the following text as inline assembly code
+ * <%0>: a placeholder for the first operand of the instruction
+ * <":"="=r"(x)>: a constraint that tells the compiler to assign to output of the instruction to the veriable "x", and use a register for the assignment
 */
 static inline reg_t r_tp() {
   reg_t x;
@@ -26,7 +25,7 @@ static inline reg_t r_mhartid() {
   return x;
 }
 
-// Machine Status Register <mstatus>
+/* Machine Status Register <mstatus> */
 #define MSTATUS_MPP (3 << 11) // previous mode
 #define MSTATUS_SPP (1 << 8)
 
@@ -49,9 +48,9 @@ static inline void w_mstatus(reg_t x) {
 }
 
 /*
-  Machine exception program counter, holds the
-  instruction address to which a return from
-  exception will go.
+ * Machine exception program counter, holds the
+ * instruction address to which a return from
+ * exception will go.
 */
 static inline void w_mepc(reg_t x) { asm volatile("csrw mepc, %0" : : "r"(x)); }
 
@@ -72,10 +71,10 @@ static inline void w_mtvec(reg_t x) {
 }
 
 /* 
-  Machine-mode Interrupt Enable
-  Enable machine-mode timer interrupts
-  w_mie(r_mie() | MIE_MTIE);
-*/
+ * Machine-mode Interrupt Enable
+ * Enable machine-mode timer interrupts
+ * w_mie(r_mie() | MIE_MTIE);
+ */
 #define MIE_MEIE (1 << 11) // external
 #define MIE_MTIE (1 << 7)  // timer
 #define MIE_MSIE (1 << 3)  // software
