@@ -24,14 +24,18 @@ extern uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist);	// read the inside
 /* dma */
 extern void dma_code(uint32_t i_spm_addr,uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
+extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
 
 /* for test, simulate block process and pass the data to the task */
-extern fifo_t dma_trans;
-
-/* bind the task with block's flag */
-extern void task1_bind(actorio_t *g, actorio_t *g_out, block_f *n_block);
-extern void task2_bind(actorio_t *g, actorio_t *g_out, block_f *n_block);
-extern void task3_bind(actorio_t *g, actorio_t *g_out, block_f *n_block);
+extern fifo_t dma_trans_in;
+extern fifo_t dma_trans_out;
+/* 
+ * simulate block's computation process 
+ * pass the result to the successor 
+ */
+extern void task1_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
+extern void task2_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
+extern void task3_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
 
 /* task fire rule: dependency checking & idle block checking */
 extern void task1(actorio_t *g_in, actorio_t *g_out);
