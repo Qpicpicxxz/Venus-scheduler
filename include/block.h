@@ -17,8 +17,8 @@ typedef struct Block {
 	uint8_t   flags;
 	uint32_t  task_addr;
 	uint32_t  spm_addr;
-	actorio_t *prev_actor;
-	actorio_t *next_actor;
+	actor_t *prev_actor;
+	actor_t *next_actor;
 } block_f;
 
 static inline int _is_block_done(struct Block *block) {

@@ -3,27 +3,33 @@
 
 #define MAXFIFO 8
 #define MAXIO 4
-#define DELAY 500
+
+typedef struct data
+{
+  uint32_t ptr;
+  uint32_t len;
+} data_t;	/* data template */
+
+// Note: I'm not sure if I should add data length into fifo descriptor or not
+typedef struct fifo	
+{
+  data_t   data[MAXFIFO]; // data pointer
+  uint8_t  wptr;          // write index
+  uint8_t  rptr;          // read index
+} fifo_t;	/* fifo template */
 
 /* 
- * we can't determine the length of the array at initialization
- * the size of the structure is not known until runtime
+ * This supports MAXIO inputs and outputs per actor
+ * Every in/out is a fifo queue
  */
-typedef struct fifo
+typedef struct actor
 {
-  uint32_t data[MAXFIFO]; // token storage
-  uint8_t wptr;          // write pointer
-  uint8_t rptr;          // read pointer
-} fifo_t;
-
-/* 
- * we will support MAXIO inputs and outputs per actor
- * every in/out is a fifo queue
- */
-typedef struct actorio
-{
-  fifo_t *in[MAXIO];
-  fifo_t *out[MAXIO];
-} actorio_t;
+  fifo_t   *in[MAXIO];
+  fifo_t   *out[MAXIO];
+  uint8_t  dep_num[MAXIO];
+  uint8_t  result_num[MAXIO];
+  uint32_t task_addr;
+  uint32_t task_len;
+} actor_t;	/* actor template */
 
 #endif /* __ACTOR_H__ */

@@ -1,15 +1,89 @@
 #include "task.h"
 
-uint32_t data1 = 4;
-uint32_t data2 = 3;
-uint32_t data3 = 2;
-uint32_t data4 = 1;
 // extern void trap_test(void);
 // extern void page_test(void);
-static actorio_t task1_io;
-static actorio_t task2_io;
-static actorio_t task3_io;
+
+static actor_t task1_io;
+static actor_t task2_io;
+static actor_t task3_io;
 static fifo_t q1, q2, q3, q4, q5, q6;
+
+/*
+ * generate actors: taskx_io
+ * Describe a task:
+ * 	1. dependent task's io: taskn_io.in[n] (dep_task's token)
+ *	2. how many token needed in every dep_task's io
+ *	3. the length of each token
+ *	4. output task's io: taskn_io.out[n] -> taskn_io.out[n]
+ */
+void actor_create(void) {
+  /*
+   * Describe example:
+   * 	1. q1: task1_io.in[0]
+   *	2. q2: task1_io.out[0]
+   *	3. dep_num = 1
+   *	4. result_num = 1
+   */
+  task1_io = (actor_t){{&q1}, 
+                       {&q2},         
+                       {1},
+                       {1},   
+                       TASK1_START, 
+                       TASK1_END - TASK1_START};
+  task2_io = (actor_t){{&q3}, 
+                       {&q4}, 
+                       {2}, 
+                       {1},
+                       TASK2_START,
+                       TASK2_END - TASK2_START};
+  task3_io = (actor_t){{&q5}, 
+                       {&q6}, 
+                       {2}, 
+                       {4},
+                       TASK3_START,
+                       TASK3_END - TASK3_START};
+}
+
+/* inject original stimulators */
+void stimu_inject(void) {
+  // 1. allocate memory space
+  void *p = malloc(32);
+  // 2. assignment
+  *(int *)p = 4;
+  // 3. put into first task's fifo as stimulator
+  //q1.data[0]->ptr = 1;
+  uint32_t data_len = 32;
+  put_data(&q1, (uint32_t)p, data_len);
+  p = malloc(data_len);
+  *(int *)p = 3;
+  put_data(&q1, (uint32_t)p, data_len);
+  p = malloc(data_len);
+  *(int *)p = 2;
+  put_data(&q1, (uint32_t)p, data_len);
+  p = malloc(data_len);
+  *(int *)p = 1;
+  put_data(&q1, (uint32_t)p, data_len);
+}
+
+/* print out some information for debug */
+void info_print(void) {
+  printf("\nVENUS: Input initial stimulators...\n");
+  // every initial stimulates has its own address
+  printf("Data1 = %d --- Addr = 0x%x\n", *(int *)read_fifo(&q1),
+         (uint32_t)(*read_addr_fifo(&q1)));
+  printf("Data2 = %d --- Addr = 0x%x\n", *(int *)read_else_fifo(&q1, 1),
+         (uint32_t)(*read_elseaddr_fifo(&q1, 1)));
+  printf("Data3 = %d --- Addr = 0x%x\n", *(int *)read_else_fifo(&q1, 2),
+         (uint32_t)(*read_elseaddr_fifo(&q1, 2)));
+  printf("Data4 = %d --- Addr = 0x%x\n", *(int *)read_else_fifo(&q1, 3),
+         (uint32_t)(*read_elseaddr_fifo(&q1, 3)));
+  // every task actor(describe its dependencies) has its own address
+  printf("Task1 actor - Addr = 0x%x\n", &task1_io);
+  printf("Task2 actor - Addr = 0x%x\n", &task2_io);
+  printf("Task3 actor - Addr = 0x%x\n", &task3_io);
+}
+
+/* main RR denpendency checking loop */
 void actor_exe(void) {
   while (1) {
     task1(&task1_io, &task2_io);
@@ -17,30 +91,11 @@ void actor_exe(void) {
     task3(&task3_io, &task1_io);
   };
 }
+
 void actor_init(void) {
-  //  use static variables to avoid stack overflow
-  //  static keyword means that it can only be called from other functions in
-  //  the same source file
-  // generate an actor task_io
-  // q1: task1_io.in[0]  q5: task1_io.in[1] q2: task1_io.out[0] else: NULL
-  task1_io = (actorio_t){{&q1}, {&q2}};
-  task2_io = (actorio_t){{&q3}, {&q4}};
-  task3_io = (actorio_t){{&q5}, {&q6}};
-  put_fifo(&q1, (uint32_t)&data1);
-  put_fifo(&q1, (uint32_t)&data2);
-  put_fifo(&q1, (uint32_t)&data3);
-  put_fifo(&q1, (uint32_t)&data4);
-  printf("\nVENUS: Input initial stimulators...\n");
-  // every initial stimulates has its own address
-  printf("Data1 = %d --- Addr = 0x%x\n", data1, &data1);
-  printf("Data2 = %d --- Addr = 0x%x\n", data2, &data2);
-  printf("Data3 = %d --- Addr = 0x%x\n", data3, &data3);
-  printf("Data4 = %d --- Addr = 0x%x\n", data4, &data4);
-  // every task actor(describe its dependencies) has its own address
-  printf("Task1 actor - Addr = 0x%x\n", &task1_io);
-  printf("Task2 actor - Addr = 0x%x\n", &task2_io);
-  printf("Task3 actor - Addr = 0x%x\n", &task3_io);
-  // main RR denpendency checking loop
+  actor_create();
+  stimu_inject();
+  info_print();
   actor_exe();
 }
 

@@ -8,6 +8,7 @@
 #include <stddef.h>
 #include <stdarg.h>
 
+#define DELAY 500
 
 /* uart */
 extern int uart_putc(char ch);

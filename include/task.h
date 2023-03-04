@@ -8,13 +8,14 @@
 #include "block.h"
 
 /* get block-task recycle function's pointer */
-typedef void (*Taskfunc)(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
+typedef void (*Taskfunc)(actor_t *g_in, actor_t *g_out, block_f *n_block);
 
 /* fifo */
 extern void init_fifo(fifo_t *F);
-extern void put_fifo(fifo_t *F, uint32_t d);
 extern uint8_t fifo_size(fifo_t *F);		// the max fifo_size(uint8_t) is 255
-extern uint32_t get_fifo(fifo_t *F);		// push one data out
+extern void put_data(fifo_t *F, uint32_t d, uint32_t len);
+extern data_t get_data(fifo_t *F);		// push one data ptr out
+extern uint32_t get_ptr(fifo_t *F);		// push one data struct out
 extern uint32_t read_fifo(fifo_t *F);		// just read the margine data
 extern uint32_t read_else_fifo(fifo_t *F, uint8_t dist);	// read the inside data
 extern uint32_t *get_addr_fifo(fifo_t *F);	// < get_addr_fifo > represents the data pointer's location
@@ -33,14 +34,14 @@ extern fifo_t dma_trans_out;
  * simulate block's computation process 
  * pass the result to the successor 
  */
-extern void task1_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
-extern void task2_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
-extern void task3_exe(actorio_t *g_in, actorio_t *g_out, block_f *n_block);
+extern void task1_exe(actor_t *g_in, actor_t *g_out, block_f *n_block);
+extern void task2_exe(actor_t *g_in, actor_t *g_out, block_f *n_block);
+extern void task3_exe(actor_t *g_in, actor_t *g_out, block_f *n_block);
 
 /* task fire rule: dependency checking & idle block checking */
-extern void task1(actorio_t *g_in, actorio_t *g_out);
-extern void task2(actorio_t *g_in, actorio_t *g_out);
-extern void task3(actorio_t *g_in, actorio_t *g_out);
+extern void task1(actor_t *g_in, actor_t *g_out);
+extern void task2(actor_t *g_in, actor_t *g_out);
+extern void task3(actor_t *g_in, actor_t *g_out);
 
 /* marco from linker script to locate task code section */
 extern uint32_t TASK1_START;
