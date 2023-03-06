@@ -18,7 +18,7 @@
 ├── os.ld               // linker script
 ├── README.md           // introduction
 ├── src
-│   ├── block.c         // task bind && execute && recycle
+│   ├── block.c         // simulate block compute behaviour
 │   ├── debug.c         // print out all sections range and size
 │   ├── dma.c           // simulate DMA's behaviour
 │   ├── externalIRQ.c   // initialize block's struct and handle external interrupt

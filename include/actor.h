@@ -25,9 +25,9 @@ typedef struct fifo
 typedef struct actor
 {
   fifo_t   *in[MAXIO];
-  fifo_t   *out[MAXIO];
-  uint8_t  dep_num[MAXIO];
-  uint8_t  result_num[MAXIO];
+  uint8_t  dep_num;
+  fifo_t   *out;
+  uint32_t result_len;
   uint32_t task_addr;
   uint32_t task_len;
 } actor_t;	/* actor template */
