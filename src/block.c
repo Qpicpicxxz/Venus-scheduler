@@ -1,6 +1,6 @@
 #include "task.h"
 
-void task1_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
+void task1_exe(actor_t *g, block_f *n_block) {
 
   // 1. simulate block's computation process
   data_t data = get_data(&dma_trans_in);
@@ -26,16 +26,13 @@ void task1_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
   // 5. reset the block's flag
   _clear_block_flag(n_block);
   
-  // 6. pass the result to the actor's output fifo
-  put_data(g_in->out[0], alloc_addr, data.len);
-  printf("in * in = out = %d\n", *(int *)read_fifo(g_in->out[0]));
-  data = get_data(g_in->out[0]);
-  // 7. pass the output fifo to the successor's input fifo
-  put_data(g_out->in[0], data.ptr, data.len);
+  // 6. pass the result to the actor's output fifo (the same as successor's input fifo)
+  put_data(g->out[0], alloc_addr, data.len);
+  printf("in * in = out = %d\n", *(int *)read_fifo(g->out[0]));
   printf("SCHEDULER: The result data has been recycled...\n");
 }
 
-void task2_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
+void task2_exe(actor_t *g, block_f *n_block) {
   data_t data1 = get_data(&dma_trans_in);
   data_t data2 = get_data(&dma_trans_in);
   uint32_t *t1 = (uint32_t *)data1.ptr;
@@ -51,14 +48,12 @@ void task2_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
   dma_result(alloc_addr, DATA1_ADDR, data1.len);
   printf("SCHEDULER: Result is stored in: 0x%x\n", alloc_addr);
   _clear_block_flag(n_block);
-  put_data(g_in->out[0], alloc_addr, data1.len);
-  printf("in1 + in2 = out = %d\n", *(int *)read_fifo(g_in->out[0]));
-  data_t data = get_data(g_in->out[0]);
-  put_data(g_out->in[0], data.ptr, data1.len);
+  put_data(g->out[0], alloc_addr, data1.len);
+  printf("in1 + in2 = out = %d\n", *(int *)read_fifo(g->out[0]));
   printf("SCHEDULER: The result data has been recycled...\n");
 }
 
-void task3_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
+void task3_exe(actor_t *g, block_f *n_block) {
   data_t data1 = get_data(&dma_trans_in);
   data_t data2 = get_data(&dma_trans_in);
   uint32_t *t1 = (uint32_t *)data1.ptr;
@@ -79,33 +74,29 @@ void task3_exe(actor_t *g_in, actor_t *g_out, block_f *n_block) {
   uint32_t alloc_addr = (uint32_t)p;
   dma_result(alloc_addr, DATA1_ADDR, data1.len);
   printf("SCHEDULER: Result is stored in 0x%x\n", alloc_addr);
-  put_data(g_in->out[0], alloc_addr, data1.len);
+  put_data(g->out[0], alloc_addr, data1.len);
   p = malloc(32);
   alloc_addr = (uint32_t)p;
   dma_result(alloc_addr, DATA1_ADDR, data1.len);
   printf("SCHEDULER: Result is stored in 0x%x\n", alloc_addr);
-  put_data(g_in->out[0], alloc_addr, data1.len);
+  put_data(g->out[0], alloc_addr, data1.len);
   p = malloc(32);
   alloc_addr = (uint32_t)p;
   dma_result(alloc_addr, DATA1_ADDR, data1.len);
   printf("SCHEDULER: Result is stored in 0x%x\n", alloc_addr);
-  put_data(g_in->out[0], alloc_addr, data1.len);
+  put_data(g->out[0], alloc_addr, data1.len);
   p = malloc(32);
   alloc_addr = (uint32_t)p;
   dma_result(alloc_addr, DATA1_ADDR, data1.len);
   printf("SCHEDULER: Result is stored in 0x%x\n", alloc_addr);
-  put_data(g_in->out[0], alloc_addr, data1.len);
-  printf("in1 + in2 = out = %d\n", *(uint32_t *)read_fifo(g_in->out[0]));
+  put_data(g->out[0], alloc_addr, data1.len);
+  printf("in1 + in2 = out = %d\n", *(uint32_t *)read_fifo(g->out[0]));
   printf("in1 - in2 = out = %d\n",
-         *(uint32_t *)read_else_fifo(g_in->out[0], 1));
+         *(uint32_t *)read_else_fifo(g->out[0], 1));
   printf("in1 * in2 = out = %d\n",
-         *(uint32_t *)read_else_fifo(g_in->out[0], 2));
+         *(uint32_t *)read_else_fifo(g->out[0], 2));
   printf("in1 / in2 = out = %d\n",
-         *(uint32_t *)read_else_fifo(g_in->out[0], 3));
-  for (int i = 0; i < 4; i++) {
-     data_t data = get_data(g_in->out[0]);
-     put_data(g_out->in[0], data.ptr, data.len);
-  }
+         *(uint32_t *)read_else_fifo(g->out[0], 3));
   _clear_block_flag(n_block);
   printf("SCHEDULER: The result data has been recycled...\n");
 }

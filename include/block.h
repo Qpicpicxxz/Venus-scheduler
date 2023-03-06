@@ -10,15 +10,13 @@
  * We use a Block struct to bind venus block with task
  * -flags: some blocks status
  * -spm_addr: stratchpad memory mapped address
- * -prev_actor: previous actor's pointer
- * -next_actor: successor actor's pointer
+ * -actor: the current actor's pointer
  */
 typedef struct Block {
 	uint8_t   flags;
 	uint32_t  task_addr;
 	uint32_t  spm_addr;
-	actor_t *prev_actor;
-	actor_t *next_actor;
+	actor_t   *actor;
 } block_f;
 
 static inline int _is_block_done(struct Block *block) {

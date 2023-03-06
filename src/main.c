@@ -6,7 +6,7 @@
 static actor_t task1_io;
 static actor_t task2_io;
 static actor_t task3_io;
-static fifo_t q1, q2, q3, q4, q5, q6;
+static fifo_t q1, q2, q3;
 
 /*
  * generate actors: taskx_io
@@ -30,14 +30,14 @@ void actor_create(void) {
                        {1},   
                        TASK1_START, 
                        TASK1_END - TASK1_START};
-  task2_io = (actor_t){{&q3}, 
-                       {&q4}, 
+  task2_io = (actor_t){{&q2}, 
+                       {&q3}, 
                        {2}, 
                        {1},
                        TASK2_START,
                        TASK2_END - TASK2_START};
-  task3_io = (actor_t){{&q5}, 
-                       {&q6}, 
+  task3_io = (actor_t){{&q3}, 
+                       {&q1}, 
                        {2}, 
                        {4},
                        TASK3_START,
@@ -81,14 +81,15 @@ void info_print(void) {
   printf("Task1 actor - Addr = 0x%x\n", &task1_io);
   printf("Task2 actor - Addr = 0x%x\n", &task2_io);
   printf("Task3 actor - Addr = 0x%x\n", &task3_io);
+  printf("\nSCHEDULER: Waiting for blocks to be ready...\n");
 }
 
 /* main RR denpendency checking loop */
 void actor_exe(void) {
   while (1) {
-    task1(&task1_io, &task2_io);
-    task2(&task2_io, &task3_io);
-    task3(&task3_io, &task1_io);
+    task1(&task1_io);
+    task2(&task2_io);
+    task3(&task3_io);
   };
 }
 
