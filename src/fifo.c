@@ -114,3 +114,9 @@ uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist)
   return NULL;
 }
 
+uint8_t is_fifo_full(fifo_t *F){
+   if(F->wptr == F->rptr){
+   	return 1;
+   } else { return 0;}
+}
+

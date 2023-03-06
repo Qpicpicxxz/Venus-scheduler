@@ -21,6 +21,7 @@ extern uint32_t read_else_fifo(fifo_t *F, uint8_t dist);	// read the inside data
 extern uint32_t *get_addr_fifo(fifo_t *F);	// < get_addr_fifo > represents the data pointer's location
 extern uint32_t *read_addr_fifo(fifo_t *F);	// <*read_addr_fifo> represents the data itself and <read_addr_fifo> represents the pointer's address
 extern uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist);	// read the inside data address
+extern uint8_t is_fifo_full(fifo_t *F);
 
 /* dma */
 extern void dma_code(uint32_t i_spm_addr,uint32_t task_addr, uint32_t task_len);
@@ -30,18 +31,12 @@ extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len)
 /* for test, simulate block process and pass the data to the task */
 extern fifo_t dma_trans_in;
 extern fifo_t dma_trans_out;
-/* 
- * simulate block's computation process 
- * pass the result to the successor 
- */
-extern void task1_exe(actor_t *g, block_f *n_block);
-extern void task2_exe(actor_t *g, block_f *n_block);
-extern void task3_exe(actor_t *g, block_f *n_block);
 
 /* task fire rule: dependency checking & idle block checking */
-extern void task1(actor_t *g);
-extern void task2(actor_t *g);
-extern void task3(actor_t *g);
+extern void task(actor_t *g);
+
+// temporary simulate RESULT_DATALEN
+#define RESULT_DATALEN 10
 
 /* marco from linker script to locate task code section */
 extern uint32_t TASK1_START;

@@ -11,10 +11,10 @@ static fifo_t q1, q2, q3;
 /*
  * generate actors: taskx_io
  * Describe a task:
- * 	1. dependent task's io: taskn_io.in[n] (dep_task's token)
- *	2. how many token needed in every dep_task's io
- *	3. the length of each token
- *	4. output task's io: taskn_io.out[n] -> taskn_io.out[n]
+ * 	1. dependent token: a specific fifo {&qx}
+ *	2. how many token needed in every dep_task's io: dep_num
+ *	3. how many result would be produced: result_num
+ *	4. where are the results going to go: a specific fifo {&qx}
  */
 void actor_create(void) {
   /*
@@ -28,19 +28,19 @@ void actor_create(void) {
                        {&q2},         
                        {1},
                        {1},   
-                       TASK1_START, 
+                       1, 	// Note: should be TASKn_START, NOT complete yet.
                        TASK1_END - TASK1_START};
-  task2_io = (actor_t){{&q2}, 
+  task2_io = (actor_t){{&q2}, 	// to represent dependency
                        {&q3}, 
                        {2}, 
                        {1},
-                       TASK2_START,
+                       2,
                        TASK2_END - TASK2_START};
   task3_io = (actor_t){{&q3}, 
                        {&q1}, 
                        {2}, 
                        {4},
-                       TASK3_START,
+                       3,
                        TASK3_END - TASK3_START};
 }
 
@@ -87,9 +87,9 @@ void info_print(void) {
 /* main RR denpendency checking loop */
 void actor_exe(void) {
   while (1) {
-    task1(&task1_io);
-    task2(&task2_io);
-    task3(&task3_io);
+    task(&task1_io);
+    task(&task2_io);
+    task(&task3_io);
   };
 }
 

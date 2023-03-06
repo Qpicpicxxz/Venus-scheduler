@@ -31,7 +31,7 @@
 │   ├── sctx.c          // some method for switch operation
 │   ├── start.S         // first code to execute when launch a kernel
 │   ├── switch.S        // some method switch operation
-│   ├── taskrule.c      // define the rules on how the actor fires upon every invocation
+│   ├── taskrule.c      // define block_recycle() && task_bind() && task()
 │   ├── trap.c          // catch interrupt and exception
 │   └── uart.c          // UART functions for print && external interrupt
 └── task
