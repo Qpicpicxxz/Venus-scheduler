@@ -8,7 +8,7 @@
 #include "block.h"
 
 /* get block-task recycle function's pointer */
-typedef void (*Taskfunc)(actor_t *g, block_f *n_block);
+typedef void (*Taskfunc)(actor_t *g);
 
 /* fifo */
 extern void init_fifo(fifo_t *F);
@@ -34,7 +34,7 @@ extern fifo_t dma_trans_in;
 extern fifo_t dma_trans_out;
 
 /* task fire rule: dependency checking & idle block checking */
-extern void task(actor_t *g);
+extern void task(actor_t *g, block_f *n_block);
 
 /* marco from linker script to locate task code section */
 extern uint32_t TASK1_START;

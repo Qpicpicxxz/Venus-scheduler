@@ -18,13 +18,14 @@
 ├── os.ld               // linker script
 ├── README.md           // introduction
 ├── src
+│   ├── actorInit.c     // depict DAG and declare actors and fifo-queues
 │   ├── block.c         // simulate block compute behaviour
 │   ├── debug.c         // print out all sections range and size
 │   ├── dma.c           // simulate DMA's behaviour
 │   ├── externalIRQ.c   // initialize block's struct and handle external interrupt
 │   ├── fifo.c          // some method to operate FIFO
 │   ├── kernel.c        // initialize all the scheduler functions
-│   ├── main.c          // main function to fire dataflow tasks
+│   ├── main.c          // main function to run scheduler and launch actors
 │   ├── mem.S           // define some macros for catch section's address
 │   ├── page.c          // dynamic allocation for page (4KiB)
 │   ├── printf.c        // print strings to QEMU terminal
@@ -41,6 +42,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 36 files
+3 directories, 37 files
 ```
 

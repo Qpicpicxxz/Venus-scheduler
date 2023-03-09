@@ -2,12 +2,13 @@
 #include "block.h"
 
 
-/* a handler to remove keyboard interrupt in uart.c */
+/* Function: remove keyboard interrupt in uart.c */
 extern int uart_getc(void);
 
-/* a handler to :
- * 1. recycle idle blocks
- * 2. pass the computing result to the successor
+/* 
+ * Function:
+ * 	1. recycle idle blocks
+ * 	2. pass the computing result to the successor
  */
 extern void block_recycle(block_f *block);
 

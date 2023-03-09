@@ -30,7 +30,8 @@ SRCS_C = \
 				 $(SOURCE)dma.c \
 				 $(SOURCE)taskrule.c \
 				 $(SOURCE)block.c \
-				 $(SOURCE)externalIRQ.c
+				 $(SOURCE)externalIRQ.c \
+				 $(SOURCE)actorInit.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \

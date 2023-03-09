@@ -14,7 +14,7 @@
  * 0x10000000 -- UART0
  * 0x10001000 -- virtio disk
  * 0x80000000 -- boot ROM jumps here in machine mode, where we load our kernel
-*/
+ */
 
 /* puts UART registers here in physical memory */
 #define UART0 0x10000000L

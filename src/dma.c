@@ -44,5 +44,5 @@ void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len){
   task_delay(5000);
   data_t data = get_data(&dma_trans_out);
   *(int *)data_dst = data.ptr;
-  // printf("DMA: Reterned data result from 0x%x\n", data_dst);
+  printf("DMA: Reterned data result from 0x%x\n", data_dst);
  }

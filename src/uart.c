@@ -9,14 +9,14 @@
 /*
  * Reference
  * [1]: TECHNICAL DATA ON 16550, http://byterunner.com/16550.html
-*/
+ */
 
 /*
  * UART control registers map. see [1] "PROGRAMMING TABLE"
  * note some are reused by multiple functions
  * 0 (write mode): THR/DLL
  * 1 (write mode): IER/DLM
-*/
+ */
 #define RHR 0	// Receive Holding Register (read mode)
 #define THR 0	// Transmit Holding Register (write mode)
 #define DLL 0	// LSB of Divisor Latch (write mode)

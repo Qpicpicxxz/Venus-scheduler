@@ -1,5 +1,9 @@
 #include "task.h"
 
+/*
+ * Note:
+ *	Is it necessary to set these predicates to be a inline function?
+ */ 
 void init_fifo(fifo_t *F) { F->wptr = F->rptr = 0; }
 
 uint8_t fifo_size(fifo_t *F) {
@@ -10,7 +14,7 @@ uint8_t fifo_size(fifo_t *F) {
 }
 
 uint8_t fifo_full(fifo_t *F) {
-  if (F->wptr == F->rptr) {
+  if ((F->wptr + 1) % MAXFIFO == F->rptr) {
     return 1;
   } else {
     return 0;

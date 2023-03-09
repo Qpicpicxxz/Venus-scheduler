@@ -17,8 +17,7 @@ extern uint32_t BSS_END;
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
 
-void mem_init()
-{
+void mem_init() {
   uint32_t TEXT = TEXT_END - TEXT_START;
   uint32_t RODATA = RODATA_END - RODATA_START;
   uint32_t DATA = DATA_END - DATA_START;
