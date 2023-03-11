@@ -10,10 +10,10 @@ static actor_t task6_io;
 actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task5_io, &task6_io};
 static fifo_t q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11;
 
-static fifo_t q_block;
+static queue_t q_block;
 
 /*
- * generate actors: taskx_io
+ * Generate actors: taskx_io
  * Describe a task:
  * 	1. dependent token: a specific fifo {&qx}
  *	2. how many token needed in every dep_task's io: dep_num
@@ -54,7 +54,7 @@ void actor_create(void) {
   task4_io = (actor_t){{&q4, &q6}, 
                        2, 
                        {&q9},
-                       1,  
+                       1, 
                        32,
                        4,
                        TASK3_END - TASK3_START};
@@ -68,7 +68,7 @@ void actor_create(void) {
   task6_io = (actor_t){{&q8, &q9, &q10}, 
                        3, 
                        {&q11},
-                       1,  
+                       1, 
                        32,
                        6,
                        TASK3_END - TASK3_START};
@@ -79,14 +79,31 @@ void stimu_inject(void) {
   void *p;
   uint32_t data_len = 32;
   for (int i = 1; i > 0; i--){
-  	p = malloc(32);
-  	*(int *)p = i;
- 	put_data(&q1, (uint32_t)p, data_len);
+  	// 1.1 alloc data memory
+  	p = malloc(data_len);
+  	// 1.2 initialize data
+  	*(int *)p = 10;
+  	uint32_t alloc_addr = (uint32_t)p;
+  	// 2.1. alloc data descriptor's memory
+  	p = malloc(1);
+  	// 2.2 initialize data descriptor
+  	data_t* data = (data_t *)p;
+  	data->ptr = alloc_addr;
+  	data->len = data_len;
+  	data->cnt = 1;
+  	// 3. put data descriptor's pointer into stimulate fifo
+ 	put_data(&q1, data);
   }
   for (int i = 1; i > 0; i--){
-  	p = malloc(32);
-  	*(int *)p = i;
- 	put_data(&q2, (uint32_t)p, data_len);
+  	p = malloc(data_len);
+  	*(int *)p = 9;
+  	uint32_t alloc_addr = (uint32_t)p;
+  	p = malloc(1);
+  	data_t* data = (data_t *)p;
+  	data->ptr = alloc_addr;
+  	data->len = data_len;
+  	data->cnt = 1;
+ 	put_data(&q2, data);
   }
 }
 
@@ -101,7 +118,8 @@ void info_print(void) {
   printf("Task6 actor - Addr = 0x%x\n", &task6_io);
   printf("\nSCHEDULER: Waiting for blocks to be ready...\n");
 }
-/* main RR denpendency checking loop */
+
+
 /*
  * Function: 
  *	1. Call task_exe()
@@ -121,7 +139,7 @@ void block_recycle(block_f *n_block) {
   if((n_block->flags & BLOCK_IDLE) == 0){
   	// 2.2 mark this block has been put into idle-fifo
   	_set_block_flag(n_block, BLOCK_IDLE);
-  	put_data(&q_block, (uint32_t)n_block, 1);
+  	put_queue(&q_block, (uint32_t)n_block);
   }
   
 }
@@ -129,11 +147,11 @@ void block_recycle(block_f *n_block) {
 void actor_exe(void) {
   int current_task = 0;
   while(1){
-  if(fifo_size(&q_block) >= 1){
+  // scheduler would poll tasks only when VENUS has idle blocks
+  if(queue_size(&q_block) >= 1){
   	printf("\nSCHEDULER: Current task is %d\n", current_task+1);
-        block_f *n_block = (block_f *)get_ptr(&q_block);
+        block_f *n_block = (block_f *)get_queue(&q_block);
         _clear_block_flag(n_block);
-        // if successfully fired, return 1 
   	task(task_io[current_task], n_block);
   	current_task = (current_task + 1) % NUM_TASKS;
   }

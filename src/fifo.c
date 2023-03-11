@@ -1,113 +1,84 @@
 #include "task.h"
 
-/*
- * Note:
- *	Is it necessary to set these predicates to be a inline function?
- */ 
-void init_fifo(fifo_t *F) { F->wptr = F->rptr = 0; }
+/* Idea: Is it necessary to set these predicates to be a inline function? */
 
+/* Reset fifo */
+void init_fifo(fifo_t *F) { F->wptr = F->rptr = 0; }
+void init_queue(queue_t *F) { F->wptr = F->rptr = 0; }
+
+/* Predictate */
+inline uint8_t fifo_full(fifo_t *F) { return (fifo_size(F) == MAXFIFO); }
+inline uint8_t fifo_empty(fifo_t *F) { return (F->wptr == F->rptr); }
+inline uint8_t queue_full(queue_t *F) { return (queue_size(F) == MAXFIFO); }
+inline uint8_t queue_empty(queue_t *F) { return (F->wptr == F->rptr); }
+
+/* Get length: maximum length is 255 */
 uint8_t fifo_size(fifo_t *F) {
+  uint8_t size = F->wptr - F->rptr;
+  if (size < 0) {
+    size += MAXFIFO;
+  }
+  return size;
+}
+uint8_t queue_size(queue_t *F) {
   if (F->wptr >= F->rptr)
     return F->wptr - F->rptr;
   else
     return MAXFIFO - (F->rptr - F->wptr);
 }
 
-uint8_t fifo_full(fifo_t *F) {
-  if ((F->wptr + 1) % MAXFIFO == F->rptr) {
-    return 1;
+/* Push in a token */
+void put_data(fifo_t *F, data_t *data) {
+  if (fifo_full(F)) {
+    printf("SCHEDULER: Fifo is full! pointer 0x%x write failed\n", data->ptr);
   } else {
-    return 0;
-  }
-}
-
-uint8_t fifo_ready(fifo_t *F) {
-  if (fifo_size(F) >= 1) {
-    return 1;
-  } else {
-    return 0;
-  }
-}
-/*
- * a method to put elements into the queue
- * due to condition checking, F->wptr cannot equal to F->rptr
- * so the max fifo size = MAXFIFO - 1
- */
-void put_data(fifo_t *F, uint32_t data, uint32_t len) {
-  if (((F->wptr + 1) % MAXFIFO) != F->rptr) // a circular queue
-  {
-    F->data[F->wptr].ptr = data;
-    F->data[F->wptr].len = len;
+    F->data[F->wptr] = data;
     F->wptr = (F->wptr + 1) % MAXFIFO;
+  }
+}
+void put_queue(queue_t *F, uint32_t ptr) {
+  if (queue_full(F)) {
+    printf("SCHEDULER: Queue is full! pointer 0x%x write failed\n", ptr);
   } else {
-    printf("SCHEDULER: Fifo is full! pointer 0x%x write failed\n", data);
+    F->addr = ptr;
+    F->wptr = (F->wptr + 1) % MAXFIFO;
   }
 }
 
-// a method to get elements from the queue
-data_t get_data(fifo_t *F) {
-  data_t r;
-  data_t k;
-  k.ptr = 0x00000000;
-  if (F->rptr != F->wptr) {
-    r = F->data[F->rptr];
+/* Get out a token */
+data_t *get_data(fifo_t *F) {
+  if (fifo_empty(F)) {
+    return NULL;
+  } else {
+    data_t *data = F->data[F->rptr];
+    F->rptr = (F->rptr + 1) % MAXFIFO;
+    return data;
+  }
+}
+uint32_t get_queue(queue_t *F) {
+  if (queue_empty(F)) {
+    return -1;
+  } else {
+    uint32_t r = F->addr;
     F->rptr = (F->rptr + 1) % MAXFIFO;
     return r;
   }
-  return k;
 }
 
-uint32_t get_ptr(fifo_t *F) {
-  uint32_t r;
+/* Read a token */
+data_t *read_data(fifo_t *F) {
   if (F->rptr != F->wptr) {
-    r = F->data[F->rptr].ptr;
-    F->rptr = (F->rptr + 1) % MAXFIFO;
-    return r;
+    data_t *data = F->data[F->rptr];
+    return data;
   }
-  return -1;
-}
-
-// a method to just read the margin data pointer
-uint32_t read_fifo(fifo_t *F) {
-  if (F->rptr != F->wptr) {
-    return F->data[F->rptr].ptr;
-  }
-  return -1;
-}
-
-uint32_t read_else_fifo(fifo_t *F, uint8_t dist) {
-  if (F->rptr != F->wptr) {
-    return F->data[F->rptr + dist].ptr;
-  }
-  return -1;
-}
-
-// a method to get the margin data pointer
-uint32_t *get_addr_fifo(fifo_t *F) {
-  uint32_t *a;
-  if (F->rptr != F->wptr) {
-    a = &(F->data[F->rptr].ptr);
-    F->rptr = (F->rptr + 1) % MAXFIFO;
-    return a;
-  }
-  // may cause some warning, later to fix it
+  printf("FIFO WRONG[rptr==wptr]\n");
   return NULL;
 }
-
-// a method to just read the margin data pointer
-uint32_t *read_addr_fifo(fifo_t *F) {
+data_t *read_else_data(fifo_t *F, uint8_t dist) {
   if (F->rptr != F->wptr) {
-    return &(F->data[F->rptr].ptr);
+    return F->data[(F->rptr + dist) % MAXFIFO];
   }
-  // may cause some warning, later to fix it
-  return NULL;
-}
-
-// a method to just read inside data pointer
-uint32_t *read_elseaddr_fifo(fifo_t *F, uint8_t dist) {
-  if (F->rptr != F->wptr) {
-    return &(F->data[F->rptr + dist].ptr);
-  }
+  printf("QUEUE WRONG[rptr==wptr]\n");
   return NULL;
 }
 
