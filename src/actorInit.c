@@ -11,7 +11,6 @@ actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task
 static fifo_t q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11;
 
 static queue_t q_block;
-
 /*
  * Generate actors: taskx_io
  * Describe a task:
@@ -34,42 +33,42 @@ void actor_create(void) {
                        1,
                        {&q3, &q4},
                        2,
-                       32,   
+                       4,   
                        1, 	// Note: should be TASKn_START, NOT complete yet.I use it as a task token for simulation.
                        TASK1_END - TASK1_START};
   task2_io = (actor_t){{&q2}, 	// to represent dependency
                        1,
                        {&q5, &q6, &q7},
                        3,
-                       32,
+                       4,
                        2,
                        TASK2_END - TASK2_START};
   task3_io = (actor_t){{&q3, &q5}, 
                        2, 
                        {&q8},
                        1,  
-                       32,
+                       4,
                        3,
                        TASK3_END - TASK3_START};
   task4_io = (actor_t){{&q4, &q6}, 
                        2, 
                        {&q9},
                        1, 
-                       32,
+                       4,
                        4,
                        TASK3_END - TASK3_START};
   task5_io = (actor_t){{&q7}, 
                        1, 
                        {&q10},  
                        1,
-                       32,
+                       4,
                        5,
                        TASK3_END - TASK3_START};
   task6_io = (actor_t){{&q8, &q9, &q10}, 
                        3, 
                        {&q11},
                        1, 
-                       32,
+                       4,
                        6,
                        TASK3_END - TASK3_START};
 }
@@ -77,29 +76,33 @@ void actor_create(void) {
 /* inject original stimulators */
 void stimu_inject(void) {
   void *p;
-  uint32_t data_len = 32;
+  uint32_t data_len = 4;
   for (int i = 1; i > 0; i--){
   	// 1.1 alloc data memory
   	p = malloc(data_len);
   	// 1.2 initialize data
   	*(int *)p = 10;
   	uint32_t alloc_addr = (uint32_t)p;
-  	// 2.1. alloc data descriptor's memory
-  	p = malloc(1);
-  	// 2.2 initialize data descriptor
-  	data_t* data = (data_t *)p;
+  	// 2.1 define data descriptor
+  	data_t* data;
+  	// 2.2. alloc data descriptor's memory
+  	p = malloc(sizeof(*data));
+  	data = (data_t *)p;
+  	// 2.3 initialize data descriptor
   	data->ptr = alloc_addr;
   	data->len = data_len;
   	data->cnt = 1;
   	// 3. put data descriptor's pointer into stimulate fifo
  	put_data(&q1, data);
+ 	printf("input p: %d\n", *(uint32_t *)data->ptr);
   }
   for (int i = 1; i > 0; i--){
   	p = malloc(data_len);
   	*(int *)p = 9;
   	uint32_t alloc_addr = (uint32_t)p;
-  	p = malloc(1);
-  	data_t* data = (data_t *)p;
+  	data_t* data;
+  	p = malloc(sizeof(*data));
+  	data = (data_t *)p;
   	data->ptr = alloc_addr;
   	data->len = data_len;
   	data->cnt = 1;
@@ -153,6 +156,7 @@ void actor_exe(void) {
         block_f *n_block = (block_f *)get_queue(&q_block);
         _clear_block_flag(n_block);
   	task(task_io[current_task], n_block);
+  	
   	current_task = (current_task + 1) % NUM_TASKS;
   }
  }

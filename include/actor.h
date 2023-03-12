@@ -4,23 +4,26 @@
 #define MAXFIFO 8
 #define MAXIO 4
 
+/* data descriptor */
 typedef struct data {
   uint32_t ptr; 	// where the data resides
-  uint32_t len;		// data length
+  uint32_t len;		// data length (byte)
   uint8_t  cnt;		// data lifecycle
-} data_t; 		/* data template */
+} data_t;	/* data template */
 
+/* token-fifo descriptor between actors */
 typedef struct fifo {
-  data_t  *data[MAXFIFO]; // data pointer
-  uint8_t wptr;         // write index
-  uint8_t rptr;         // read index
-} fifo_t;               /* fifo template */
-
-typedef struct queue {
-  uint32_t addr;
+  data_t  *data[MAXFIFO]; // data descriptor's pointer
   uint8_t wptr;
   uint8_t rptr;
- } queue_t;
+} fifo_t;	/* fifo template */
+
+/* normal fifo-queue descriptor */
+typedef struct queue {
+  uint32_t addr;	// any data you want to represent
+  uint8_t wptr;
+  uint8_t rptr;
+ } queue_t;	/* queue template */
 
 /*
  * This supports MAXIO inputs and outputs per actor
@@ -34,6 +37,6 @@ typedef struct actor {
   uint32_t result_len;
   uint32_t task_addr;
   uint32_t task_len;
-} actor_t; /* actor template */
+} actor_t;	/* actor template */
 
 #endif /* __ACTOR_H__ */

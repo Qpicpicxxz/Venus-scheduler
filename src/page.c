@@ -110,7 +110,7 @@ void page_init() {
   _alloc_start = _align_page(HEAP_START + META_SIZE * PAGE_SIZE);
   _alloc_end = _alloc_start + (PAGE_SIZE * _num_pages);
   uint32_t HEAP = _alloc_end - _alloc_start;
-  printf("\nHeap section:  start = 0x%x    SIZE:   0x%x\nMalloc Unit:   %d bit\nTotal num of pages: %d\n",HEAP_START, HEAP_SIZE, PAGE_SIZE, _num_pages);
+  printf("\nHeap section:  start = 0x%x    SIZE:   0x%x\nMalloc Unit:   %d byte\nTotal num of pages: %d\n",HEAP_START, HEAP_SIZE, PAGE_SIZE / 8, _num_pages);
   printf("\nALLOC:   0x%x -> 0x%x", _alloc_start, _alloc_end);
   printf("    SIZE:   0x%x\n", HEAP);
 }
@@ -119,8 +119,9 @@ void page_init() {
  * allocate a memory block which is composed of contiguous physical pages
  * parameter --- npages: the number of PAGE_SIZE pages to allocate
  */
-void *malloc(int bit) {
+void *malloc(int byte) {
   // searching the page descriptor bitmaps
+  int bit = byte * 8;
   int npages = pageNum(bit);
   int found = 0;
   struct Page *page_i = (struct Page *)HEAP_START;
@@ -185,14 +186,14 @@ void page_test() {
   // would print out the start address of the heap pointer
   void *p = malloc(1);
   printf("p = 0x%x\n", p);	// suppose is 0x80099500
-  void *p1 = malloc(128);
+  void *p1 = malloc(16);
   printf("p1 = 0x%x\n", p1);	// 0x80099600
-  void *p2 = malloc(256);
+  void *p2 = malloc(32);
   printf("p2 = 0x%x\n", p2);	// 0x80099700
-  void *p3 = malloc(513);
+  void *p3 = malloc(65);
   printf("p3 = 0x%x\n", p3);	// 0x80099800
   /*
-   * the basic allocate size is 256bit ---> 0x0000_0100
+   * the basic allocate size is 256bit (32byte) ---> 0x0000_0100
    *  ⌈513 / 256⌉ =  3 times larger
    * the malloc will allocates 3 blocks for the request
    * base_addr + 0x0000_0300 ---> 8 + 3 = b
@@ -208,7 +209,7 @@ void page_test() {
    *    | 01 | -> | 01 | -> | 11 | -> | 00 | -> | 00 |
    *    +----+    +----+    +----+    +----+    +----+
    */
-  void *p4 = malloc(2048);
+  void *p4 = malloc(256);
   printf("p4 = 0x%x\n", p4);	// 0x80099b00
   free(p);
   free(p1);

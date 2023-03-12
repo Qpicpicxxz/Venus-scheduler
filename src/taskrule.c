@@ -31,8 +31,9 @@ void alloc_result(actor_t *g) {
   printf("SCHEDULER: Result %d is stored in 0x%x\n", *(uint32_t *)alloc_addr,
          alloc_addr);
   // 2. allocate data descriptor space
-  p = malloc(1);	/* would allocate 256bit, it's enough for data_t */
-  data_t *data = (data_t *)p;	// make the newly allocated space as a data_t pointer
+  data_t *data;
+  p = malloc(sizeof(*data));
+  data = (data_t *)p;
   data->ptr = alloc_addr;	// initialize data descriptor
   data->len = g->result_len;
   data->cnt = g->nxt_num;
@@ -82,6 +83,7 @@ void block_sim(actor_t *g) {
     data_t *data = get_data(&dma_trans_in);
     // check dependency's lifecycle
     if (data->cnt == 1) {
+      // In real sence, we can free data space after last successor's firing
       printf("SCHEDULER: Last use, free data space...\n");
       free((void *)data->ptr);	// free data space
       free((void *)data);	// free data flag space
