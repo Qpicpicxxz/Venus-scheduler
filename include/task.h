@@ -9,6 +9,8 @@
 #include "os.h"
 #include "saddr.h"
 
+#define NUM_BLOCKS 8
+
 /* idle block queue */
 extern queue_t block_q;
 
@@ -44,7 +46,6 @@ extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len)
  *	2. Store data descriptor in it to simulate
  */
 extern fifo_t dma_trans_in;
-extern uint32_t result;
 
 /* marco from linker script to locate task code section */
 extern uint32_t TASK1_START;

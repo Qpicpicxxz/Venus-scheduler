@@ -1,15 +1,8 @@
 #include "task.h"
 
-/* Block compute process callback */
-extern void task1_exe(actor_t *g);
-extern void task2_exe(actor_t *g);
-extern void task3_exe(actor_t *g);
-extern void task4_exe(actor_t *g);
-extern void task5_exe(actor_t *g);
-extern void task6_exe(actor_t *g);
-
 /* Some inner variables */
 static uint32_t ideal_block;
+static uint32_t result;	// just simulation
 static actor_t *cur_actor;
 static data_t *cur_data;
 
@@ -21,8 +14,11 @@ static data_t *cur_data;
  * block_n: address of block_n flags (a pointer)
  */
 void block_recycle(block_f *n_block) {
+  // 0. SIMULATE ONLY: pass the result here
+  result = n_block->result;
   // 1. check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
+    printf("\nBLOCK 0x%x: Job done, result is: %d\n", n_block, result);
     // 1.1 bind interrupt block with current actor's linger list
     if (n_block->actor->linger_list == NULL)
       n_block->actor->linger_list = create_list();
@@ -42,7 +38,7 @@ void block_recycle(block_f *n_block) {
   }
   // 2. add current block into idle queue (if this block isn't in idle-fifo)
   if ((n_block->flags & BLOCK_IDLE) == 0) {
-    // 2.2 mark this block has been put into idle-fifo
+    // mark this block has been put into idle-fifo
     _set_block_flag(n_block, BLOCK_IDLE);
     put_queue(&block_q, (uint32_t)n_block);
   }
@@ -84,7 +80,6 @@ void alloc_result(actor_t *g) {
   void *p;
   // 1. allocate data storage space
   p = malloc(g->result_len);
-  *(int *)p = result;
   uint32_t alloc_addr = (uint32_t)p;
   printf("SCHEDULER: Result %d is stored in 0x%x\n", *(uint32_t *)alloc_addr,
          alloc_addr);
@@ -96,6 +91,8 @@ void alloc_result(actor_t *g) {
   cur_data->cnt = g->nxt_num;    // data lifecycle
   // 4. told DMA where to move and store the result
   dma_result(alloc_addr, DATA1_ADDR, g->result_len);
+  // 4.1 SIMULATE DMA stored the result
+  *(int *)p = result;
   // 5. check whether the right arrival sequence or not
   // 5.1 catch the block we should have
   ideal_block = read_last((g->fire_list))->item;
@@ -120,59 +117,11 @@ void alloc_result(actor_t *g) {
 
 /*
  * Function:
- *	Simulate block's behaviour, DO NOT exist in real scheme.
- * Note:
- *	When to free dependencies' memory?
- *	In the current programme, I free the pointer in taskn_exe().
- *	We can put it in DMA transfer later.
- */
-void block_sim(actor_t *g) {
-  switch (g->task_addr) {
-  case 1:
-    task1_exe(g);
-    break;
-  case 2:
-    task2_exe(g);
-    break;
-  case 3:
-    task3_exe(g);
-    break;
-  case 4:
-    task4_exe(g);
-    break;
-  case 5:
-    task5_exe(g);
-    break;
-  case 6:
-    task6_exe(g);
-    break;
-  default:
-    printf("\nERROR: No task code matching...\n");
-    break;
-  }
-  // block simulation done, pick out the dependency
-  for (int i = 0; i < g->dep_num; i++) {
-    data_t *data = get_data(&dma_trans_in);
-    // check dependency's lifecycle
-    if (data->cnt == 1) {
-      // In real sence, we can free data space after last successor's firing
-      printf("SCHEDULER: Last use, free data space...\n");
-      free((void *)data->ptr); // free data space
-      free((void *)data);      // free data flag space
-    } else {
-      data->cnt--;
-    }
-  }
-}
-
-/*
- * Function:
  *	1. Top-level function to handle result and recycle block.
  *	2. Flush block's flag after block recycle and result allocation.
  */
 void callback(actor_t *g) {
   cur_actor = g;
-  block_sim(g);
   printf("\nSCHEDULER: Allocating result...\n");
   alloc_result(g);
   printf("SCHEDULER: Callback handler done...\n");

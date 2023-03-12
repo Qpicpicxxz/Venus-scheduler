@@ -1,6 +1,5 @@
 #include "task.h"
 #define NUM_TASKS 6
-
 /* 
  * Note: Later optimization should change 
  *	these actor's initializaion into dynamically allocation.
@@ -129,11 +128,10 @@ void actor_exe(void) {
   while(1){
   // scheduler would poll tasks only when VENUS has idle blocks
   if(queue_size(&block_q) >= 1){
-  	printf("\nSCHEDULER: Current task is %d\n", current_task+1);
+  	printf("\nSCHEDULER: Current task is %d\n", current_task + 1);
         block_f *n_block = (block_f *)get_queue(&block_q);
         _clear_block_flag(n_block);
   	task(task_io[current_task], n_block);
-  	
   	current_task = (current_task + 1) % NUM_TASKS;
   }
  }

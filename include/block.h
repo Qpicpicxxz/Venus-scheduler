@@ -18,6 +18,7 @@ typedef struct Block {
 	uint32_t  task_addr;
 	uint32_t  spm_addr;
 	actor_t   *actor;
+	uint32_t  result;	// just simulation!!!
 } block_f;
 
 typedef struct linger {

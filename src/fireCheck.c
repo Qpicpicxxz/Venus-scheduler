@@ -1,6 +1,7 @@
 #include "task.h"
 
 extern void callback(actor_t *g);
+extern void block_sim(uint32_t task_index, block_f *block);
 
 /* A handler to bind inflight task with current block */
 void task_bind(actor_t *g, block_f *n_block, Taskfunc task_addr) {
@@ -63,21 +64,33 @@ void task(actor_t *g, block_f *n_block) {
     for (uint32_t i = 0; i < g->dep_num; i++) {
       // 4.1 get data descriptor
       data_t *data = get_data(g->in[i]);
-      // 4.2 initialize data descriptor
+      // 4.2 initialize data descriptor (drip into simulated spm queue)
       put_data(&dma_trans_in, data);
       // 4.3 inform data descriptor to DMA
       dma_data(DATA1_ADDR, data->ptr, data->len);
     }
     // 5. associate block and in-flight actor
-    if (g->fire_list == NULL) {
-      printf("fire_list created\n");
+    if (g->fire_list == NULL)
       g->fire_list = create_list();
-    }
     printf("SCHEDULER: Inserting block into in-flight list...\n");
     link p = create_node((uint32_t)n_block);
     insert(g->fire_list, p);
-    printf("g: 0x%x, item: 0x%x\n", g, read_last((g->fire_list))->item);
+    // 6. associate block and task
+    task_bind(g, n_block, &callback);
+    // 7. JUST SIMULATION: compute result and check if could free space
+    block_sim(g->task_addr, n_block);
+    // 8. DMA get out the dependency, check their lifecycle
+  for (int i = 0; i < g->dep_num; i++) {
+    data_t *data = get_data(&dma_trans_in);
+    // check dependency's lifecycle
+    if (data->cnt == 1) {
+      // In real sence, we can free data space after last successor's firing
+      printf("SCHEDULER: Last use, free data space...\n");
+      free((void *)data->ptr); // free data space
+      free((void *)data);      // free data flag space
+    } else {
+      data->cnt--;
+    }
   }
-  // 6. associate block and task
-  task_bind(g, n_block, &callback);
+  }
 }
