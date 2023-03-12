@@ -1,6 +1,10 @@
 #include "task.h"
 #define NUM_TASKS 6
 
+/* 
+ * Note: Later optimization should change 
+ *	these actor's initializaion into dynamically allocation.
+ */
 static actor_t task1_io;
 static actor_t task2_io;
 static actor_t task3_io;
@@ -10,7 +14,8 @@ static actor_t task6_io;
 actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task5_io, &task6_io};
 static fifo_t q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11;
 
-static queue_t q_block;
+queue_t block_q;
+
 /*
  * Generate actors: taskx_io
  * Describe a task:
@@ -76,38 +81,34 @@ void actor_create(void) {
 /* inject original stimulators */
 void stimu_inject(void) {
   void *p;
-  uint32_t data_len = 4;
-  for (int i = 1; i > 0; i--){
+  uint32_t data_len = 4;	// 4byte (length of int)
+  /* every inject can act as a packet's arrival */
+  for (int i = 3; i > 0; i--){
   	// 1.1 alloc data memory
   	p = malloc(data_len);
   	// 1.2 initialize data
-  	*(int *)p = 10;
+  	*(int *)p = i + 10;
   	uint32_t alloc_addr = (uint32_t)p;
-  	// 2.1 define data descriptor
-  	data_t* data;
-  	// 2.2. alloc data descriptor's memory
-  	p = malloc(sizeof(*data));
-  	data = (data_t *)p;
-  	// 2.3 initialize data descriptor
+  	// 2.1 define and allocate data descriptor
+  	data_t* data = malloc(sizeof *data);
+  	// 2.2 initialize data descriptor
   	data->ptr = alloc_addr;
   	data->len = data_len;
   	data->cnt = 1;
   	// 3. put data descriptor's pointer into stimulate fifo
  	put_data(&q1, data);
- 	printf("input p: %d\n", *(uint32_t *)data->ptr);
   }
+  /*
   for (int i = 1; i > 0; i--){
   	p = malloc(data_len);
   	*(int *)p = 9;
   	uint32_t alloc_addr = (uint32_t)p;
-  	data_t* data;
-  	p = malloc(sizeof(*data));
-  	data = (data_t *)p;
+  	data_t* data = malloc(sizeof *data);
   	data->ptr = alloc_addr;
   	data->len = data_len;
   	data->cnt = 1;
  	put_data(&q2, data);
-  }
+  }*/
 }
 
 /* print out some information for debug */
@@ -123,37 +124,13 @@ void info_print(void) {
 }
 
 
-/*
- * Function: 
- *	1. Call task_exe()
- *	2. Put current block into idle fifo-queue
- * block_recycle(&block1)
- * block_n: address of block_n flags (a pointer)
- */
-void block_recycle(block_f *n_block) {
-  // 1. check if this block needs to recycle result
-  if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    // 1.1 catch scheduler recycle handler's pointer
-    Taskfunc task_callback = (Taskfunc)n_block->task_addr;
-    // 1.2 call the handler with revelant actors
-    task_callback(n_block->actor);
-  }
-  // 2. add current block into idle queue (if this block isn't in idle-fifo)
-  if((n_block->flags & BLOCK_IDLE) == 0){
-  	// 2.2 mark this block has been put into idle-fifo
-  	_set_block_flag(n_block, BLOCK_IDLE);
-  	put_queue(&q_block, (uint32_t)n_block);
-  }
-  
-}
-
 void actor_exe(void) {
   int current_task = 0;
   while(1){
   // scheduler would poll tasks only when VENUS has idle blocks
-  if(queue_size(&q_block) >= 1){
+  if(queue_size(&block_q) >= 1){
   	printf("\nSCHEDULER: Current task is %d\n", current_task+1);
-        block_f *n_block = (block_f *)get_queue(&q_block);
+        block_f *n_block = (block_f *)get_queue(&block_q);
         _clear_block_flag(n_block);
   	task(task_io[current_task], n_block);
   	

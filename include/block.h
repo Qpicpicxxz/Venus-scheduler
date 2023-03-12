@@ -20,6 +20,11 @@ typedef struct Block {
 	actor_t   *actor;
 } block_f;
 
+typedef struct linger {
+	block_f *block;
+	data_t  *data;
+} linger_t;
+
 static inline void _set_block_flag(struct Block *block, uint8_t flags)
 /* a |= b ---> a = a | b */
  { block->flags |= flags;

@@ -2,12 +2,15 @@
 #define __TASK_H__
 
 #include "types.h"
-#include "actor.h"
+#include "fifo.h"
 #include "block.h"
+#include "actor.h"
 #include "daddr.h"
 #include "os.h"
 #include "saddr.h"
 
+/* idle block queue */
+extern queue_t block_q;
 
 /* get block-task recycle function's pointer */
 typedef void (*Taskfunc)(actor_t *g);

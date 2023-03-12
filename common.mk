@@ -23,15 +23,17 @@ SRCS_C = \
 				 $(SOURCE)printf.c \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)page.c \
-				 $(SOURCE)sctx.c \
+				 $(SOURCE)switchContext.c \
 				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \
-				 $(SOURCE)taskrule.c \
+				 $(SOURCE)taskCallback.c \
 				 $(SOURCE)block.c \
 				 $(SOURCE)externalIRQ.c \
-				 $(SOURCE)actorInit.c
+				 $(SOURCE)actorInit.c \
+				 $(SOURCE)linkedList.c \
+				 $(SOURCE)fireCheck.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \
