@@ -13,9 +13,6 @@
 /* idle block queue */
 extern queue_t block_q;
 
-/* get block-task recycle function's pointer */
-typedef void (*Taskfunc)(actor_t *g);
-
 /* task fire rule: dependency checking & idle block checking */
 extern uint8_t task(actor_t *g, block_f *n_block);
 

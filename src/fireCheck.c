@@ -1,13 +1,12 @@
 #include "task.h"
 
 extern void callback(actor_t *g);
-extern void block_sim(uint32_t task_index, block_f *block);
+extern void block_sim(block_f *block);
 
 /* A handler to bind inflight task with current block */
-void task_bind(actor_t *g, block_f *n_block, Taskfunc task_addr) {
+void task_bind(actor_t *g, block_f *n_block) {
   actor_t *actor = g;
   printf("\nBLOCK: Computing task...\n");
-  n_block->task_addr = (uint32_t)task_addr;
   n_block->actor = actor;
 }
 
@@ -78,9 +77,9 @@ uint8_t task(actor_t *g, block_f *n_block) {
     link p = create_node((uint32_t)n_block);
     insert(g->fire_list, p);
     // 6. associate block and task
-    task_bind(g, n_block, &callback);
+    task_bind(g, n_block);
     // 7. JUST SIMULATION: compute result and check if could free space
-    block_sim(g->task_addr, n_block);
+    block_sim(n_block);
     // 8. DMA get out the dependency, check their lifecycle
     for (int i = 0; i < g->dep_num; i++) {
       data_t *data = get_data(&dma_trans_in);

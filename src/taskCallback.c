@@ -6,6 +6,8 @@ static uint32_t result;	// just simulation
 static actor_t *cur_actor;
 static data_t *cur_data;
 
+void callback(actor_t *g);
+
 /*
  * Function:
  *	1. Check if the block just complete the computation
@@ -26,17 +28,16 @@ void block_recycle(block_f *n_block) {
     printf("SCHEDULER: Inserting block into finish list...\n");
     // 1.1.1 initialize a linger struct
     linger_t *linger = malloc(sizeof(linger_t));
+    printf("alloc linger pointer: 0x%x\n", linger);
     linger->block = n_block;
     linger->data = NULL;
     // 1.1.2 put linger's address as a node item and insert into linger list
     link p = create_node((uint32_t)linger);
     insert(n_block->actor->linger_list, p);
     linger = (linger_t *)read_first((n_block->actor->linger_list))->item;
-    // 1.2 catch scheduler recycle handler's pointer
-    Taskfunc task_callback = (Taskfunc)n_block->task_addr;
-    // 1.3 call the handler with revelant actors
-    task_callback(n_block->actor);
-    // 4. reset the block's status flag
+    // 1.2 call the handler with revelant actors
+    callback(n_block->actor);
+    // 3. reset the block's status flag
     _clear_block_flag(n_block);
   }
   // 2. add current block into idle queue (if this block isn't in idle-fifo)
@@ -56,6 +57,7 @@ void pass_result() {
   }
   // 5.4.2 release passed result
   pop(cur_actor->fire_list);
+  free((void *)cur_actor->linger_list->head->next->item);
   delete (cur_actor->linger_list->head->next);
   // 5.4.3 deassign next expected arrival
   if (!is_list_empty(cur_actor->fire_list))
@@ -113,8 +115,7 @@ void alloc_result() {
     // 5.4 pass the result to the successor
     pass_result();
     // 5.5 check the rest of lingers
-    while (!is_list_empty(cur_actor->fire_list) ||
-           !is_list_empty(cur_actor->linger_list)) {
+    while (!is_list_empty(cur_actor->linger_list)) {
       traverse(cur_actor->linger_list, check_if_done);
     }
   }

@@ -3,11 +3,11 @@
 
 /* Mark the block as in-flight status,
  * 	to decide whether to recycle result or not */
-#define BLOCK_INFLIGHT (uint8_t)(1 << 0)
+#define BLOCK_INFLIGHT (uint32_t)(1 << 0)
 /* Mark the block has already in idle fifo,
- *	to prevent block repeatedly pull up interrupt, 
+ *	to prevent block repeatedly pull up interrupt,
  *	which would cause fifo explosion */
-#define BLOCK_INFIFO (uint8_t)(1 << 1)
+#define BLOCK_INFIFO (uint32_t)(1 << 1)
 
 #include "actor.h"
 
@@ -18,24 +18,21 @@
  * -actor: the current actor's pointer
  */
 typedef struct Block {
-	uint8_t   flags;
-	uint32_t  task_addr;
-	uint32_t  spm_addr;
-	actor_t   *actor;
-	uint32_t  result;	// JUST simulation!!!
+  uint8_t flags;
+  uint32_t spm_addr;
+  actor_t *actor;
+  uint32_t result; // JUST simulation!!!
 } block_f;
 
 typedef struct linger {
-	block_f *block;
-	data_t  *data;
+  block_f *block;
+  data_t *data;
 } linger_t;
 
-static inline void _set_block_flag(struct Block *block, uint8_t flags)
-/* a |= b ---> a = a | b */
- { block->flags |= flags;
+static inline void _set_block_flag(struct Block *block, uint8_t flags) {
+  block->flags |= flags;
 }
 
-static inline void _clear_block_flag(struct Block *block)
-{ block->flags = 0;}
+static inline void _clear_block_flag(struct Block *block) { block->flags = 0; }
 
 #endif /* __BLOCK_H__ */
