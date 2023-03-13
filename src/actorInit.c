@@ -10,7 +10,8 @@ static actor_t task3_io;
 static actor_t task4_io;
 static actor_t task5_io;
 static actor_t task6_io;
-actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task5_io, &task6_io};
+// actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task5_io, &task6_io};
+static list_t *actor_l;
 static fifo_t q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11;
 
 queue_t block_q;
@@ -33,7 +34,7 @@ void actor_create(void) {
    *	5. 1: task start address (so far, simulate)
    *	6. TASK1_END - TAKS1_START: task length
    */
-  *task_io[0] = (actor_t){{&q1},   
+  task1_io = (actor_t){{&q1},   
                        1,
                        {&q3, &q4},
                        2,
@@ -75,6 +76,16 @@ void actor_create(void) {
                        4,
                        6,
                        TASK3_END - TASK3_START};
+}
+
+void actorlist_create(void) {
+	actor_l = create_list();
+	insert(actor_l, create_node((uint32_t)&task1_io));
+	insert(actor_l, create_node((uint32_t)&task2_io));
+	insert(actor_l, create_node((uint32_t)&task3_io));
+	insert(actor_l, create_node((uint32_t)&task4_io));
+	insert(actor_l, create_node((uint32_t)&task5_io));
+	insert(actor_l, create_node((uint32_t)&task6_io));
 }
 
 /* inject original stimulators */
@@ -122,24 +133,39 @@ void info_print(void) {
   printf("\nSCHEDULER: Waiting for blocks to be ready...\n");
 }
 
-
+/* Funcition: Poll tasks only when VENUS has idle blocks */
 void actor_exe(void) {
-  int current_task = 0;
+  // 1. initialize p to the last (first in) node
+  link p = actor_l->tail->prev;
   while(1){
-  // scheduler would poll tasks only when VENUS has idle blocks
-  if(queue_size(&block_q) >= 1){
-  	printf("\nSCHEDULER: Current task is %d\n", current_task + 1);
-        block_f *n_block = (block_f *)get_queue(&block_q);
-        _clear_block_flag(n_block);
-  	task(task_io[current_task], n_block);
-  	current_task = (current_task + 1) % NUM_TASKS;
+  // 2. wait for idle blocks
+  if (queue_size(&block_q) >= 1) {
+     uint8_t fire = 0;
+    // 3. idle blocks found, push out and use it
+    block_f *n_block = (block_f *)get_queue(&block_q);
+    // 4. reset the block's status flag
+    _clear_block_flag(n_block);
+    // 5. polling for ready task
+    while (!fire) {
+    	if (p == actor_l->head)
+    		p = actor_l->tail->prev;
+        uint32_t actor_index =
+            ((uint32_t)p->item - (uint32_t)(actor_l->tail->prev)->item) /
+            sizeof(actor_t) + 1;
+        printf("\nChecking actor %d\n", actor_index);
+        task_delay(10000);
+        actor_t *g = (actor_t *)p->item;
+        fire = task(g, n_block);
+        p = p->prev;
+      }
+    }
   }
- }
 }
 
 
 void actor_launch(void) {
   actor_create();
+  actorlist_create();
   stimu_inject();
   info_print();
   actor_exe();

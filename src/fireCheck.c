@@ -47,14 +47,14 @@ uint8_t successor_full(actor_t *g) {
  *	2. Inform DMA move the code and data
  *	3. associate current block and task
  */
-void task(actor_t *g, block_f *n_block) {
+uint8_t task(actor_t *g, block_f *n_block) {
   /*
    *  1.1 check firing condition
    *  1.2 catch idle block
    *  1.3 check the successor's fifo is full or not
    */
   if (actor_ready(g) && !successor_full(g)) {
-    printf("TASK: Firing...\n");
+    printf("SCHEDULER: Actor 0x%x Fired\n", g);
     printf("SCHEDULER: 0x%x block is ready...\n", n_block);
     // 2. mark this block to be inflight status
     _set_block_flag(n_block, BLOCK_INFLIGHT);
@@ -80,17 +80,20 @@ void task(actor_t *g, block_f *n_block) {
     // 7. JUST SIMULATION: compute result and check if could free space
     block_sim(g->task_addr, n_block);
     // 8. DMA get out the dependency, check their lifecycle
-  for (int i = 0; i < g->dep_num; i++) {
-    data_t *data = get_data(&dma_trans_in);
-    // check dependency's lifecycle
-    if (data->cnt == 1) {
-      // In real sence, we can free data space after last successor's firing
-      printf("SCHEDULER: Last use, free data space...\n");
-      free((void *)data->ptr); // free data space
-      free((void *)data);      // free data flag space
-    } else {
-      data->cnt--;
+    for (int i = 0; i < g->dep_num; i++) {
+      data_t *data = get_data(&dma_trans_in);
+      // check dependency's lifecycle
+      if (data->cnt == 1) {
+        // In real sence, we can free data space after last successor's firing
+        printf("SCHEDULER: Last use, free data space...\n");
+        free((void *)data->ptr); // free data space
+        free((void *)data);      // free data flag space
+      } else {
+        data->cnt--;
+      }
     }
-  }
+    return 1;
+  } else {
+    return 0;
   }
 }

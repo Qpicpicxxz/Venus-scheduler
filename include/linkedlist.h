@@ -8,10 +8,11 @@
 typedef struct node *link;
 
 typedef struct node {
-  uint32_t item;
+  uint32_t item;	// a pointer or anything else
   link prev;
   link next;
 } node_t;
+
 typedef struct list {
   link head;
   link tail;

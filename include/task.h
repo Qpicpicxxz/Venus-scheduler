@@ -18,7 +18,7 @@ extern queue_t block_q;
 typedef void (*Taskfunc)(actor_t *g);
 
 /* task fire rule: dependency checking & idle block checking */
-extern void task(actor_t *g, block_f *n_block);
+extern uint8_t task(actor_t *g, block_f *n_block);
 
 /* fifo */
 extern void init_fifo(fifo_t *F);

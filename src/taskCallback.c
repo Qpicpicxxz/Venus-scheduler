@@ -46,6 +46,7 @@ void block_recycle(block_f *n_block) {
 
 void pass_result() {
   // 5.4.1 pass the result to the successor
+  printf("SCHEDULER: Expected result, pass to the successor...\n");
   for (int i = 0; i < cur_actor->nxt_num; i++) {
     put_data(cur_actor->out[i], cur_data);
   }
@@ -61,7 +62,7 @@ void check_if_done(link p) {
   linger_t *linger = (linger_t *)(p->item);
   // 5.5.1 if this linger result could be passed
   if ((uint32_t)linger->block == ideal_block) {
-    printf("SCHEDULER: Linger result found, pass to the successor...\n");
+    printf("SCHEDULER: Linger result %d is found...\n", *(uint32_t *)linger->data->ptr);
     // 5.5.2 assign pass data
     cur_data = linger->data;
     // 5.5.3 pass this result
@@ -71,33 +72,32 @@ void check_if_done(link p) {
 
 /*
  * Function:
- *	1. Allocate some heap space for data restore accroding to [result_len]
- *attributes.
- *	2. Inform DMA to move the result back to allocated DDR space. (pointer)
+ *	1. Allocate some heap space for data restore accroding to [result_len] attributes.
+ *	2. Inform DMA to move the result back to allocated DDR space (pointer)
  *	3. Pass the result's pointer to sucessor's fifo-queue.
  */
-void alloc_result(actor_t *g) {
+void alloc_result() {
+  printf("\nSCHEDULER: Allocating result...\n");
   void *p;
   // 1. allocate data storage space
-  p = malloc(g->result_len);
+  p = malloc(cur_actor->result_len);
   uint32_t alloc_addr = (uint32_t)p;
-  printf("SCHEDULER: Result %d is stored in 0x%x\n", *(uint32_t *)alloc_addr,
-         alloc_addr);
   // 2. allocate data descriptor space
   cur_data = malloc(sizeof *cur_data);
   // 3. initialize data descriptor
   cur_data->ptr = alloc_addr;    // data pointer
-  cur_data->len = g->result_len; // data length
-  cur_data->cnt = g->nxt_num;    // data lifecycle
+  cur_data->len = cur_actor->result_len; // data length
+  cur_data->cnt = cur_actor->nxt_num;    // data lifecycle
   // 4. told DMA where to move and store the result
-  dma_result(alloc_addr, DATA1_ADDR, g->result_len);
+  dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // 4.1 SIMULATE DMA stored the result
   *(int *)p = result;
+  printf("DMA: Result %d is stored in 0x%x\n", *(uint32_t *)alloc_addr, alloc_addr);
   // 5. check whether the right arrival sequence or not
   // 5.1 catch the block we should have
-  ideal_block = read_last((g->fire_list))->item;
+  ideal_block = read_last((cur_actor->fire_list))->item;
   // 5.2 catch the block just push interrupt
-  linger_t *linger = (linger_t *)read_first((g->linger_list))->item;
+  linger_t *linger = (linger_t *)read_first((cur_actor->linger_list))->item;
   uint32_t actual_block = (uint32_t)linger->block;
   // 5.3 if the wrong arrival sequence happen
   if (ideal_block != actual_block) {
@@ -122,7 +122,6 @@ void alloc_result(actor_t *g) {
  */
 void callback(actor_t *g) {
   cur_actor = g;
-  printf("\nSCHEDULER: Allocating result...\n");
-  alloc_result(g);
+  alloc_result();
   printf("SCHEDULER: Callback handler done...\n");
 }
