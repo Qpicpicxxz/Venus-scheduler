@@ -1,10 +1,14 @@
 #ifndef __BLOCK_H__
 #define __BLOCK_H__
 
+/* Mark the block as in-flight status,
+ * 	to decide whether to recycle result or not */
 #define BLOCK_INFLIGHT (uint8_t)(1 << 0)
-#define BLOCK_IDLE (uint8_t)(1 << 1)
+/* Mark the block has already in idle fifo,
+ *	to prevent block repeatedly pull up interrupt, 
+ *	which would cause fifo explosion */
+#define BLOCK_INFIFO (uint8_t)(1 << 1)
 
-#include "saddr.h"
 #include "actor.h"
 
 /*
@@ -18,7 +22,7 @@ typedef struct Block {
 	uint32_t  task_addr;
 	uint32_t  spm_addr;
 	actor_t   *actor;
-	uint32_t  result;	// just simulation!!!
+	uint32_t  result;	// JUST simulation!!!
 } block_f;
 
 typedef struct linger {

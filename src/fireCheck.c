@@ -45,7 +45,9 @@ uint8_t successor_full(actor_t *g) {
  * Function:
  *	1. The Top-level function of dependency-checking process
  *	2. Inform DMA move the code and data
- *	3. associate current block and task
+ *	3. Associate current block and task
+ *	5. Call task simulation progress
+ *	4. Check dependencies' lifecycle, decide whether to free their memory
  */
 uint8_t task(actor_t *g, block_f *n_block) {
   /*
@@ -54,7 +56,7 @@ uint8_t task(actor_t *g, block_f *n_block) {
    *  1.3 check the successor's fifo is full or not
    */
   if (actor_ready(g) && !successor_full(g)) {
-    printf("SCHEDULER: Actor 0x%x Fired\n", g);
+    printf("\nSCHEDULER: Actor 0x%x Fired\n", g);
     printf("SCHEDULER: 0x%x block is ready...\n", n_block);
     // 2. mark this block to be inflight status
     _set_block_flag(n_block, BLOCK_INFLIGHT);

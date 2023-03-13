@@ -1,6 +1,8 @@
-#include "task.h"
+/* Simulate block's behaviour, DO NOT exist in real scheme. */
 
+#include "task.h"
 static block_f *block;
+extern uint8_t actor_index;
 
 void task1_exe() {
   data_t *data = read_data(&dma_trans_in);
@@ -46,13 +48,9 @@ void task6_exe() {
   block->result = t1 + t2 + t3;
 }
 
-/*
- * Function:
- *	Simulate block's behaviour, DO NOT exist in real scheme.
- */
 void block_sim(uint32_t task_index, block_f *n_block) {
   block = n_block;
-  switch (task_index) {
+  switch (actor_index) {
   case 1:
     task1_exe();
     break;

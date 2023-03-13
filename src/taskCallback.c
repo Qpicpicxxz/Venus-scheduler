@@ -8,10 +8,11 @@ static data_t *cur_data;
 
 /*
  * Function:
- *	1. Call task_exe()
- *	2. Put current block into idle fifo-queue
- * block_recycle(&block1)
- * block_n: address of block_n flags (a pointer)
+ *	1. Check if the block just complete the computation
+ *	2. Link current block into Linger_list (to check arrival sequence)
+ *	3. Call callback() 
+ *	4. Flush current block's status flag
+ *	5. Add current block into idle block queue
  */
 void block_recycle(block_f *n_block) {
   // 0. SIMULATE ONLY: pass the result here
@@ -35,13 +36,16 @@ void block_recycle(block_f *n_block) {
     Taskfunc task_callback = (Taskfunc)n_block->task_addr;
     // 1.3 call the handler with revelant actors
     task_callback(n_block->actor);
+    // 4. reset the block's status flag
+    _clear_block_flag(n_block);
   }
   // 2. add current block into idle queue (if this block isn't in idle-fifo)
-  if ((n_block->flags & BLOCK_IDLE) == 0) {
+  if ((n_block->flags & BLOCK_INFIFO) == 0) {
     // mark this block has been put into idle-fifo
-    _set_block_flag(n_block, BLOCK_IDLE);
+    _set_block_flag(n_block, BLOCK_INFIFO);
     put_queue(&block_q, (uint32_t)n_block);
   }
+    printf("\nChecking actor:");
 }
 
 void pass_result() {
@@ -72,9 +76,10 @@ void check_if_done(link p) {
 
 /*
  * Function:
- *	1. Allocate some heap space for data restore accroding to [result_len] attributes.
+ *	1. Allocate some heap space for data restore accroding to [result_len] attributes
  *	2. Inform DMA to move the result back to allocated DDR space (pointer)
- *	3. Pass the result's pointer to sucessor's fifo-queue.
+ *	3. Check if this result the right arrival sequence
+ *	4. If the right arrival sequence, pass the result's pointer to sucessor's dependency fifo
  */
 void alloc_result() {
   printf("\nSCHEDULER: Allocating result...\n");
@@ -115,11 +120,7 @@ void alloc_result() {
   }
 }
 
-/*
- * Function:
- *	1. Top-level function to handle result and recycle block.
- *	2. Flush block's flag after block recycle and result allocation.
- */
+/* Function: Top-level function to handle result and recycle block */
 void callback(actor_t *g) {
   cur_actor = g;
   alloc_result();

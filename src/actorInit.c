@@ -1,5 +1,4 @@
 #include "task.h"
-#define NUM_TASKS 6
 /* 
  * Note: Later optimization should change 
  *	these actor's initializaion into dynamically allocation.
@@ -10,11 +9,11 @@ static actor_t task3_io;
 static actor_t task4_io;
 static actor_t task5_io;
 static actor_t task6_io;
-// actor_t *task_io[NUM_TASKS] = {&task1_io, &task2_io, &task3_io, &task4_io, &task5_io, &task6_io};
 static list_t *actor_l;
 static fifo_t q1, q2, q3, q4, q5, q6, q7, q8, q9, q10, q11;
 
 queue_t block_q;
+uint8_t actor_index;
 
 /*
  * Generate actors: taskx_io
@@ -28,10 +27,10 @@ void actor_create(void) {
   /*
    * Describe example:
    * 	1. {&q1}: input fifo array (curly brace represent an array)
-   *	2. 1: dependency number
-   *	3. &q3: output fifo
-   *	4. 32: result data length
-   *	5. 1: task start address (so far, simulate)
+   *	2. 1: dependency number	[user-specified]
+   *	3. {&q3}: output fifo
+   *	4. 4: result data length (byte) [user-specified]
+   *	5. TASK1_START: task address
    *	6. TASK1_END - TAKS1_START: task length
    */
   task1_io = (actor_t){{&q1},   
@@ -39,21 +38,21 @@ void actor_create(void) {
                        {&q3, &q4},
                        2,
                        4,   
-                       1, 	// Note: should be TASKn_START, NOT complete yet.I use it as a task token for simulation.
+                       TASK1_START,
                        TASK1_END - TASK1_START};
-  task2_io = (actor_t){{&q2}, 	// to represent dependency
+  task2_io = (actor_t){{&q2},
                        1,
                        {&q5, &q6, &q7},
                        3,
                        4,
-                       2,
+                       TASK2_START,
                        TASK2_END - TASK2_START};
   task3_io = (actor_t){{&q3, &q5}, 
                        2, 
                        {&q8},
                        1,  
                        4,
-                       3,
+                       TASK3_START,
                        TASK3_END - TASK3_START};
   task4_io = (actor_t){{&q4, &q6}, 
                        2, 
@@ -67,19 +66,21 @@ void actor_create(void) {
                        {&q10},  
                        1,
                        4,
-                       5,
-                       TASK3_END - TASK3_START};
+                       TASK1_START,
+                       TASK1_END - TASK1_START};
   task6_io = (actor_t){{&q8, &q9, &q10}, 
                        3, 
                        {&q11},
                        1, 
                        4,
-                       6,
-                       TASK3_END - TASK3_START};
+                       TASK2_START,
+                       TASK2_END - TASK2_START};
 }
 
+/* create a linkedlist actor_l and link all the actors */
 void actorlist_create(void) {
 	actor_l = create_list();
+	// first linked actor was placed at the end of the list
 	insert(actor_l, create_node((uint32_t)&task1_io));
 	insert(actor_l, create_node((uint32_t)&task2_io));
 	insert(actor_l, create_node((uint32_t)&task3_io));
@@ -91,13 +92,14 @@ void actorlist_create(void) {
 /* inject original stimulators */
 void stimu_inject(void) {
   void *p;
-  uint32_t data_len = 4;	// 4byte (length of int)
-  /* every inject can act as a packet's arrival */
+  uint32_t data_len = 4;	// 4byte is the length of 'int'
+  // every inject can act as a packet's arrival
   for (int i = 3; i > 0; i--){
   	// 1.1 alloc data memory
   	p = malloc(data_len);
   	// 1.2 initialize data
   	*(int *)p = i + 10;
+  	// 1.3 catch input data's address
   	uint32_t alloc_addr = (uint32_t)p;
   	// 2.1 define and allocate data descriptor
   	data_t* data = malloc(sizeof *data);
@@ -140,28 +142,28 @@ void actor_exe(void) {
   while(1){
   // 2. wait for idle blocks
   if (queue_size(&block_q) >= 1) {
-     uint8_t fire = 0;
+    uint8_t fire = 0;
     // 3. idle blocks found, push out and use it
     block_f *n_block = (block_f *)get_queue(&block_q);
-    // 4. reset the block's status flag
-    _clear_block_flag(n_block);
     // 5. polling for ready task
     while (!fire) {
+    	// 6. make list into a ring queue
     	if (p == actor_l->head)
     		p = actor_l->tail->prev;
-        uint32_t actor_index =
+    	// 7. compute actor's index
+        actor_index =
             ((uint32_t)p->item - (uint32_t)(actor_l->tail->prev)->item) /
             sizeof(actor_t) + 1;
-        printf("\nChecking actor %d\n", actor_index);
+        printf(" %d", actor_index);
         task_delay(10000);
-        actor_t *g = (actor_t *)p->item;
-        fire = task(g, n_block);
+        // 8. task dependency checking and catch if fire success or not
+        fire = task((actor_t *)p->item, n_block);
+        // 9. check next actor
         p = p->prev;
       }
     }
   }
 }
-
 
 void actor_launch(void) {
   actor_create();

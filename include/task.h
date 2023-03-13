@@ -7,7 +7,6 @@
 #include "actor.h"
 #include "daddr.h"
 #include "os.h"
-#include "saddr.h"
 
 #define NUM_BLOCKS 8
 
