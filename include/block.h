@@ -3,11 +3,11 @@
 
 /* Mark the block as in-flight status,
  * 	to decide whether to recycle result or not */
-#define BLOCK_INFLIGHT (uint32_t)(1 << 0)
+#define BLOCK_INFLIGHT (uint8_t)(1 << 0)
 /* Mark the block has already in idle fifo,
  *	to prevent block repeatedly pull up interrupt,
  *	which would cause fifo explosion */
-#define BLOCK_INFIFO (uint32_t)(1 << 1)
+#define BLOCK_INFIFO (uint8_t)(1 << 1)
 
 #include "actor.h"
 

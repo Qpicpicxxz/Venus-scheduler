@@ -12,8 +12,14 @@ void task_bind(actor_t *g, block_f *n_block) {
 
 /*
  * Function:
- *	Check whether this task could be fired
- *	Which means all the predecessors finished their execution
+ *	Check whether this task could be fired,
+ *	  which means all the predecessors finished their execution,
+ *	  so all the dependencies have been satisfied
+ *	This is a Dataflow Process Networks (DPN), so actor firings are
+ *	  garded by a set of firing rules which specifies when an actor 
+ *	  can be fires. These firing rules specifies precisely the number
+ *	  and the values of tokens that must be available on the input
+ *	  ports to the fire actor.
  */
 uint8_t actor_ready(actor_t *g) {
   uint8_t flag = 1;
@@ -78,18 +84,19 @@ uint8_t task(actor_t *g, block_f *n_block) {
     insert(g->fire_list, p);
     // 6. associate block and task
     task_bind(g, n_block);
-    // 7. JUST SIMULATION: compute result and check if could free space
+    // 7. JUST SIMULATION: compute result
     block_sim(n_block);
     // 8. DMA get out the dependency, check their lifecycle
     for (int i = 0; i < g->dep_num; i++) {
       data_t *data = get_data(&dma_trans_in);
-      // check dependency's lifecycle
+      // 8.1 check dependency's lifecycle
       if (data->cnt == 1) {
-        // In real sence, we can free data space after last successor's firing
+        // 8.2 garbage collection
         printf("SCHEDULER: Last use, free data space...\n");
         free((void *)data->ptr); // free data space
         free((void *)data);      // free data flag space
       } else {
+      	// 8.3 upate reference count (lifecycle)
         data->cnt--;
       }
     }

@@ -125,7 +125,7 @@ void stimu_inject(void) {
 
 /* print out some information for debug */
 void info_print(void) {
-  printf("\nVENUS: Input initial stimulators...\n");
+  printf(GREEN("\nVENUS: Input initial stimulators...\n"));
   printf("Task1 actor - Addr = 0x%x\n", &task1_io);
   printf("Task2 actor - Addr = 0x%x\n", &task2_io);
   printf("Task3 actor - Addr = 0x%x\n", &task3_io);
@@ -151,6 +151,7 @@ void actor_exe(void) {
     	if (p == actor_l->head)
     		p = actor_l->tail->prev;
     	// 7. compute actor's index
+    	// Note: Careful of this cauculation...
         actor_index =
             ((uint32_t)p->item - (uint32_t)(actor_l->tail->prev)->item) /
             sizeof(actor_t) + 1;

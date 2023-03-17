@@ -12,7 +12,7 @@ extern void schedule(void);
 
 void start_kernel(void) {
   uart_init();
-  uart_puts("Hello, VENUS!\n");
+  uart_puts(GREEN("Hello, VENUS!\n"));
   mem_init();
   trap_init();
   page_init();

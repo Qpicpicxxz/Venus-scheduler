@@ -104,49 +104,64 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
     /* Synchronous trap - exception */
     switch (cause_code) {
     case 0:
-      printf("Exception 0: Instruction address misaligned\n");
+      printf(REDSET"Exception 0:"RESET);
+      printf(" Instruction address misaligned\n");
       break;
     case 1:
-      printf("Exception 1: Instruction access fault\n");
+      printf(REDSET"Exception 1:"RESET);
+      printf(" Instruction access fault\n");
       while(1){};
     case 2:
-      printf("Exception 2: Illegal instruction\n");
+      printf(REDSET"Exception 2:"RESET);
+      printf(" Illegal instruction\n");
       while(1){};
     case 3:
-      printf("Exception 3: Breakpoint\n");
+      printf(REDSET"Exception 3:"RESET);
+      printf(" Breakpoint\n");
       while(1){};
     case 4:
-      printf("Exception 4: Load address misaligned\n");
+      printf(REDSET"Exception 4:"RESET);
+      printf(" Load address misaligned\n");
       while(1){};
     case 5:
-      printf("Exception 5: Load access fault\n");
+      printf(REDSET"Exception 5:"RESET);
+      printf(" Load access fault\n");
       while(1){};
     case 6:
-      printf("Exception 6: Store/AMO address misaligned\n");
+      printf(REDSET"Exception 6:"RESET);
+      printf(" Store/AMO address misaligned\n");
       while(1){};
     case 7:
-      printf("Exception 7: Store/AMO access fault\n");
+      printf(REDSET"Exception 7:"RESET);
+      printf(" Store/AMO access fault\n");
       while(1){};
     case 8:
-      printf("Exception 8: Environment call from U-mode\n");
+      printf(REDSET"Exception 8:"RESET);
+      printf(" Environment call from U-mode\n");
       while(1){};
     case 9:
-      printf("Exception 9: Environment call from S-mode\n");
+      printf(REDSET"Exception 9:"RESET);
+      printf(" Environment call from S-mode\n");
       while(1){};
     case 11:
-      printf("Exception 11: Environment call from M-mode\n");
+      printf(REDSET"Exception 11:"RESET);
+      printf(" Environment call from M-mode\n");
       while(1){};
     case 12:
-      printf("Exception 12: Instruction page fault\n");
+      printf(REDSET"Exception 12:"RESET);
+      printf(" Instruction page fault\n");
       while(1){};
     case 13:
-      printf("Exception 13: Load page fault\n");
+      printf(REDSET"Exception 13:"RESET);
+      printf(" Load page fault\n");
       while(1){};
     case 15:
-      printf("Exception 15: Store/AMO page fault\n");
+      printf(REDSET"Exception 15:"RESET);
+      printf(" Store/AMO page fault\n");
       while(1){};
     default:
-      printf("Exception %d: Reserved\n", cause_code);
+      printf(REDSET"Exception %d:"RESET);
+      printf(" Reserved\n", cause_code);
     }
     /*
      * panic is a dead loop

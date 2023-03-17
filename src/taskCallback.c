@@ -21,7 +21,8 @@ void block_recycle(block_f *n_block) {
   result = n_block->result;
   // 1. check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf("\nBLOCK 0x%x: Job done, result is: %d\n", n_block, result);
+    printf(YELLOWSET"\nBLOCK 0x%x:"RESET, n_block);
+    printf(" Job done, result is: %d\n", result);
     // 1.1 bind interrupt block with current actor's linger list
     if (n_block->actor->linger_list == NULL)
       n_block->actor->linger_list = create_list();
@@ -99,7 +100,7 @@ void alloc_result() {
   dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // 4.1 SIMULATE DMA stored the result
   *(int *)p = result;
-  printf("DMA: Result %d is stored in 0x%x\n", *(uint32_t *)alloc_addr, alloc_addr);
+  printf(BLUESET"DMA: Result %d is stored in 0x%x\n"RESET, *(uint32_t *)alloc_addr, alloc_addr);
   // 5. check whether the right arrival sequence or not
   // 5.1 catch the block we should have
   ideal_block = read_last((cur_actor->fire_list))->item;
