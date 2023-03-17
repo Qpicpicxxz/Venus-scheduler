@@ -22,7 +22,6 @@ SRCS_C = \
 			 	 $(SOURCE)uart.c \
 				 $(SOURCE)printf.c \
 				 $(SOURCE)debug.c \
-				 $(SOURCE)page.c \
 				 $(SOURCE)switchContext.c \
 				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
@@ -33,7 +32,9 @@ SRCS_C = \
 				 $(SOURCE)externalIRQ.c \
 				 $(SOURCE)actorInit.c \
 				 $(SOURCE)linkedList.c \
-				 $(SOURCE)fireCheck.c
+				 $(SOURCE)fireCheck.c	\
+				 $(SOURCE)memBlock.c	\
+				 $(SOURCE)memAlloc.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \

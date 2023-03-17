@@ -5,6 +5,7 @@
 #include "platform.h"
 #include "riscv.h"
 #include "color.h"
+#include "assert.h"
 
 #include <stddef.h>
 #include <stdarg.h>
@@ -22,7 +23,7 @@ extern void panic(char *s);
 /* memory management
  * returns a void pointer to the allocated space, or NULL if there is insufficient memory available
  */
-extern void *malloc(int bit);	// input the bit size
+extern void *malloc(uint32_t size);	// input the bit size
 extern void free(void *ptr);
 
 /* task management */

@@ -12,7 +12,7 @@
  *       larger matadata occupation, we need to make a tradeoff
  *       based on the actual situation.
  */
-#define PAGE_SIZE 256  // 256 Byte
+#define PAGE_SIZE 256  // 256 bit
 #define PAGE_ORDER 8   // 256 = 2^8
 #define META_SIZE 2048 // 0x0800_0000 / (256 * 256)
 

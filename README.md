@@ -6,7 +6,10 @@
 ├── gdbinit             // initialize GNU debuger script
 ├── include             // header files
 │   ├── actor.h         // define actor struct
+│   ├── allocator.h	// memAlloc && memBlock header file
+│   ├── assert.h	// assert macro
 │   ├── block.h         // define Block-task relation flags
+│   ├── color.h		// coloring printf info
 │   ├── daddr.h         // define VENUS block's data memory address
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── linkedlist.h    // header file of linked list
@@ -30,8 +33,10 @@
 │   ├── kernel.c        // initialize all the scheduler functions
 │   ├── linkedList.c    // handlers to manipulate a link list
 │   ├── main.c          // main function to run scheduler and launch actors
+│   ├── memAlloc.c	// malloc & free function
+│   ├── memBlock.c	// some functions to control allocation unit blocks
 │   ├── mem.S           // define some macros for catch section's address
-│   ├── page.c          // dynamic allocation for page (4KiB)
+│   ├── page.c          // dynamic allocation for page (deprecated)
 │   ├── printf.c        // print strings to QEMU terminal   
 │   ├── start.S         // first code to execute when launch a kernel
 │   ├── switchContext.c // some method for switch operation
@@ -46,6 +51,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 43 files
+3 directories, 47 files
 ```
 
