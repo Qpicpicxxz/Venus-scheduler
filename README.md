@@ -48,8 +48,10 @@
 └── task
     ├── Makefile
     ├── modifyLinker.py	// auto add tasks section into os.ld
+    ├── modifyMem.py	// auto define tasks descriptor into mem.S
     ├── readBin.py      // python script to rewrite binary file to c file
     ├── rollbackLink.py	// rollback the changes to the os.ld
+    ├── rollbackMem.py	// rollback the changes to the src/mem.S
     ├── task1.c         // tasks we want load to other blocks
     ├── task2.c
     ├── task3.c

@@ -37,6 +37,11 @@ all: word ${BINARY}
 	@echo ""
 	@echo "========== MODIFYING LINKER ========"
 	@python modifyLinker.py
+	@echo "	 allocate every task codes' section"
+	@echo ""
+	@echo "========== MODIFYING mem.S ========="
+	@python modifyMem.py
+	@echo " define every task codes' start-stop position"
 	@echo ""
 	
 .PHONY: code
@@ -51,4 +56,5 @@ code: all
 clean:
 	rm -rf *.elf *.bin *_bin.c *.txt
 	@python rollbackLink.py
+	@python rollbackMem.py
 

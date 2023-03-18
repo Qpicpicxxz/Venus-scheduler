@@ -23,38 +23,7 @@ RODATA_START: 	.word _rodata_start
 .global RODATA_END
 RODATA_END: 	.word _rodata_end
 
-.global TASK1_START
-TASK1_START: 	.word _task1_start
-
-.global TASK1_END
-TASK1_END:	.word _task1_end
-
-.global TASK1_LEN
-TASK1_LEN:	.word _task1_end - _task1_start
-
-.global TASK2_START
-TASK2_START: 	.word _task2_start
-
-.global TASK2_END
-TASK2_END:	.word _task2_end
-
-.global TASK2_LEN
-TASK2_LEN:	.word _task2_end - _task2_start
-
-.global TASK3_START
-TASK3_START: 	.word _task3_start
-
-.global TASK3_END
-TASK3_END:	.word _task3_end
-
-.global TASK3_LEN
-TASK3_LEN:	.word _task3_end - _task3_start
-
-#.global [TASKNAME]_START
-#[TASKNAME]_START: .word _[taskName]_start
-
-#.global [TASKNAME]_END
-#[TASKNAME]_END:	.word _[taskName]_end
+# python end jacklight
 
 .global BSS_START
 BSS_START: 	.word _bss_start
