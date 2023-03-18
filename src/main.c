@@ -13,7 +13,7 @@ void user_task1(void) {
 
 /* NOTICE: DON'T LOOP INFINITELY IN main() */
 void os_main(void) {
-  task_create(actor_launch);
-  // task_create(user_task1);
+  switch_task_create(actor_launch);
+  // switch_task_create(user_task1);
 }
 

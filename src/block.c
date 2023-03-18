@@ -4,70 +4,86 @@
 static block_f *block;
 extern uint8_t actor_index;
 
-void task1_exe() {
+/* 
+ * For test:
+ * 	1. Simulate block process and pass the data to the task
+ *	2. Store data descriptor in it to simulate
+ */
+fifo_t dma_trans_in;
+
+void taskA_exe() {
   data_t *data = read_data(&dma_trans_in);
   uint32_t t1 = *(uint32_t *)data->ptr;
-  block->result = t1 * t1;
+  block->result = t1;
 }
 
-void task2_exe() {
+void taskB_exe() {
   data_t *data = read_data(&dma_trans_in);
   uint32_t t1 = *(uint32_t *)data->ptr;
   block->result = t1 + t1;
 }
 
-void task3_exe() {
-  data_t *data = read_data(&dma_trans_in);
-  uint32_t t1 = *(uint32_t *)data->ptr;
-  data_t *data2 = read_else_data(&dma_trans_in, 1);
-  uint32_t t2 = *(uint32_t *)data2->ptr;
-  block->result = t1 + t2;
-}
-
-void task4_exe() {
-  data_t *data1 = read_data(&dma_trans_in);
-  data_t *data2 = read_else_data(&dma_trans_in, 1);
-  uint32_t t1 = *(uint32_t *)data1->ptr;
-  uint32_t t2 = *(uint32_t *)data2->ptr;
-  block->result = t1 * t2;
-}
-
-void task5_exe() {
+void taskC_exe() {
   data_t *data = read_data(&dma_trans_in);
   uint32_t t1 = *(uint32_t *)data->ptr;
   block->result = t1 * t1;
 }
 
-void task6_exe() {
-  data_t *data1 = read_data(&dma_trans_in);
+void taskD_exe() {
+  data_t *data = read_data(&dma_trans_in);
+  uint32_t t1 = *(uint32_t *)data->ptr;
   data_t *data2 = read_else_data(&dma_trans_in, 1);
+  uint32_t t2 = *(uint32_t *)data2->ptr;
   data_t *data3 = read_else_data(&dma_trans_in, 2);
-  uint32_t  t1 = *(uint32_t *)data1->ptr;
-  uint32_t  t2 = *(uint32_t *)data2->ptr;
-  uint32_t  t3 = *(uint32_t *)data3->ptr;
+  uint32_t t3 = *(uint32_t *)data3->ptr;
+  block->result = t1 + t2 + t3;
+}
+
+void taskE_exe() {
+  data_t *data = read_data(&dma_trans_in);
+  uint32_t t1 = *(uint32_t *)data->ptr;
+  block->result = t1 + t1;
+}
+
+void taskF_exe() {
+  data_t *data = read_data(&dma_trans_in);
+  uint32_t t1 = *(uint32_t *)data->ptr;
+  block->result = t1 * t1;
+}
+
+void taskG_exe() {
+  data_t *data = read_data(&dma_trans_in);
+  uint32_t t1 = *(uint32_t *)data->ptr;
+  data_t *data2 = read_else_data(&dma_trans_in, 1);
+  uint32_t t2 = *(uint32_t *)data2->ptr;
+  data_t *data3 = read_else_data(&dma_trans_in, 2);
+  uint32_t t3 = *(uint32_t *)data3->ptr;
   block->result = t1 + t2 + t3;
 }
 
 void block_sim(block_f *n_block) {
   block = n_block;
   switch (actor_index) {
+  case 0:
+    taskA_exe();
+    break;
   case 1:
-    task1_exe();
+    taskB_exe();
     break;
   case 2:
-    task2_exe();
+    taskC_exe();
     break;
   case 3:
-    task3_exe();
+    taskD_exe();
     break;
   case 4:
-    task4_exe();
+    taskE_exe();
     break;
   case 5:
-    task5_exe();
+    taskF_exe();
     break;
   case 6:
-    task6_exe();
+    taskG_exe();
     break;
   default:
     printf("\nERROR: No task code matching...\n");

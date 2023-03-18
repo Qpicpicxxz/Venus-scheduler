@@ -1,10 +1,13 @@
 #include "task.h"
 
+/* idle block queue */
+extern queue_t block_q;
 /* Some inner variables */
 static uint32_t ideal_block;
 static uint32_t result;	// just simulation
 static actor_t *cur_actor;
 static data_t *cur_data;
+extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
 
 void callback(actor_t *g);
 

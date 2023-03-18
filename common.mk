@@ -34,7 +34,8 @@ SRCS_C = \
 				 $(SOURCE)linkedList.c \
 				 $(SOURCE)fireCheck.c	\
 				 $(SOURCE)memBlock.c	\
-				 $(SOURCE)memAlloc.c
+				 $(SOURCE)memAlloc.c	\
+				 $(SOURCE)actorCreate.c
 
 # the source file we want to compile separately
 SRCS_TASKS = \

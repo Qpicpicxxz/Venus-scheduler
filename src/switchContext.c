@@ -42,7 +42,7 @@ void schedule()
  * 	0: success
  * 	-1: if error occured
  */
- int task_create(void (*start_routin)(void))
+ int switch_task_create(void (*start_routin)(void))
 {
 	if (_top < MAX_TASKS) {
 		ctx_tasks[_top].sp = (reg_t) &task_stack[_top][STACK_SIZE - 1];

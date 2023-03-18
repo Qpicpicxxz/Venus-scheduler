@@ -4,9 +4,6 @@
  * DO NOT put any practical operation of data in it!!!
  */
 #include "task.h"
-
-fifo_t dma_trans_in;
-
 /*
  * Use DMA to move the code to the designated place
  * i_spm_addr: the target block's code memory address (destination)

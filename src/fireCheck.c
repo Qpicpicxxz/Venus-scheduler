@@ -2,6 +2,11 @@
 
 extern void callback(actor_t *g);
 extern void block_sim(block_f *block);
+/* dma */
+extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
+extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
+extern fifo_t dma_trans_in;
+
 
 /* A handler to bind inflight task with current block */
 void task_bind(actor_t *g, block_f *n_block) {
@@ -16,7 +21,7 @@ void task_bind(actor_t *g, block_f *n_block) {
  *	  which means all the predecessors finished their execution,
  *	  so all the dependencies have been satisfied
  *	This is a Dataflow Process Networks (DPN), so actor firings are
- *	  garded by a set of firing rules which specifies when an actor 
+ *	  garded by a set of firing rules which specifies when an actor
  *	  can be fires. These firing rules specifies precisely the number
  *	  and the values of tokens that must be available on the input
  *	  ports to the fire actor.
@@ -36,14 +41,10 @@ uint8_t actor_ready(actor_t *g) {
 
 uint8_t successor_full(actor_t *g) {
   uint8_t flag = 1;
-  for (int i = 0; i < g->nxt_num; i++) {
-    flag = flag && fifo_full(g->out[i]);
-  }
-  if (flag) {
-    return 1;
-  } else {
-    return 0;
-  }
+    for (int i = 0; i < g->nxt_num; i++) {
+      flag = flag && fifo_full(g->out[i]);
+    }
+    return flag;
 }
 
 /*
@@ -96,7 +97,7 @@ uint8_t task(actor_t *g, block_f *n_block) {
         free((void *)data->ptr); // free data space
         free((void *)data);      // free data flag space
       } else {
-      	// 8.3 upate reference count (lifecycle)
+        // 8.3 upate reference count (lifecycle)
         data->cnt--;
       }
     }

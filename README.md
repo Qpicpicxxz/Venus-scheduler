@@ -23,6 +23,7 @@
 ├── os.ld               // linker script
 ├── README.md           // introduction
 ├── src
+│   ├── actorCreate.c	// API export to user to dipict DAG
 │   ├── actorInit.c     // depict DAG and declare actors and fifo-queues
 │   ├── block.c         // simulate block compute behaviour
 │   ├── debug.c         // print out all sections range and size
@@ -51,6 +52,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 47 files
+3 directories, 48 files
 ```
 
