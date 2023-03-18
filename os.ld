@@ -63,25 +63,8 @@ SECTIONS
 		*(.data .data.*)
 		PROVIDE(_data_end = .);
 	} >ram
-
-
-	.task1 :{
-		PROVIDE(_task1_start = .);
-		*(.task1)
-		PROVIDE(_task1_end = .);
-	} >ram
-
-	.task2 :{
-		PROVIDE(_task2_start = .);
-		*(.task2)
-		PROVIDE(_task2_end = .);
-	} >ram
-
-	.task3 :{
-		PROVIDE(_task3_start = .);
-		*(.task3)
-		PROVIDE(_task3_end = .);
-	} >ram
+	
+# python end jacklight
 
 /*	.[taskName] :{
 		PROVIDE(_[taskName]_start = .);

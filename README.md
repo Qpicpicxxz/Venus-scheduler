@@ -23,7 +23,7 @@
 ├── os.ld               // linker script
 ├── README.md           // introduction
 ├── src
-│   ├── actorCreate.c	// API export to user to dipict DAG
+│   ├── actorCreate.c	// API export to user to depict DAG
 │   ├── actorInit.c     // depict DAG and declare actors and fifo-queues
 │   ├── block.c         // simulate block compute behaviour
 │   ├── debug.c         // print out all sections range and size
@@ -47,11 +47,13 @@
 │   └── uart.c          // UART functions for print && external interrupt
 └── task
     ├── Makefile
-    ├── readbin.py      // python script to rewrite binary file to c file
+    ├── modifyLinker.py	// auto add tasks section into os.ld
+    ├── readBin.py      // python script to rewrite binary file to c file
+    ├── rollbackLink.py	// rollback the changes to the os.ld
     ├── task1.c         // tasks we want load to other blocks
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 48 files
+3 directories, 50 files
 ```
 

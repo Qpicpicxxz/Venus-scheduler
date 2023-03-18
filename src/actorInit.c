@@ -29,7 +29,7 @@ void stimu_init(void){
   d6 = 6;  // 270
 }
 
-/* DAG dipict example */
+/* DAG depict example */
 void actor_create(){
 	stimu_init();
 	printf(GREEN("\nSCHEDULER: Creating task...\n"));

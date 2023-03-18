@@ -28,12 +28,15 @@ all: word ${BINARY}
 	@echo ""
 	@echo "============ CONVERTING ============"
 	@echo ""
-	@python readbin.py ${BINARY}
+	@python readBin.py ${BINARY}
 	@echo ""
 	@echo "============ MOVING CODE ==========="
 	@echo ""
 	@cp *_bin.c ../
 	@echo "  all the generated files have been copied to the root directory"
+	@echo ""
+	@echo "========== MODIFYING LINKER ========"
+	@python modifyLinker.py
 	@echo ""
 	
 .PHONY: code
@@ -47,4 +50,5 @@ code: all
 .PHONY: clean
 clean:
 	rm -rf *.elf *.bin *_bin.c *.txt
+	@python rollbackLink.py
 

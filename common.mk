@@ -38,10 +38,7 @@ SRCS_C = \
 				 $(SOURCE)actorCreate.c
 
 # the source file we want to compile separately
-SRCS_TASKS = \
-				task1.c \
-				task2.c \
-				task3.c
+SRCS_TASKS := $(filter-out %_bin.c, $(wildcard *.c))
 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 
