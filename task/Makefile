@@ -33,16 +33,18 @@ all: word ${BINARY}
 	@echo "============ MOVING CODE ==========="
 	@echo ""
 	@cp *_bin.c ../
-	@echo "  all the generated files have been copied to the root directory"
+	@echo "  all the generated files have been"
+	@echo "  copied to the root directory"
 	@echo ""
 	@echo "========== MODIFYING LINKER ========"
 	@python modifyLinker.py
-	@echo "	 allocate every task codes' section"
+	@echo ""
+	@echo "  place every task codes' section"
 	@echo ""
 	@echo "========== MODIFYING mem.S ========="
 	@python modifyMem.py
-	@echo " define every task codes' start-stop position"
 	@echo ""
+	@echo "  define every task codes' description"
 	
 .PHONY: code
 code: all

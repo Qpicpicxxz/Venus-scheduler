@@ -81,7 +81,7 @@ void actor_exe(void) {
         actor_index =
             ((uint32_t)p->item - (uint32_t)(actor_l->tail->prev)->item) /
             actor_space;
-        printf(" %c", actor_index + 65);
+        printf(GREEN(" %c"), actor_index + 65);
         task_delay(10000);
         // 8. task dependency checking and catch if fire success or not
         fire = task((actor_t *)p->item, n_block);

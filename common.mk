@@ -10,6 +10,7 @@ CC = ${CROSS_COMPILE}gcc
 OBJCOPY = ${CROSS_COMPILE}objcopy
 OBJDUMP = ${CROSS_COMPILE}objdump
 NM = ${CROSS_COMPILE}nm
+MAKEFLAGS += --silent
 
 SRCS_ASM = \
 					 $(SOURCE)start.S \

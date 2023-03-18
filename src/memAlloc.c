@@ -9,9 +9,7 @@ void heap_init() {
     *(uint32_t *)i = 0;
   }
   uint32_t HEAP = alloc_end - alloc_start;
-  printf("\nHeap section:  start = 0x%x    SIZE:   0x%x\n", HEAP_START,
-         HEAP_SIZE);
-  printf("\nALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
+  printf("ALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
   printf("    SIZE:   0x%x\n", HEAP);
   // to ensure: A--F--A
   // set the prologue block

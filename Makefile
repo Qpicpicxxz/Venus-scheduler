@@ -25,7 +25,7 @@ $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c
 
 word:
 	@echo ""
-	@echo "============ COMPILING ============"
+	@echo "============ COMPILING ============="
 	@echo ""
 
 taskgenerate:

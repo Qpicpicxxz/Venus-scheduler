@@ -48,7 +48,7 @@
 └── task
     ├── Makefile
     ├── modifyLinker.py	// auto add tasks section into os.ld
-    ├── modifyMem.py	// auto define tasks descriptor into mem.S
+    ├── modifyMem.py	// auto define tasks descriptor into src/mem.S
     ├── readBin.py      // python script to rewrite binary file to c file
     ├── rollbackLink.py	// rollback the changes to the os.ld
     ├── rollbackMem.py	// rollback the changes to the src/mem.S
@@ -56,6 +56,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 50 files
+3 directories, 52 files
 ```
 

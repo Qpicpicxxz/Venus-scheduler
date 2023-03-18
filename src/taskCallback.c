@@ -24,8 +24,8 @@ void block_recycle(block_f *n_block) {
   result = n_block->result;
   // 1. check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf(YELLOWSET"\nBLOCK 0x%x:"RESET, n_block);
-    printf(" Job done, result is: %d\n", result);
+    printf(YELLOWSET"\nBLOCK 0x%x:", n_block);
+    printf(" Job done, result is: %d\n"RESET, result);
     // 1.1 bind interrupt block with current actor's linger list
     if (n_block->actor->linger_list == NULL)
       n_block->actor->linger_list = create_list();
@@ -50,7 +50,7 @@ void block_recycle(block_f *n_block) {
     _set_block_flag(n_block, BLOCK_INFIFO);
     put_queue(&block_q, (uint32_t)n_block);
   }
-    printf("\nChecking actor:");
+    printf(GREEN("\nChecking actor:"));
 }
 
 void pass_result() {
@@ -112,7 +112,7 @@ void alloc_result() {
   uint32_t actual_block = (uint32_t)linger->block;
   // 5.3 if the wrong arrival sequence happen
   if (ideal_block != actual_block) {
-    printf("SCHEDULER: Oops! Wrong result arrival sequence...\n");
+    printf(PINK("SCHEDULER: Oops! Wrong result arrival sequence...\n"));
     // 5.3.1 bind store the data descripor into linger list descriptor
     linger->data = cur_data;
   } else {
