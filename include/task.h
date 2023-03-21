@@ -14,6 +14,7 @@ extern list_t *actor_l;
 extern list_t *ready_l;
 extern uint8_t actor_index;
 extern uint32_t actor_space;
+extern uint32_t actor_start;
 
 /* actor create */
 extern actor_t *actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len);

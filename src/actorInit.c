@@ -3,9 +3,10 @@
 /* SIMULATION ONLY */
 uint8_t actor_index;
 uint32_t actor_space;
+uint32_t actor_start;
 static uint32_t d1, d2, d3, d4, d5, d6;
 
-/* task fire rule: dependency checking & idle block checking */
+/* fireCheck.c */
 extern void ready_search(void);
 extern void actor_check(void);
 extern uint8_t fire_check(actor_t *g);
@@ -63,6 +64,7 @@ void DAG_depict() {
 
 /* SIMULATION ONLY: locate which task execution */
 void para_init(void) {
+  actor_start = (uint32_t)(actor_l->tail->prev)->item;
   actor_space = (uint32_t)(actor_l->tail->prev->prev)->item -
                 (uint32_t)(actor_l->tail->prev)->item;
 }

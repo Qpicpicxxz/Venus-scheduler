@@ -56,7 +56,7 @@ void delete(link p) {
   p->next->prev = p->prev;
 }
 
-/* Function: Transverse the linklist from head to tail */
+/* Function: Traverse the linklist from head to tail */
 void traverse(list_t *list, void (*visit)(link)) {
   link p;
   for (p = list->head->next; p != list->tail; p = p->next)
@@ -92,7 +92,7 @@ link pop(list_t *list) {
 /* Function: Read first node (after head node) */
 link read_first(list_t *list) {
   if (list->tail->prev == list->head) {
-    printf("ERROR: Reading empty list!\n");
+    printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
   } else
     return list->head->next;
@@ -101,7 +101,7 @@ link read_first(list_t *list) {
 /* Function: Read last node (before tail node) */
 link read_last(list_t *list) {
   if (list->tail->prev == list->head) {
-    printf("ERROR: Reading empty list!\n");
+    printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
   } else
     return list->tail->prev;
@@ -114,6 +114,20 @@ uint8_t is_list_empty(list_t *list) {
   } else {
     return 0;
   }
+}
+
+/* Function: Insert a new node before a specific node in a list */
+void insert_before(list_t *list, link node, uint32_t item) {
+  link new = create_node(item);
+  new->prev = node->prev;
+  new->next = node;
+  if (node == list->head) {
+    list->head = new;
+  } else {
+    node->prev->next = new;
+  }
+
+  node->prev = new;
 }
 
 void print_item(link p) { printf("0x%x\n", p->item); }

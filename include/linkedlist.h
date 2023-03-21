@@ -30,6 +30,7 @@ void push(list_t *list, link p);
 link pop(list_t *list);
 link read_first(list_t *list);
 link read_last(list_t *list);
+void insert_before(list_t *list, link node, uint32_t item);
 uint8_t is_list_empty(list_t *list);
 
 #endif /* __LINKEDLIST_H__ */

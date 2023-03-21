@@ -9,6 +9,7 @@
 │   ├── allocator.h	// memAlloc && memBlock header file
 │   ├── assert.h	// assert macro
 │   ├── block.h         // define Block-task relation flags
+│   ├── codeAddr.h	// declare task code's position
 │   ├── color.h		// coloring printf info
 │   ├── daddr.h         // define VENUS block's data memory address
 │   ├── fifo.h          // define data && fifo && queue structure type
@@ -47,15 +48,17 @@
 │   └── uart.c          // UART functions for print && external interrupt
 └── task
     ├── Makefile
+    ├── modifyHeader.py
     ├── modifyLinker.py	// auto add tasks section into os.ld
     ├── modifyMem.py	// auto define tasks descriptor into src/mem.S
     ├── readBin.py      // python script to rewrite binary file to c file
+    ├── rollbackHeader.py
     ├── rollbackLink.py	// rollback the changes to the os.ld
     ├── rollbackMem.py	// rollback the changes to the src/mem.S
     ├── task1.c         // tasks we want load to other blocks
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 52 files
+3 directories, 55 files
 ```
 
