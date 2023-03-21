@@ -19,4 +19,9 @@ typedef struct actor {
   list_t *linger_list;
 } actor_t;	/* actor template */
 
+typedef struct ready {
+  uint32_t actor_addr;
+  list_t *dep_addr;
+} ready_t;
+
 #endif /* __ACTOR_H__ */

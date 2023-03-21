@@ -1,11 +1,9 @@
 # build options
 include ../common.mk
 
-# task.elf and task.bin
 ELF = $(patsubst %.c,%.elf,$(SRCS_TASKS))
 BINARY = $(patsubst %.c,%.bin,$(SRCS_TASKS))
-
-# label
+# title
 .PHONY: word
 word:
 	@echo ""
@@ -15,6 +13,7 @@ word:
 elf: ${ELF}
 
 # in this step will output linker script(ld) warning: task1.elf has a LOAD segment with RWX permissions
+# tasks are compiled and linked directly inside the image of the OS
 %.elf : %.c
 	@${CC} ${CFLAGS} -T task.ld -o $@ $< 2>/dev/null
 	@echo "  $< ---> $@"
@@ -22,6 +21,8 @@ elf: ${ELF}
 %.bin : %.elf
 	@${OBJCOPY} -O binary $< $@
 	@echo "  $< ---> $@"
+	
+
 
 # execute each binary file with python script once and generate a c file respectively
 all: word ${BINARY}
@@ -53,10 +54,10 @@ code: all
 	@echo ""
 	@${OBJDUMP} --disassemble-all task1.elf > objdump.txt
 	@open objdump.txt
-
+	
 .PHONY: clean
 clean:
-	rm -rf *.elf *.bin *_bin.c *.txt
+	rm -rf *.elf *.bin *_bin.c *.txt *.map
 	@python rollbackLink.py
 	@python rollbackMem.py
 

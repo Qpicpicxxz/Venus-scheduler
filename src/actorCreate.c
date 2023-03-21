@@ -1,10 +1,8 @@
 /* API can provides productivity and facilitates rapid prototyping for developers */
 #include "task.h"
 
-extern list_t *actor_l;
-
 /* API for actor create */
-actor_t *task_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
+actor_t *actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
   /* 1. Transforming functions into task definitions */
   actor_t *actor = malloc(sizeof(actor_t));
   // the result_len is in bytes
@@ -13,7 +11,7 @@ actor_t *task_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) 
   actor->result_len = result_len;
   actor->task_addr = taskStart;
   actor->task_len = taskLen;
-  /* 2. Transforming function calls into task linked constructs */
+  /* 2. Transforming function invocations into task linked constructs */
   insert(actor_l, create_node((uint32_t)actor));
   printf("Task 0x%x created...\n", actor);
   return actor;

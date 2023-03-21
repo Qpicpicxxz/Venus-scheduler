@@ -83,7 +83,7 @@ tree:
 
 .PHONY : clean
 clean:
-	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c
+	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c *.map
 	@cd src && rm -rf *.o *.bin *.elf *.txt
 	@cd task && ${MAKE} clean
 

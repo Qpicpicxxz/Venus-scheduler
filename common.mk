@@ -1,5 +1,5 @@
 CROSS_COMPILE = riscv32-unknown-elf-
-CFLAGS = -I./include -nostdlib -fno-builtin -ffreestanding -march=rv32ima -mabi=ilp32 -g -Wall
+CFLAGS = -I./include -nostdlib -fno-builtin -ffreestanding -march=rv32ima -mabi=ilp32 -g -Wall -Wl,-Map=output.map
 QEMU = qemu-system-riscv32
 QFLAGS = -nographic -machine virt -bios none \
 				 -smp cores=1,threads=1,sockets=1
@@ -37,10 +37,12 @@ SRCS_C = \
 				 $(SOURCE)memBlock.c	\
 				 $(SOURCE)memAlloc.c	\
 				 $(SOURCE)actorCreate.c
-
-# the source file we want to compile separately
-SRCS_TASKS := $(filter-out %_bin.c, $(wildcard *.c))
-
+				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
+
+SRCS_TASKS :=\
+		task1.c \
+		task2.c \
+		task3.c 
 
 .DEFAULT_GOAL := all

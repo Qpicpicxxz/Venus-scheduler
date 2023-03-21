@@ -1,4 +1,4 @@
-volatile const int a = 10;
+volatile const int hillary = 10;
 volatile static int c = 20;
 volatile const int d;
 int main(){

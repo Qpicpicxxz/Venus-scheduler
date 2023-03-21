@@ -1,13 +1,16 @@
 #include "task.h"
 
-/* idle block queue */
+/* fireCheck.c */
 extern queue_t block_q;
+extern void ready_search(void);
+/* dma.c */
+extern void dma_result(uint32_t data_dst, uint32_t data_addr,
+                       uint32_t data_len);
 /* Some inner variables */
 static uint32_t ideal_block;
-static uint32_t result;	// just simulation
+static uint32_t result; // just simulation
 static actor_t *cur_actor;
 static data_t *cur_data;
-extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
 
 void callback(actor_t *g);
 
@@ -15,7 +18,7 @@ void callback(actor_t *g);
  * Function:
  *	1. Check if the block just complete the computation
  *	2. Link current block into Linger_list (to check arrival sequence)
- *	3. Call callback() 
+ *	3. Call callback()
  *	4. Flush current block's status flag
  *	5. Add current block into idle block queue
  */
@@ -24,8 +27,8 @@ void block_recycle(block_f *n_block) {
   result = n_block->result;
   // 1. check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf(YELLOWSET"\nBLOCK 0x%x:", n_block);
-    printf(" Job done, result is: %d\n"RESET, result);
+    printf(YELLOWSET "\nBLOCK 0x%x:", n_block);
+    printf(" Job done, result is: %d\n" RESET, result);
     // 1.1 bind interrupt block with current actor's linger list
     if (n_block->actor->linger_list == NULL)
       n_block->actor->linger_list = create_list();
@@ -43,6 +46,7 @@ void block_recycle(block_f *n_block) {
     callback(n_block->actor);
     // 3. reset the block's status flag
     _clear_block_flag(n_block);
+    ready_search();
   }
   // 2. add current block into idle queue (if this block isn't in idle-fifo)
   if ((n_block->flags & BLOCK_INFIFO) == 0) {
@@ -50,7 +54,6 @@ void block_recycle(block_f *n_block) {
     _set_block_flag(n_block, BLOCK_INFIFO);
     put_queue(&block_q, (uint32_t)n_block);
   }
-    printf(GREEN("\nChecking actor:"));
 }
 
 void pass_result() {
@@ -72,7 +75,8 @@ void check_if_done(link p) {
   linger_t *linger = (linger_t *)(p->item);
   // 5.5.1 if this linger result could be passed
   if ((uint32_t)linger->block == ideal_block) {
-    printf("SCHEDULER: Linger result %d is found...\n", *(uint32_t *)linger->data->ptr);
+    printf("SCHEDULER: Linger result %d is found...\n",
+           *(uint32_t *)linger->data->ptr);
     // 5.5.2 assign pass data
     cur_data = linger->data;
     // 5.5.3 pass this result
@@ -82,10 +86,12 @@ void check_if_done(link p) {
 
 /*
  * Function:
- *	1. Allocate some heap space for data restore accroding to [result_len] attributes
+ *	1. Allocate some heap space for data restore accroding to [result_len]
+ *attributes
  *	2. Inform DMA to move the result back to allocated DDR space (pointer)
  *	3. Check if this result the right arrival sequence
- *	4. If the right arrival sequence, pass the result's pointer to sucessor's dependency fifo
+ *	4. If the right arrival sequence, pass the result's pointer to
+ *sucessor's dependency fifo
  */
 void alloc_result() {
   printf("\nSCHEDULER: Allocating result...\n");
@@ -96,21 +102,22 @@ void alloc_result() {
   // 2. allocate data descriptor space
   cur_data = malloc(sizeof *cur_data);
   // 3. initialize data descriptor
-  cur_data->ptr = alloc_addr;    // data pointer
+  cur_data->ptr = alloc_addr;            // data pointer
   cur_data->len = cur_actor->result_len; // data length
   cur_data->cnt = cur_actor->nxt_num;    // data lifecycle
   // 4. told DMA where to move and store the result
   dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // 4.1 SIMULATE DMA stored the result
   *(int *)p = result;
-  printf(BLUESET"DMA: Result %d is stored in 0x%x\n"RESET, *(uint32_t *)alloc_addr, alloc_addr);
+  printf(BLUESET "DMA: Result %d is stored in 0x%x\n" RESET,
+         *(uint32_t *)alloc_addr, alloc_addr);
   // 5. check whether the right arrival sequence or not
   // 5.1 catch the block we should have
   ideal_block = read_last((cur_actor->fire_list))->item;
   // 5.2 catch the block just push interrupt
   linger_t *linger = (linger_t *)read_first((cur_actor->linger_list))->item;
   uint32_t actual_block = (uint32_t)linger->block;
-  // 5.3 if the wrong arrival sequence happen
+  // 5.3 if the wrong arrival sequence happen (sporadic)
   if (ideal_block != actual_block) {
     printf(PINK("SCHEDULER: Oops! Wrong result arrival sequence...\n"));
     // 5.3.1 bind store the data descripor into linger list descriptor
