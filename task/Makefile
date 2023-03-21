@@ -46,6 +46,11 @@ all: word ${BINARY}
 	@python modifyMem.py
 	@echo ""
 	@echo "  define every task codes' description"
+	@echo ""
+	@echo "======= MODIFYING codeAddr.h ======="
+	@python modifyHeader.py
+	@echo ""
+	@echo "  declare every task codes' description"
 	
 .PHONY: code
 code: all
@@ -58,6 +63,7 @@ code: all
 .PHONY: clean
 clean:
 	rm -rf *.elf *.bin *_bin.c *.txt *.map
-	@python rollbackLink.py
+	@python rollbackLinker.py
 	@python rollbackMem.py
+	@python rollbackHeader.py
 

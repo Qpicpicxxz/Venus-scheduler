@@ -1,4 +1,5 @@
 #include "os.h"
+#include "codeAddr.h"
 
 extern uint32_t TEXT_START;
 extern uint32_t TEXT_END;
@@ -6,12 +7,6 @@ extern uint32_t DATA_START;
 extern uint32_t DATA_END;
 extern uint32_t RODATA_START;
 extern uint32_t RODATA_END;
-extern uint32_t TASK1_START;
-extern uint32_t TASK1_END;
-extern uint32_t TASK2_START;
-extern uint32_t TASK2_END;
-extern uint32_t TASK3_START;
-extern uint32_t TASK3_END;
 extern uint32_t BSS_START;
 extern uint32_t BSS_END;
 extern uint32_t HEAP_START;

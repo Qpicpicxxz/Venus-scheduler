@@ -22,6 +22,6 @@ typedef struct actor {
 typedef struct ready {
   uint32_t actor_addr;
   list_t *dep_addr;
-} ready_t;
+} ready_t;	/* ready-actor template */
 
 #endif /* __ACTOR_H__ */

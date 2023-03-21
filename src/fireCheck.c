@@ -53,7 +53,7 @@ void task_bind(actor_t *g, block_f *n_block) {
 void ready_search(void) {
   // 1. initialize a search node
   link p = actor_l->tail->prev;
-  printf(GREEN("\nChecking actor:"));
+  printf(GREEN("\nChecking actor: "));
   // 2. search all the actors in DAG
   while (p != actor_l->head) {
     actor_index = ((uint32_t)p->item - (uint32_t)(actor_l->tail->prev)->item) / actor_space;
