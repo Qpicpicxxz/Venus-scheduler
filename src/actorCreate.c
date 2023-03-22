@@ -30,20 +30,20 @@ static uint32_t node_make(fifo_t **array, fifo_t *fifo) {
 }
 
 /* API for DAG dipict */
-void edge_make(actor_t *dep, actor_t *suc) {
+void edge_make(actor_t *src, actor_t *snk) {
   fifo_t *fifo = malloc(sizeof(fifo_t));
   int success;
-  success = node_make(dep->out, fifo);
+  success = node_make(src->out, fifo);
   if (!success) {
     printf(RED("Dependency actor's fifo is full\n"));
   } else {
-    dep->nxt_num += 1;
+    src->nxt_num += 1;
   }
-  success = node_make(suc->in, fifo);
+  success = node_make(snk->in, fifo);
   if (!success) {
     printf(RED("Successor actor's fifo is full\n"));
   } else {
-    suc->dep_num += 1;
+    snk->dep_num += 1;
   }
 }
 

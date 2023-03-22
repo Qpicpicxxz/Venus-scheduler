@@ -72,7 +72,7 @@ static inline ready_t *create_ready(void) {
 /* Function: Schedule the new ready actor to the proper position */
 static inline void ready_schedule(ready_t *r) {
   int found = 0;
-  for (link p = ready_l->head->next; p != ready_l->tail; p = p->next) {
+  for (node_t *p = ready_l->head->next; p != ready_l->tail; p = p->next) {
     int cur_nxt = ((actor_t *)r->actor_addr)->nxt_num;
     int p_nxt = ((actor_t *)((ready_t *)p->item)->actor_addr)->nxt_num;
     if (cur_nxt == p_nxt) {
@@ -89,7 +89,7 @@ static inline void ready_schedule(ready_t *r) {
 /* Function: Print out the current ready actor list */
 static inline void print_ready_list(void) {
   printf(GREENSET "\nReady actor queue: head->");
-  for (link p = ready_l->head->next; p != ready_l->tail; p = p->next) {
+  for (node_t *p = ready_l->head->next; p != ready_l->tail; p = p->next) {
     printf("%c->", (((ready_t *)p->item)->actor_addr - actor_start) / actor_space + 65);
   }
   printf("tail\n" RESET);
@@ -99,7 +99,7 @@ static inline void print_ready_list(void) {
 void ready_search(void) {
   printf(GREEN("\nChecking actor: "));
   // 1. search all the actors in DAG
-  for (link p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
+  for (node_t *p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
     actor = (actor_t *)p->item;
     // 2. handle ready actors

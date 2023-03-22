@@ -5,32 +5,32 @@
 #include "types.h"
 
 
-typedef struct node *link;
+typedef struct node node_t;
 
 typedef struct node {
   uint32_t item;	// a pointer or anything else
-  link prev;
-  link next;
+  node_t *prev;
+  node_t *next;
 } node_t;
 
 typedef struct list {
-  link head;
-  link tail;
+  node_t *head;
+  node_t *tail;
 } list_t;
 
 list_t *create_list(void);
-link create_node(uint32_t item);
-void free_node(link p);
-link search(list_t *list, uint32_t key);
-void insert(list_t *list, link p);
-void delete(link p);
-void traverse(list_t *list, void (*visit)(link));
+node_t *create_node(uint32_t item);
+void free_node(node_t *p);
+node_t *search(list_t *list, uint32_t key);
+void insert(list_t *list, node_t *p);
+void delete(node_t *p);
+void traverse(list_t *list, void (*visit)(node_t *));
 void destroy(list_t *list);
-void push(list_t *list, link p);
-link pop(list_t *list);
-link read_first(list_t *list);
-link read_last(list_t *list);
-void insert_before(list_t *list, link node, uint32_t item);
+void push(list_t *list, node_t *p);
+node_t *pop(list_t *list);
+node_t *read_first(list_t *list);
+node_t *read_last(list_t *list);
+void insert_before(list_t *list, node_t *node, uint32_t item);
 uint8_t is_list_empty(list_t *list);
 
 #endif /* __LINKEDLIST_H__ */

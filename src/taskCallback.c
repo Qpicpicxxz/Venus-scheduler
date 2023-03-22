@@ -39,7 +39,7 @@ void block_recycle(block_f *n_block) {
     linger->block = n_block;
     linger->data = NULL;
     // 1.1.2 put linger's address as a node item and insert into linger list
-    link p = create_node((uint32_t)linger);
+    node_t *p = create_node((uint32_t)linger);
     insert(n_block->actor->linger_list, p);
     linger = (linger_t *)read_first((n_block->actor->linger_list))->item;
     // 1.2 call the handler with revelant actors
@@ -71,7 +71,7 @@ void pass_result() {
     ideal_block = read_last(cur_actor->fire_list)->item;
 }
 
-void check_if_done(link p) {
+void check_if_done(node_t *p) {
   linger_t *linger = (linger_t *)(p->item);
   // 5.5.1 if this linger result could be passed
   if ((uint32_t)linger->block == ideal_block) {

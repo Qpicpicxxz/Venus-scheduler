@@ -18,8 +18,8 @@ list_t *create_list(void) {
 }
 
 /* Function: Create a new node for linked list */
-link create_node(uint32_t item) {
-  link p = malloc(sizeof *p);
+node_t *create_node(uint32_t item) {
+  node_t *p = malloc(sizeof *p);
   p->item = item;
   p->prev = p->next = NULL;
   return p;
@@ -31,11 +31,11 @@ link create_node(uint32_t item) {
  * 	so we can just free this node, not necessary
  *	assign which linked list.
  */
-void free_node(link p) { free(p); }
+void free_node(node_t *p) { free(p); }
 
 /* Function: Search item==key node in specific linkedlist */
-link search(list_t *list, uint32_t key) {
-  link p;
+node_t *search(list_t *list, uint32_t key) {
+  node_t *p;
   for (p = list->head; p != list->tail; p = p->next)
     if (p->item == key)
       return p;
@@ -43,7 +43,7 @@ link search(list_t *list, uint32_t key) {
 }
 
 /* Function: Insert a node follow the head */
-void insert(list_t *list, link p) {
+void insert(list_t *list, node_t *p) {
   p->next = list->head->next;
   list->head->next->prev = p;
   list->head->next = p;
@@ -51,21 +51,22 @@ void insert(list_t *list, link p) {
 }
 
 /* Funciton: Delete first node */
-void delete(link p) {
+void delete(node_t *p) {
   p->prev->next = p->next;
   p->next->prev = p->prev;
 }
 
 /* Function: Traverse the linklist from head to tail */
-void traverse(list_t *list, void (*visit)(link)) {
-  link p;
+void traverse(list_t *list, void (*visit)(node_t *)) {
+  node_t *p;
   for (p = list->head->next; p != list->tail; p = p->next)
     visit(p);
 }
 
 /* Function: Destory a linklist */
 void destroy(list_t *list) {
-  link q, p = list->head->next;
+  node_t *q = list->head->next;
+  node_t *p = list->head->next;
   list->head->next = list->tail;
   list->tail->prev = list->head;
   while (p != list->tail) {
@@ -76,21 +77,21 @@ void destroy(list_t *list) {
 }
 
 /* Function: Push one node into linklist behind head pointer */
-void push(list_t *list, link p) { insert(list, p); }
+void push(list_t *list, node_t *p) { insert(list, p); }
 
 /* Function: Delete the node precedes the tail */
-link pop(list_t *list) {
+node_t *pop(list_t *list) {
   if (list->tail->prev == list->head)
     return NULL;
   else {
-    link p = list->tail->prev;
+    node_t *p = list->tail->prev;
     delete (p);
     return p;
   }
 }
 
 /* Function: Read first node (after head node) */
-link read_first(list_t *list) {
+node_t *read_first(list_t *list) {
   if (list->tail->prev == list->head) {
     printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
@@ -99,7 +100,7 @@ link read_first(list_t *list) {
 }
 
 /* Function: Read last node (before tail node) */
-link read_last(list_t *list) {
+node_t *read_last(list_t *list) {
   if (list->tail->prev == list->head) {
     printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
@@ -117,8 +118,8 @@ uint8_t is_list_empty(list_t *list) {
 }
 
 /* Function: Insert a new node before a specific node in a list */
-void insert_before(list_t *list, link node, uint32_t item) {
-  link new = create_node(item);
+void insert_before(list_t *list, node_t *node, uint32_t item) {
+  node_t *new = create_node(item);
   new->prev = node->prev;
   new->next = node;
   if (node == list->head) {
@@ -130,11 +131,11 @@ void insert_before(list_t *list, link node, uint32_t item) {
   node->prev = new;
 }
 
-void print_item(link p) { printf("0x%x\n", p->item); }
+void print_item(node_t *p) { printf("0x%x\n", p->item); }
 
 void link_test(void) {
   list_t *list = create_list();
-  link p = create_node(0x11111111);
+  node_t *p = create_node(0x11111111);
   insert(list, p);
   p = create_node(0x99999999);
   insert(list, p);
