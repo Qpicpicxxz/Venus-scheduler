@@ -2,6 +2,7 @@
 #define __TYPES_H__
 
 typedef unsigned char uint8_t;
+typedef unsigned char uchar;
 typedef unsigned short uint16_t;
 typedef unsigned int  uint32_t;
 typedef signed int int32_t;

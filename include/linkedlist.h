@@ -1,3 +1,4 @@
+/* ref: http://akaedu.github.io/book/ch26s01.html */
 #ifndef __LINKEDLIST_H__
 #define __LINKEDLIST_H__
 
@@ -23,7 +24,7 @@ node_t *create_node(uint32_t item);
 void free_node(node_t *p);
 node_t *search(list_t *list, uint32_t key);
 void insert(list_t *list, node_t *p);
-void delete(node_t *p);
+void delete_node(node_t *p);
 void traverse(list_t *list, void (*visit)(node_t *));
 void destroy(list_t *list);
 void push(list_t *list, node_t *p);

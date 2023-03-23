@@ -1,3 +1,4 @@
+/* ref: http://akaedu.github.io/book/ch26s01.html */
 #include "linkedlist.h"
 
 /* Function: Create a new linkedlist */
@@ -5,8 +6,8 @@ list_t *create_list(void) {
   // 1. create a list struct
   list_t *list = malloc(sizeof(list_t));
   // 2. create head and tail sentinel node
-  list->head = malloc(sizeof(struct node));
-  list->tail = malloc(sizeof(struct node));
+  list->head = malloc(sizeof(node_t));
+  list->tail = malloc(sizeof(node_t));
   // 3. initialize two sentinel node
   list->head->item = 0;
   list->head->prev = NULL;
@@ -31,7 +32,7 @@ node_t *create_node(uint32_t item) {
  * 	so we can just free this node, not necessary
  *	assign which linked list.
  */
-void free_node(node_t *p) { free(p); }
+inline void free_node(node_t *p) { free(p); }
 
 /* Function: Search item==key node in specific linkedlist */
 node_t *search(list_t *list, uint32_t key) {
@@ -51,7 +52,7 @@ void insert(list_t *list, node_t *p) {
 }
 
 /* Funciton: Delete first node */
-void delete(node_t *p) {
+void delete_node(node_t *p) {
   p->prev->next = p->next;
   p->next->prev = p->prev;
 }
@@ -85,7 +86,7 @@ node_t *pop(list_t *list) {
     return NULL;
   else {
     node_t *p = list->tail->prev;
-    delete (p);
+    delete_node(p);
     return p;
   }
 }
@@ -134,6 +135,7 @@ void insert_before(list_t *list, node_t *node, uint32_t item) {
 void print_item(node_t *p) { printf("0x%x\n", p->item); }
 
 void link_test(void) {
+  printf(YELLOW("\nTesting Linked List...\n"));
   list_t *list = create_list();
   node_t *p = create_node(0x11111111);
   insert(list, p);
@@ -142,7 +144,7 @@ void link_test(void) {
   p = create_node(0x77777777);
   insert(list, p);
   p = search(list, 0x99999999);
-  delete (p);
+  delete_node(p);
   free_node(p);
   traverse(list, print_item);
   destroy(list);

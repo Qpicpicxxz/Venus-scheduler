@@ -120,7 +120,10 @@ static inline void traverse_data(void) {
   for (uint32_t i = 0; i < actor->dep_num; i++) {
     // get data descriptor
     data_t *data = (data_t *)ready->dep_addr->tail->prev->item;
-    delete (ready->dep_addr->tail->prev);
+    // get current data node out of dep_addr list
+    delete_node(ready->dep_addr->tail->prev);
+    // free current data node descriptor
+    free_node(ready->dep_addr->tail->prev);
     put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
     dma_data(DATA1_ADDR, data->ptr, data->len);
@@ -191,10 +194,13 @@ void actor_check(void) {
       // 2. get out this idle block from idle-queue
       block = (block_f *)get_queue(&block_q);
       // 3. parse the ready actor descriptor
-      ready = (ready_t *)ready_l->tail->prev->item;
+      node_t *ready_node = ready_l->tail->prev;
+      ready = (ready_t *)ready_node->item;
       // 4. remove this actor from ready list
-      delete (ready_l->tail->prev);
-      // 5. invoke function with ready actor descriptor to fire actor
+      delete_node(ready_node);
+      // 5. release this ready actor node space
+      free_node(ready_node);
+      // 6. invoke function with ready actor descriptor to fire actor
       actor_fire();
     }
   }

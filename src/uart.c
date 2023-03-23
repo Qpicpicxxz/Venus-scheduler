@@ -6,10 +6,7 @@
  */
 #define UART_REG(reg) ((volatile uint8_t *)(UART0 + reg))
 
-/*
- * Reference
- * [1]: TECHNICAL DATA ON 16550, http://byterunner.com/16550.html
- */
+/* ref: TECHNICAL DATA ON 16550, http://byterunner.com/16550.html */
 
 /*
  * UART control registers map. see [1] "PROGRAMMING TABLE"

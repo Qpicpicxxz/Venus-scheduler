@@ -64,8 +64,9 @@ void pass_result() {
   }
   // 5.4.2 release passed result
   pop(cur_actor->fire_list);
-  free((void *)cur_actor->linger_list->head->next->item);
-  delete (cur_actor->linger_list->head->next);
+  free_node((void *)cur_actor->linger_list->head->next->item);
+  delete_node(cur_actor->linger_list->head->next);
+  free_node(cur_actor->linger_list->head->next);
   // 5.4.3 deassign next expected arrival
   if (!is_list_empty(cur_actor->fire_list))
     ideal_block = read_last(cur_actor->fire_list)->item;

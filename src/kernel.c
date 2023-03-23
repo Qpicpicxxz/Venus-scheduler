@@ -1,3 +1,4 @@
+/* ref: https://github.com/plctlab/riscv-operating-system-mooc */
 #include "os.h"
 
 /* We just use these functions once, so declared here */
@@ -11,6 +12,8 @@ extern void init_block_spm(void);
 extern void os_main(void);
 extern void schedule(void);
 extern void malloc_test(void);
+extern void link_test(void);
+extern void memcpy_test(void);
 
 void start_kernel(void) {
   uart_init();
@@ -19,6 +22,9 @@ void start_kernel(void) {
   mem_init();
   heap_init();
   // malloc_test();
+  // link_test();
+  memcpy_test();
+  while(1){};
   trap_init();
   // page_init();
   sched_init();
