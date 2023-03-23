@@ -22,6 +22,7 @@ SRCS_C = \
 				 $(SOURCE)kernel.c \
 			 	 $(SOURCE)uart.c \
 				 $(SOURCE)printf.c \
+				 $(SOURCE)ulib.c  \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)switchContext.c \
 				 $(SOURCE)trap.c \

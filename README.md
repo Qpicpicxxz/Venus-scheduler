@@ -19,7 +19,8 @@
 │   ├── riscv.h         // some basic privileged register assemble instructions
 │   ├── saddr.h         // VENUS block's sratchpad memory address
 │   ├── task.h          // include "actor.h && block.h" and extern some functions
-│   └── types.h         // unifom bit length
+│   ├── types.h         // unifom bit length
+│   └── ulib.h		// memory and string handlers
 ├── Makefile
 ├── os.ld               // linker script
 ├── README.md           // introduction
@@ -45,7 +46,8 @@
 │   ├── switch.S        // some method switch operation
 │   ├── taskCallback.c  // callback operation after block pull the interrupt
 │   ├── trap.c          // catch interrupt and exception
-│   └── uart.c          // UART functions for print && external interrupt
+│   ├── uart.c          // UART functions for print && external interrupt
+│   └── ulib.c 		// memory and string c lib functions
 └── task
     ├── Makefile
     ├── modifyHeader.py
