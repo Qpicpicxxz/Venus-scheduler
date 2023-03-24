@@ -21,10 +21,10 @@ void start_kernel(void) {
   // assert(1==2);
   mem_init();
   heap_init();
-  // malloc_test();
-  // link_test();
-  memcpy_test();
-  while(1){};
+   //malloc_test();
+   // link_test();
+  // memcpy_test();
+    //while(1){};
   trap_init();
   // page_init();
   sched_init();

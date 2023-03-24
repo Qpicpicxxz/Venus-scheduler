@@ -12,7 +12,6 @@ static uint32_t result; // just simulation
 static actor_t *cur_actor;
 static data_t *cur_data;
 
-void callback(actor_t *g);
 
 /*
  * Function:
@@ -41,9 +40,12 @@ void block_recycle(block_f *n_block) {
     // 1.1.2 put linger's address as a node item and insert into linger list
     node_t *p = create_node((uint32_t)linger);
     insert(n_block->actor->linger_list, p);
+    // newly added node would be placed head->next, which is read_first
     linger = (linger_t *)read_first((n_block->actor->linger_list))->item;
     // 1.2 call the handler with revelant actors
-    callback(n_block->actor);
+    cur_actor = n_block->actor;
+    alloc_result();
+     printf("SCHEDULER: Callback handler done...\n");
     // 3. reset the block's status flag
     _clear_block_flag(n_block);
     ready_search();
@@ -62,11 +64,22 @@ void pass_result() {
   for (int i = 0; i < cur_actor->nxt_num; i++) {
     put_data(cur_actor->out[i], cur_data);
   }
-  // 5.4.2 release passed result
-  pop(cur_actor->fire_list);
-  free_node((void *)cur_actor->linger_list->head->next->item);
-  delete_node(cur_actor->linger_list->head->next);
-  free_node(cur_actor->linger_list->head->next);
+  // 5.4.2 release passed result (tail->prev)
+  
+  node_t *fire_node = cur_actor->fire_list->tail->prev;
+  printf("fire node 0x%x\n", fire_node);
+  delete_node(fire_node);
+  free_node(fire_node);
+  
+  node_t *linger_node = cur_actor->linger_list->head->next;
+  linger_t *cur_linger = (linger_t *)linger_node->item;
+  printf("linger node 0x%x\n", linger_node);
+  printf("linger 0x%x\n", cur_linger);
+  delete_node(linger_node);
+  free_node(linger_node);
+  free(cur_linger);
+  //delete_node(cur_actor->linger_list->head->next);
+  //free_node(cur_actor->linger_list->head->next);
   // 5.4.3 deassign next expected arrival
   if (!is_list_empty(cur_actor->fire_list))
     ideal_block = read_last(cur_actor->fire_list)->item;
@@ -83,6 +96,7 @@ void check_if_done(node_t *p) {
     // 5.5.3 pass this result
     pass_result();
   }
+  // 5.5.4 if dismatch, visit next
 }
 
 /*
@@ -133,9 +147,3 @@ void alloc_result() {
   }
 }
 
-/* Function: Top-level function to handle result and recycle block */
-void callback(actor_t *g) {
-  cur_actor = g;
-  alloc_result();
-  printf("SCHEDULER: Callback handler done...\n");
-}

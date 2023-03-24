@@ -3,10 +3,13 @@
 
 /* Function: Create a new linkedlist */
 list_t *create_list(void) {
+  printf("in create list, size:%d\n", sizeof(list_t));
   // 1. create a list struct
   list_t *list = malloc(sizeof(list_t));
   // 2. create head and tail sentinel node
+  printf("HEAD. in create node, size %d\n", sizeof(node_t));
   list->head = malloc(sizeof(node_t));
+  printf("TAIL. in create node, size %d\n", sizeof(node_t));
   list->tail = malloc(sizeof(node_t));
   // 3. initialize two sentinel node
   list->head->item = 0;
@@ -20,7 +23,7 @@ list_t *create_list(void) {
 
 /* Function: Create a new node for linked list */
 node_t *create_node(uint32_t item) {
-  node_t *p = malloc(sizeof *p);
+  node_t *p = malloc(sizeof(node_t));
   p->item = item;
   p->prev = p->next = NULL;
   return p;
@@ -65,7 +68,7 @@ void traverse(list_t *list, void (*visit)(node_t *)) {
 }
 
 /* Function: Destory a linklist */
-void destroy(list_t *list) {
+void destroy_list(list_t *list) {
   node_t *q = list->head->next;
   node_t *p = list->head->next;
   list->head->next = list->tail;
@@ -79,17 +82,6 @@ void destroy(list_t *list) {
 
 /* Function: Push one node into linklist behind head pointer */
 void push(list_t *list, node_t *p) { insert(list, p); }
-
-/* Function: Delete the node precedes the tail */
-node_t *pop(list_t *list) {
-  if (list->tail->prev == list->head)
-    return NULL;
-  else {
-    node_t *p = list->tail->prev;
-    delete_node(p);
-    return p;
-  }
-}
 
 /* Function: Read first node (after head node) */
 node_t *read_first(list_t *list) {
@@ -120,6 +112,8 @@ uint8_t is_list_empty(list_t *list) {
 
 /* Function: Insert a new node before a specific node in a list */
 void insert_before(list_t *list, node_t *node, uint32_t item) {
+  /* make sure its not list head */
+  assert(node != list->head);
   node_t *new = create_node(item);
   new->prev = node->prev;
   new->next = node;
@@ -128,7 +122,6 @@ void insert_before(list_t *list, node_t *node, uint32_t item) {
   } else {
     node->prev->next = new;
   }
-
   node->prev = new;
 }
 
@@ -136,29 +129,20 @@ void print_item(node_t *p) { printf("0x%x\n", p->item); }
 
 void link_test(void) {
   printf(YELLOW("\nTesting Linked List...\n"));
-  list_t *list = create_list();
-  node_t *p = create_node(0x11111111);
-  insert(list, p);
-  p = create_node(0x99999999);
-  insert(list, p);
-  p = create_node(0x77777777);
-  insert(list, p);
-  p = search(list, 0x99999999);
-  delete_node(p);
-  free_node(p);
-  traverse(list, print_item);
-  destroy(list);
-
-  p = create_node(0x22222222);
-  push(list, p);
-  p = create_node(0x33333333);
-  push(list, p);
-  p = create_node(0x44444444);
-  push(list, p);
-  // suggest parentheses around assignment used as truth value
-  while ((p = pop(list)) != NULL) {
-    print_item(p);
-    free_node(p);
-  }
+  list_t *list1 = create_list(); // 16
+  list_t *list2 = create_list();
+  node_t *node1 = create_node(1); // 24
+  node_t *node2 = create_node(2); //24
+  printf("node 2 = 0x%x\n", node2);
+  node_t *node3 = create_node(3); //24
+  node_t *node5 = create_node(5); //24
+  free_node(node2);
+  node_t *node4 = create_node(4); // 24
+  printf("node 4 = 0x%x\n", node4);
+  free_node(node3);
+  free_node(node4);
+  printf("node 5 = 0x%x\n", node5);
+  void *p = malloc(7);
+  printf("p = 0x%x\n", p);
 }
 

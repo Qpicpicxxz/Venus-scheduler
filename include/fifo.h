@@ -4,18 +4,20 @@
 #define MAXFIFO 8
 #define MAXIO 4
 
+#include "types.h"
+
 /* data descriptor */
 typedef struct data {
   uint32_t ptr; 	// where the data resides
   uint32_t len;		// data length (byte)
-  uint8_t  cnt;		// data lifecycle
+  uint32_t cnt;		// data lifecycle
 } data_t;	/* data template */
 
 /* token-fifo descriptor between actors */
 typedef struct fifo {
   data_t  *data[MAXFIFO]; // data descriptor's pointer
-  uint8_t wptr;
-  uint8_t rptr;
+  uint32_t wptr;
+  uint32_t rptr;
 } fifo_t;	/* fifo template */
 
 /* normal fifo-queue descriptor */

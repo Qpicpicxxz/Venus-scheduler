@@ -2,12 +2,15 @@
 #include "task.h"
 
 /* API for actor create */
-actor_t *actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
+actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
   /* 1. Transforming functions into task definitions */
-  actor_t *actor = malloc(sizeof(actor_t));
-  // the result_len is in bytes
+  printf("sizeof actor %d\n", sizeof(actor_t));
+  actor_t* actor = malloc(sizeof(actor_t));
+  /* 2. Initializing descriptor */
   actor->dep_num = 0;
   actor->nxt_num = 0;
+  memset(actor->in, 0, MAXIO * sizeof(fifo_t*));
+  memset(actor->out, 0, MAXIO * sizeof(fifo_t*));
   actor->result_len = result_len;
   actor->task_addr = taskStart;
   actor->task_len = taskLen;
@@ -17,7 +20,7 @@ actor_t *actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len)
   return actor;
 }
 
-static uint32_t node_make(fifo_t **array, fifo_t *fifo) {
+static uint32_t node_make(fifo_t** array, fifo_t* fifo) {
   // loop through the array to find the first unused index
   for (int i = 0; i < MAXIO; i++) {
     if (array[i] == NULL) {
@@ -30,8 +33,8 @@ static uint32_t node_make(fifo_t **array, fifo_t *fifo) {
 }
 
 /* API for DAG dipict */
-void edge_make(actor_t *src, actor_t *snk) {
-  fifo_t *fifo = malloc(sizeof(fifo_t));
+void edge_make(actor_t* src, actor_t* snk) {
+  fifo_t* fifo = malloc(sizeof(fifo_t));
   int success;
   success = node_make(src->out, fifo);
   if (!success) {
@@ -48,25 +51,26 @@ void edge_make(actor_t *src, actor_t *snk) {
 }
 
 /* API for initial stimultor inject */
-void packet_input(actor_t *actor, uint32_t data_addr, uint32_t data_len) {
+void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len) {
   actor->dep_num = 1;
-  data_t *data = malloc(sizeof(data_t));
+  data_t* data = malloc(sizeof(data_t));
   data->ptr = data_addr;
   data->len = data_len;
-  data->cnt = actor->nxt_num;
+  // by default, initial packet data will only be used by one actor
+  data->cnt = 1;
   put_data(actor->in[0], data);
 }
 
 /* API to assign root actor of DAG */
-void assign_root(actor_t *actor) {
-  fifo_t *in_fifo = malloc(sizeof(fifo_t));
+void assign_root(actor_t* actor) {
+  fifo_t* in_fifo = malloc(sizeof(fifo_t));
   actor->in[0] = in_fifo;
   actor->dep_num = 1;
 }
 
 /* API to assign sink actor of DAG */
-void assign_sink(actor_t *actor) {
-  fifo_t *out_fifo = malloc(sizeof(fifo_t));
+void assign_sink(actor_t* actor) {
+  fifo_t* out_fifo = malloc(sizeof(fifo_t));
   actor->out[0] = out_fifo;
   actor->nxt_num = 1;
 }

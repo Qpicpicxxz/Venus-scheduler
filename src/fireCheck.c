@@ -1,5 +1,6 @@
 #include "task.h"
-
+#include "codeAddr.h"
+extern uint32_t HEAP_START;
 
 list_t *actor_l;  /* linked list for all actor   */
 list_t *ready_l;  /* linked list for ready actor */
@@ -16,6 +17,7 @@ extern fifo_t dma_trans_in;
 /* dma.c */
 extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
+extern void free_ready(node_t *ready_node);
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint8_t actor_ready(void) {
@@ -117,21 +119,25 @@ void ready_search(void) {
 
 /* Function: Traverse all dependencies of current and inform DMA */
 static inline void traverse_data(void) {
-  for (uint32_t i = 0; i < actor->dep_num; i++) {
+  list_t *dep_list = (list_t *)ready->dep_addr;
+  node_t *dep_node = dep_list->tail->prev;
+  while(dep_node != dep_list->head) {
     // get data descriptor
-    data_t *data = (data_t *)ready->dep_addr->tail->prev->item;
+    data_t *data = (data_t *)dep_node->item;
     // get current data node out of dep_addr list
-    delete_node(ready->dep_addr->tail->prev);
+    // delete_node(ready->dep_addr->tail->prev);
     // free current data node descriptor
-    free_node(ready->dep_addr->tail->prev);
+    // free_node(ready->dep_addr->tail->prev);
     put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
     dma_data(DATA1_ADDR, data->ptr, data->len);
+    dep_node = dep_node->prev;
   }
   // dma inform done, free data descriptor linked list space
-  destroy(ready->dep_addr);
+  // destroy(ready->dep_addr);
+  // free(ready->dep_addr);
   // free this ready actor descriptor
-  free(ready);
+  // free(ready);
 }
 
 /* Function: Add current fire into current actor's fire list */
@@ -145,10 +151,15 @@ static inline void add_firelist(void) {
 // NOTE: this step should invoke after DMA has already moved the code to
 // blocks!!!
 static inline void recycle_garbage(void) {
+  printf("dep num = %d\n", actor->dep_num);
+  printf("data cnt = %d\n", (read_data(&dma_trans_in))->cnt);
   for (int i = 0; i < actor->dep_num; i++) {
     data_t *data = get_data(&dma_trans_in);
+      if((uint32_t)data->ptr < HEAP_START){
+      	printf("free initial data , pass\n");
+      	
     // check dependency's lifecycle
-    if (data->cnt == 1) {
+     } else if (data->cnt == 1) {
       // garbage collection
       printf("SCHEDULER: Last use, free data space...\n");
       free((void *)data->ptr); // free data space
@@ -173,7 +184,7 @@ void actor_fire(void) {
   _set_block_flag(block, BLOCK_INFLIGHT);
   // 3. inform task code descriptor to DMA
   dma_code(block->spm_addr, actor->task_addr, actor->task_len);
-  // 4. access each dependency in turn
+  // 4. access each dependency in turn to inform DMA
   traverse_data();
   // 5. associate block and in-flight actor
   add_firelist();
@@ -197,11 +208,14 @@ void actor_check(void) {
       node_t *ready_node = ready_l->tail->prev;
       ready = (ready_t *)ready_node->item;
       // 4. remove this actor from ready list
-      delete_node(ready_node);
+      // delete_node(ready_node);
       // 5. release this ready actor node space
-      free_node(ready_node);
+      // free_node(ready_node);
       // 6. invoke function with ready actor descriptor to fire actor
       actor_fire();
+      //while(1){};
+      // 7. actor fire done, free fired actor resource
+      free_ready(ready_node);
     }
   }
 }

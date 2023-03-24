@@ -3,7 +3,6 @@
 #define __LINKEDLIST_H__
 
 #include "os.h"
-#include "types.h"
 
 
 typedef struct node node_t;
@@ -26,9 +25,8 @@ node_t *search(list_t *list, uint32_t key);
 void insert(list_t *list, node_t *p);
 void delete_node(node_t *p);
 void traverse(list_t *list, void (*visit)(node_t *));
-void destroy(list_t *list);
+void destroy_list(list_t *list);
 void push(list_t *list, node_t *p);
-node_t *pop(list_t *list);
 node_t *read_first(list_t *list);
 node_t *read_last(list_t *list);
 void insert_before(list_t *list, node_t *node, uint32_t item);

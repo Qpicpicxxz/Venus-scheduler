@@ -1,11 +1,11 @@
+/* ref: https://github.com/yangminz/bcst_csapp */
 #ifndef __ALLOCATOR_H_
 #define __ALLOCATOR_H_
 #include "assert.h"
-#include "color.h"
+#include "font.h"
 #include "types.h"
 #include <stdarg.h>
 #include <stddef.h>
-
 
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
@@ -13,14 +13,15 @@ extern uint32_t HEAP_SIZE;
 extern uint32_t alloc_start;
 extern uint32_t alloc_end;
 
+extern uint32_t free_list_head;
+
 /* printf */
 extern int printf(const char* s, ...);
 extern void panic(char* s);
 
 #define FREE (0)
 #define ALLOCATED (1)
-#define NIL (0)
-#define OEDER 6
+#define MIN_BLOCKSIZE (16)
 
 /* Interface */
 void heap_init();
@@ -31,8 +32,8 @@ void free(void* ptr);
 uint32_t _align_up(uint32_t x, uint32_t n);
 uint32_t _align_down(uint32_t x, uint32_t n);
 /*
- * Heap boundary:
- *  1. prologue and epilogue is the boundary block of the heap
+ * Heap sentinel:
+ *  1. prologue and epilogue is sentinel block of the heap
  *  2. has no payload, marked as allocated
  *  3. cannot be dynamically allocated/free
  */
@@ -58,5 +59,14 @@ uint32_t get_footer(uint32_t hp_addr);
 /* Heap operations */
 uint32_t get_nextheader(uint32_t ph_addr);
 uint32_t get_prevheader(uint32_t ph_addr);
+uint32_t get_prevfree(uint32_t block_header);
+uint32_t get_nextfree(uint32_t block_header);
+void set_prevfree(uint32_t block_header, uint32_t prev_header);
+void set_nextfree(uint32_t block_header, uint32_t prev_header);
+
+/* Free list operations */
+void free_list_insert(uint32_t* list_head, uint32_t* counter_ptr, uint32_t block_header);
+void free_list_delete(uint32_t* header_addr, uint32_t* counter_ptr, uint32_t block_header);
+uint32_t merge_free_blocks(uint32_t low_header, uint32_t high_header);
 
 #endif /* __ALLOCATOR_H_ */

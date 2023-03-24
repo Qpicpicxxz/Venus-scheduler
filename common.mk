@@ -37,8 +37,9 @@ SRCS_C = \
 				 $(SOURCE)fireCheck.c	\
 				 $(SOURCE)memBlock.c	\
 				 $(SOURCE)memAlloc.c	\
-				 $(SOURCE)actorCreate.c
-				 
+				 $(SOURCE)memFree.c   \
+				 $(SOURCE)actorCreate.c\
+				 $(SOURCE)tempFree.c
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 
 SRCS_TASKS :=\
