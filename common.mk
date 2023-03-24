@@ -38,8 +38,7 @@ SRCS_C = \
 				 $(SOURCE)memBlock.c	\
 				 $(SOURCE)memAlloc.c	\
 				 $(SOURCE)memFree.c   \
-				 $(SOURCE)actorCreate.c\
-				 $(SOURCE)tempFree.c
+				 $(SOURCE)actorCreate.c
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 
 SRCS_TASKS :=\

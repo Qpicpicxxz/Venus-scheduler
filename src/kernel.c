@@ -3,10 +3,9 @@
 
 /* We just use these functions once, so declared here */
 extern void uart_init(void);
-extern void mem_init(void);	// print out memory distribution
+extern void mem_init(void);  // print out memory distribution
 extern void heap_init(void);
-extern void trap_init(void);	// put trap handler entry address to mtvec
-// extern void page_init(void);	// initialize page allocation and print out heap range
+extern void trap_init(void);  // put trap handler entry address to mtvec
 extern void sched_init(void);
 extern void init_block_spm(void);
 extern void os_main(void);
@@ -21,10 +20,10 @@ void start_kernel(void) {
   // assert(1==2);
   mem_init();
   heap_init();
-   //malloc_test();
-   // link_test();
+  // malloc_test();
+  // link_test();
   // memcpy_test();
-    //while(1){};
+  // while(1){};
   trap_init();
   // page_init();
   sched_init();

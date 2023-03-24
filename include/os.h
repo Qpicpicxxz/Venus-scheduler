@@ -3,6 +3,7 @@
 #define __OS_H__
 
 #include "assert.h"
+#include "codeAddr.h"
 #include "font.h"
 #include "platform.h"
 #include "riscv.h"
@@ -21,9 +22,7 @@ extern void uart_puts(char* s);
 extern int printf(const char* s, ...);
 extern void panic(char* s);
 
-/* memory management
- * returns a void pointer to the allocated space, or NULL if there is insufficient memory available
- */
+/* heap memory management */
 extern void* malloc(uint32_t size); // input the bit size
 extern void free(void* ptr);
 

@@ -1,23 +1,20 @@
 #include "task.h"
-#include "codeAddr.h"
-extern uint32_t HEAP_START;
 
-list_t *actor_l;  /* linked list for all actor   */
-list_t *ready_l;  /* linked list for ready actor */
-queue_t block_q;  /* idle-block queue            */
-actor_t *actor;   /* current handle actor        */
-ready_t *ready;   /* current ready descriptor    */
-block_f *block;   /* current block descriptor    */
+list_t* actor_l; /* linked list for all actor   */
+list_t* ready_l; /* linked list for ready actor */
+queue_t block_q; /* idle-block queue            */
+actor_t* actor;  /* current handle actor        */
+ready_t* ready;  /* current ready descriptor    */
+block_f* block;  /* current block descriptor    */
 
 /* taskCallback.c  */
-extern void callback(actor_t *g);
+extern void callback(actor_t* g);
 /* block.c */
-extern void block_sim(block_f *block);
+extern void block_sim(block_f* block);
 extern fifo_t dma_trans_in;
 /* dma.c */
 extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
-extern void free_ready(node_t *ready_node);
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint8_t actor_ready(void) {
@@ -54,29 +51,29 @@ static inline void task_bind(void) {
 }
 
 /* Function: Create a ready actor descriptor */
-static inline ready_t *create_ready(void) {
+static inline ready_t* create_ready(void) {
   // 1. allocate this ready actor's descriptor space
-  ready_t *r = malloc(sizeof(ready_t));
+  ready_t* r = malloc(sizeof(ready_t));
   // 2. bind the actor's address
   r->actor_addr = (uint32_t)actor;
   // 3. initialize ready actor's dependencies list
-  r->dep_addr = create_list();
+  r->dep_list = create_list();
   // 4. traverse actor's dependencies
   for (uint32_t i = 0; i < actor->dep_num; i++) {
     // 4.1 get the dependency out from fifo
-    data_t *data = get_data(actor->in[i]);
+    data_t* data = get_data(actor->in[i]);
     // 4.2 bind the dependency descriptor pointer
-    insert(r->dep_addr, create_node((uint32_t)data));
+    insert(r->dep_list, create_node((uint32_t)data));
   }
   return r;
 }
 
 /* Function: Schedule the new ready actor to the proper position */
-static inline void ready_schedule(ready_t *r) {
+static inline void ready_schedule(ready_t* r) {
   int found = 0;
-  for (node_t *p = ready_l->head->next; p != ready_l->tail; p = p->next) {
-    int cur_nxt = ((actor_t *)r->actor_addr)->nxt_num;
-    int p_nxt = ((actor_t *)((ready_t *)p->item)->actor_addr)->nxt_num;
+  for (node_t* p = ready_l->head->next; p != ready_l->tail; p = p->next) {
+    int cur_nxt = ((actor_t*)r->actor_addr)->nxt_num;
+    int p_nxt = ((actor_t*)((ready_t*)p->item)->actor_addr)->nxt_num;
     if (cur_nxt == p_nxt) {
       insert_before(ready_l, p, (uint32_t)r);
       found = 1;
@@ -91,8 +88,8 @@ static inline void ready_schedule(ready_t *r) {
 /* Function: Print out the current ready actor list */
 static inline void print_ready_list(void) {
   printf(GREENSET "\nReady actor queue: head->");
-  for (node_t *p = ready_l->head->next; p != ready_l->tail; p = p->next) {
-    printf("%c->", (((ready_t *)p->item)->actor_addr - actor_start) / actor_space + 65);
+  for (node_t* p = ready_l->head->next; p != ready_l->tail; p = p->next) {
+    printf("%c->", (((ready_t*)p->item)->actor_addr - actor_start) / actor_space + 65);
   }
   printf("tail\n" RESET);
 }
@@ -101,9 +98,9 @@ static inline void print_ready_list(void) {
 void ready_search(void) {
   printf(GREEN("\nChecking actor: "));
   // 1. search all the actors in DAG
-  for (node_t *p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
+  for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
-    actor = (actor_t *)p->item;
+    actor = (actor_t*)p->item;
     // 2. handle ready actors
     if (fire_check()) {
       // 3. schedule ready list
@@ -119,25 +116,16 @@ void ready_search(void) {
 
 /* Function: Traverse all dependencies of current and inform DMA */
 static inline void traverse_data(void) {
-  list_t *dep_list = (list_t *)ready->dep_addr;
-  node_t *dep_node = dep_list->tail->prev;
-  while(dep_node != dep_list->head) {
+  list_t* dep_list = (list_t*)ready->dep_list;
+  node_t* dep_node = dep_list->tail->prev;
+  while (dep_node != dep_list->head) {
     // get data descriptor
-    data_t *data = (data_t *)dep_node->item;
-    // get current data node out of dep_addr list
-    // delete_node(ready->dep_addr->tail->prev);
-    // free current data node descriptor
-    // free_node(ready->dep_addr->tail->prev);
+    data_t* data = (data_t*)dep_node->item;
     put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
     dma_data(DATA1_ADDR, data->ptr, data->len);
     dep_node = dep_node->prev;
   }
-  // dma inform done, free data descriptor linked list space
-  // destroy(ready->dep_addr);
-  // free(ready->dep_addr);
-  // free this ready actor descriptor
-  // free(ready);
 }
 
 /* Function: Add current fire into current actor's fire list */
@@ -148,22 +136,15 @@ static inline void add_firelist(void) {
   insert(actor->fire_list, create_node((uint32_t)block));
 }
 
-// NOTE: this step should invoke after DMA has already moved the code to
-// blocks!!!
+// NOTE: this step should invoke after DMA has already moved the code to blocks!!!
 static inline void recycle_garbage(void) {
-  printf("dep num = %d\n", actor->dep_num);
-  printf("data cnt = %d\n", (read_data(&dma_trans_in))->cnt);
   for (int i = 0; i < actor->dep_num; i++) {
-    data_t *data = get_data(&dma_trans_in);
-      if((uint32_t)data->ptr < HEAP_START){
-      	printf("free initial data , pass\n");
-      	
-    // check dependency's lifecycle
-     } else if (data->cnt == 1) {
+    data_t* data = get_data(&dma_trans_in);
+    if (data->cnt == 1) {
       // garbage collection
       printf("SCHEDULER: Last use, free data space...\n");
-      free((void *)data->ptr); // free data space
-      free((void *)data);      // free data flag space
+      free((void*)data->ptr);  // free data space
+      free((void*)data);       // free data flag space
     } else {
       // upate reference count (lifecycle)
       data->cnt--;
@@ -171,10 +152,22 @@ static inline void recycle_garbage(void) {
   }
 }
 
+// this copy of ready actor has been fired and is deprecated
+void free_ready(node_t* ready_node) {
+  ready_t* ready = (ready_t*)ready_node->item;
+  list_t* dep_list = ready->dep_list;
+  // 1. free node of current ready fire
+  destroy_node(ready_node);
+  // 2. free ready_t struct
+  free(ready);
+  // 3. free current ready fire dep list
+  destroy_list(dep_list);
+}
+
 /* Function: Parse descriptor and inform DMA */
 void actor_fire(void) {
   // 1. get an actor from ready actor list
-  actor = (actor_t *)ready->actor_addr;
+  actor = (actor_t*)ready->actor_addr;
   actor_index = ((uint32_t)actor - actor_start) / actor_space;
   printf("\nSCHEDULER: Actor ");
   printf(GREEN("%c"), actor_index + 65);
@@ -203,18 +196,13 @@ void actor_check(void) {
     // 1. if there is any idle block and ready actor
     if (queue_size(&block_q) >= 1 && !is_list_empty(ready_l)) {
       // 2. get out this idle block from idle-queue
-      block = (block_f *)get_queue(&block_q);
+      block = (block_f*)get_queue(&block_q);
       // 3. parse the ready actor descriptor
-      node_t *ready_node = ready_l->tail->prev;
-      ready = (ready_t *)ready_node->item;
-      // 4. remove this actor from ready list
-      // delete_node(ready_node);
-      // 5. release this ready actor node space
-      // free_node(ready_node);
-      // 6. invoke function with ready actor descriptor to fire actor
+      node_t* ready_node = ready_l->tail->prev;
+      ready = (ready_t*)ready_node->item;
+      // 4. fire actor
       actor_fire();
-      //while(1){};
-      // 7. actor fire done, free fired actor resource
+      // 5. actor fire done, free fired actor resource
       free_ready(ready_node);
     }
   }

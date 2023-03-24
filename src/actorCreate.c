@@ -4,7 +4,6 @@
 /* API for actor create */
 actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
   /* 1. Transforming functions into task definitions */
-  printf("sizeof actor %d\n", sizeof(actor_t));
   actor_t* actor = malloc(sizeof(actor_t));
   /* 2. Initializing descriptor */
   actor->dep_num = 0;

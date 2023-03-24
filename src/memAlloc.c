@@ -49,12 +49,14 @@ void init_sentinel(void) {
 void heap_init(void) {
   alloc_start = _align_up(HEAP_START, 8);
   alloc_end = _align_down(HEAP_START + HEAP_SIZE, 8);
-  // clear the heap area of data
-  for (int i = alloc_start; i < alloc_end - 4; i += 4) {
-    *(uint32_t*)i = 0;
-  }
+  /* Clear heap area to zero */
+  // for (int i = alloc_start; i < alloc_end - 4; i += 4) {
+  //   *(uint32_t*)i = 0;
+  // }
+  // memset(alloc_start, 0, alloc_end - alloc_start);
   printf("ALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
   printf("    SIZE:   0x%x\n", alloc_end - alloc_start);
+  /* prologue + alloc area + epilogue */
   init_sentinel();
   uint32_t first_block = get_firstblock();
   /* Bidirectional ring linked list */
@@ -62,51 +64,59 @@ void heap_init(void) {
   set_nextfree(first_block, first_block);
   free_list_head = 0;
   free_list_counter = 0;
-  free_list_insert(&free_list_head, &free_list_counter, first_block);
+  /* Insert initial free block into free list */
+  free_list_insert(first_block);
 }
 
 static uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request_blocksize) {
   if (request_blocksize < MIN_BLOCKSIZE) {
     return 0;
   }
-  // get current block attribute
+
   uint32_t blocksize = get_blocksize(block_header);
   uint32_t allocated = get_allocated(block_header);
-  
+
   if (allocated == FREE && blocksize >= request_blocksize) {
     // allocate this block
     if (blocksize - request_blocksize >= MIN_BLOCKSIZE) {
-      // split this block
-      // 1. mark newly splitted block as FREE
+      /*
+       * Before split:
+       *       |<------------------------------------------ blocksize ----------------------------------------------->|
+       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
+       *       | header(F) | prevfree | nextfree |                          FREE                          | footer(F) |
+       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
+       *  block_header                                                                               block_footer
+       *
+       * After split:
+       *       |<---------- request_blocksize ------------>|<------------blocksize - request_blocksize -------------->|
+       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
+       *       | header(A) |      payload      | footer(A) | header(F) | prevfree | nextfree |    FREE    | footer(F) |
+       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
+       *  block_header                     block_footer  new_header                                    new_footer
+       */
       uint32_t new_footer = get_footer(block_header);
-      set_allocated(new_footer, FREE);
       set_blocksize(new_footer, blocksize - request_blocksize);
-      
-      // 2. mark current used spaces as ALLOCATED
+
       set_allocated(block_header, ALLOCATED);
       set_blocksize(block_header, request_blocksize);
-      
-      // 3. rewrite splitted new block footer
+
       uint32_t block_footer = get_footer(block_header);
       set_allocated(block_footer, ALLOCATED);
       set_blocksize(block_footer, request_blocksize);
 
-      // 4. rewrite newly splitted block header
       uint32_t new_header = get_nextheader(block_header);
       set_allocated(new_header, FREE);
       set_blocksize(new_header, blocksize - request_blocksize);
-      
-      // 5. make sure splitted correctly
-      assert(get_footer(new_header) == new_footer);
-      
+
       return get_payload(block_header);
-      
+
     } else if (blocksize - request_blocksize < MIN_BLOCKSIZE) {
-      // do not need to split the block
+      // if splitted, it could't contain header + prevfree + nextfree + footer descriptor
+
       set_allocated(block_header, ALLOCATED);
       uint32_t block_footer = get_footer(block_header);
       set_allocated(block_footer, ALLOCATED);
-      
+
       return get_payload(block_header);
     }
   }
@@ -118,8 +128,8 @@ void* malloc(uint32_t size) {
   assert(0 < size && size < alloc_end - alloc_start - 4 - 8 - 4);
   // payload size + header size + footer size
   uint32_t request_blocksize = _align_up(size, 8) + 4 + 4;
+  // make it to minimum allocatable space
   request_blocksize = request_blocksize < MIN_BLOCKSIZE ? MIN_BLOCKSIZE : request_blocksize;
-  printf("request_blocksize: %d\n", request_blocksize);
   // search free block from free list head
   uint32_t block_header = free_list_head;
   // traverse all the blocks in heap
@@ -136,16 +146,11 @@ void* malloc(uint32_t size) {
       // get current block size
       uint32_t cur_blocksize = get_blocksize(block_header);
       // assert(cur_blocksize <= old_blocksize);
-      free_list_delete(&free_list_head, &free_list_counter, block_header);
+      free_list_delete(block_header);
       // if current block has been splitted
       if (old_blocksize > cur_blocksize) {
-	// current block has been splitted
-	uint32_t next_header = get_nextheader(block_header);
-	assert(get_blocksize(next_header) == old_blocksize - cur_blocksize);
-	assert(get_allocated(next_header) == 0);
-	free_list_insert(&free_list_head, &free_list_counter, next_header);
+        free_list_insert(get_nextheader(block_header));
       }
-      printf(BLUE("malloc payload = 0x%x\n"), block_payload);
       return (void*)block_payload;
     } else {
       // go to the next free block
@@ -162,18 +167,12 @@ void free(void* ptr) {
     return;
   }
   uint32_t payload_addr = (uint32_t)ptr;
-  printf("freeing payload = 0x%x\n", payload_addr);
-  /* make sure we do not free prologue and epilogue */
-  assert(get_firstblock() < payload_addr && payload_addr < get_epilogue());
-  /* make sure this address is 8-byte aligned (payload addr) */
-  assert((payload_addr & 0x7) == 0x0);
 
   uint32_t req_header = get_header(payload_addr);
   uint32_t req_footer = get_footer(req_header);
   uint32_t req_allocated = get_allocated(req_header);
   uint32_t req_blocksize = get_blocksize(req_header);
-  assert(req_allocated==ALLOCATED);
-  // wrong
+  assert(req_allocated == ALLOCATED);
   assert(req_blocksize >= MIN_BLOCKSIZE);
 
   uint32_t next_header = get_nextheader(req_header);
@@ -193,8 +192,7 @@ void free(void* ptr) {
     // free current block
     set_allocated(req_header, FREE);
     set_allocated(req_footer, FREE);
-    free_list_insert(&free_list_head, &free_list_counter, req_header);
-    assert(free_list_counter >= 1);
+    free_list_insert(req_header);
   } else if (next_allocated == FREE && prev_allocated == ALLOCATED) {
     /*
      * Case 2: *A(A->F)FA* ---> AFFA ---> *A[FF]A*
@@ -204,16 +202,9 @@ void free(void* ptr) {
      *           merge current and next
      */
 
-    free_list_delete(&free_list_head, &free_list_counter, next_header);
-    printf("list head: 0x%x\n", free_list_head);
-    printf("head->next = 0x%x\n", get_nextfree(free_list_head));
-    printf("head->prev = 0x%x\n", get_prevfree(free_list_head));
-    printf("--------------AF MERGE\n");
+    free_list_delete(next_header);
     uint32_t merged_header = merge_free_blocks(req_header, next_header);
-    printf("merged header 0x%x\n", merged_header);
-    free_list_insert(&free_list_head, &free_list_counter, merged_header);
-    assert(free_list_counter >= 1);
-    printf("counter %d\n",free_list_counter);
+    free_list_insert(merged_header);
 
   } else if (next_allocated == ALLOCATED && prev_allocated == FREE) {
     /*
@@ -224,12 +215,9 @@ void free(void* ptr) {
      *         merge previous and current
      */
 
-    free_list_delete(&free_list_head, &free_list_counter, prev_header);
-    printf("--------------FA MERGE\n");
+    free_list_delete(prev_header);
     uint32_t merged_header = merge_free_blocks(prev_header, req_header);
-    free_list_insert(&free_list_head, &free_list_counter, merged_header);
-    assert(free_list_counter >= 1);
-    printf("counter %d\n",free_list_counter);
+    free_list_insert(merged_header);
 
   } else if (next_allocated == FREE && prev_allocated == FREE) {
     /*
@@ -240,13 +228,11 @@ void free(void* ptr) {
      *      merge current, previous and next
      */
 
-    free_list_delete(&free_list_head, &free_list_counter, next_header);
-    free_list_delete(&free_list_head, &free_list_counter, prev_header);
-    printf("--------------FF MERGE\n");
+    free_list_delete(next_header);
+    free_list_delete(prev_header);
     uint32_t merged_header = merge_free_blocks(merge_free_blocks(prev_header, req_header), next_header);
-    free_list_insert(&free_list_head, &free_list_counter, merged_header);
+    free_list_insert(merged_header);
     assert(free_list_counter >= 1);
-    printf("counter %d\n",free_list_counter);
   } else {
     printf(RED("Exception for free ptr\n"));
     assert(1 == -1);

@@ -38,6 +38,7 @@
 │   ├── main.c          // main function to run scheduler and launch actors
 │   ├── memAlloc.c	// malloc & free function
 │   ├── memBlock.c	// some functions to control allocation unit blocks
+│   ├── memFree.c	// handlers to manage free block list
 │   ├── mem.S           // define some macros for catch section's address
 │   ├── page.c          // dynamic allocation for page (deprecated)
 │   ├── printf.c        // print strings to QEMU terminal   
@@ -61,6 +62,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 55 files
+3 directories, 57 files
 ```
 

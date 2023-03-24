@@ -4,8 +4,7 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
-#include <stdarg.h>
-#include <stddef.h>
+#include <stddef.h>  // use NULL
 
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
@@ -14,6 +13,7 @@ extern uint32_t alloc_start;
 extern uint32_t alloc_end;
 
 extern uint32_t free_list_head;
+extern uint32_t free_list_counter;
 
 /* printf */
 extern int printf(const char* s, ...);
@@ -65,8 +65,8 @@ void set_prevfree(uint32_t block_header, uint32_t prev_header);
 void set_nextfree(uint32_t block_header, uint32_t prev_header);
 
 /* Free list operations */
-void free_list_insert(uint32_t* list_head, uint32_t* counter_ptr, uint32_t block_header);
-void free_list_delete(uint32_t* header_addr, uint32_t* counter_ptr, uint32_t block_header);
+void free_list_insert(uint32_t block_header);
+void free_list_delete(uint32_t block_header);
 uint32_t merge_free_blocks(uint32_t low_header, uint32_t high_header);
 
 #endif /* __ALLOCATOR_H_ */

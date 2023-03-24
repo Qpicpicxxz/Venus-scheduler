@@ -2,14 +2,11 @@
 #include "linkedlist.h"
 
 /* Function: Create a new linkedlist */
-list_t *create_list(void) {
-  printf("in create list, size:%d\n", sizeof(list_t));
+list_t* create_list(void) {
   // 1. create a list struct
-  list_t *list = malloc(sizeof(list_t));
+  list_t* list = malloc(sizeof(list_t));
   // 2. create head and tail sentinel node
-  printf("HEAD. in create node, size %d\n", sizeof(node_t));
   list->head = malloc(sizeof(node_t));
-  printf("TAIL. in create node, size %d\n", sizeof(node_t));
   list->tail = malloc(sizeof(node_t));
   // 3. initialize two sentinel node
   list->head->item = 0;
@@ -22,8 +19,8 @@ list_t *create_list(void) {
 }
 
 /* Function: Create a new node for linked list */
-node_t *create_node(uint32_t item) {
-  node_t *p = malloc(sizeof(node_t));
+node_t* create_node(uint32_t item) {
+  node_t* p = malloc(sizeof(node_t));
   p->item = item;
   p->prev = p->next = NULL;
   return p;
@@ -35,11 +32,11 @@ node_t *create_node(uint32_t item) {
  * 	so we can just free this node, not necessary
  *	assign which linked list.
  */
-inline void free_node(node_t *p) { free(p); }
+inline void free_node(node_t* p) { free(p); }
 
 /* Function: Search item==key node in specific linkedlist */
-node_t *search(list_t *list, uint32_t key) {
-  node_t *p;
+node_t* search(list_t* list, uint32_t key) {
+  node_t* p;
   for (p = list->head; p != list->tail; p = p->next)
     if (p->item == key)
       return p;
@@ -47,7 +44,7 @@ node_t *search(list_t *list, uint32_t key) {
 }
 
 /* Function: Insert a node follow the head */
-void insert(list_t *list, node_t *p) {
+void insert(list_t* list, node_t* p) {
   p->next = list->head->next;
   list->head->next->prev = p;
   list->head->next = p;
@@ -55,22 +52,22 @@ void insert(list_t *list, node_t *p) {
 }
 
 /* Funciton: Delete first node */
-void delete_node(node_t *p) {
+inline void delete_node(node_t* p) {
   p->prev->next = p->next;
   p->next->prev = p->prev;
 }
 
 /* Function: Traverse the linklist from head to tail */
-void traverse(list_t *list, void (*visit)(node_t *)) {
-  node_t *p;
+void traverse(list_t* list, void (*visit)(node_t*)) {
+  node_t* p;
   for (p = list->head->next; p != list->tail; p = p->next)
     visit(p);
 }
 
 /* Function: Destory a linklist */
-void destroy_list(list_t *list) {
-  node_t *q = list->head->next;
-  node_t *p = list->head->next;
+void destroy_list(list_t* list) {
+  node_t* q = list->head->next;
+  node_t* p = list->head->next;
   list->head->next = list->tail;
   list->tail->prev = list->head;
   while (p != list->tail) {
@@ -80,11 +77,14 @@ void destroy_list(list_t *list) {
   }
 }
 
-/* Function: Push one node into linklist behind head pointer */
-void push(list_t *list, node_t *p) { insert(list, p); }
+/* Function: delete and free a node from a list */
+inline void destroy_node(node_t* node) {
+  delete_node(node);
+  free_node(node);
+}
 
 /* Function: Read first node (after head node) */
-node_t *read_first(list_t *list) {
+node_t* read_first(list_t* list) {
   if (list->tail->prev == list->head) {
     printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
@@ -93,7 +93,7 @@ node_t *read_first(list_t *list) {
 }
 
 /* Function: Read last node (before tail node) */
-node_t *read_last(list_t *list) {
+node_t* read_last(list_t* list) {
   if (list->tail->prev == list->head) {
     printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
@@ -102,7 +102,7 @@ node_t *read_last(list_t *list) {
 }
 
 /* Function: Check if it's an empty list */
-uint8_t is_list_empty(list_t *list) {
+uint8_t is_list_empty(list_t* list) {
   if (list->tail->prev == list->head) {
     return 1;
   } else {
@@ -111,10 +111,10 @@ uint8_t is_list_empty(list_t *list) {
 }
 
 /* Function: Insert a new node before a specific node in a list */
-void insert_before(list_t *list, node_t *node, uint32_t item) {
+void insert_before(list_t* list, node_t* node, uint32_t item) {
   /* make sure its not list head */
   assert(node != list->head);
-  node_t *new = create_node(item);
+  node_t* new = create_node(item);
   new->prev = node->prev;
   new->next = node;
   if (node == list->head) {
@@ -125,24 +125,19 @@ void insert_before(list_t *list, node_t *node, uint32_t item) {
   node->prev = new;
 }
 
-void print_item(node_t *p) { printf("0x%x\n", p->item); }
-
 void link_test(void) {
   printf(YELLOW("\nTesting Linked List...\n"));
-  list_t *list1 = create_list(); // 16
-  list_t *list2 = create_list();
-  node_t *node1 = create_node(1); // 24
-  node_t *node2 = create_node(2); //24
+  node_t* node2 = create_node(2);  // 24
   printf("node 2 = 0x%x\n", node2);
-  node_t *node3 = create_node(3); //24
-  node_t *node5 = create_node(5); //24
+  node_t* node3 = create_node(3);  // 24
+  node_t* node5 = create_node(5);  // 24
   free_node(node2);
-  node_t *node4 = create_node(4); // 24
+  node_t* node4 = create_node(4);  // 24
   printf("node 4 = 0x%x\n", node4);
   free_node(node3);
   free_node(node4);
   printf("node 5 = 0x%x\n", node5);
-  void *p = malloc(7);
+  void* p = malloc(7);
   printf("p = 0x%x\n", p);
 }
 

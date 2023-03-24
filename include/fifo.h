@@ -28,19 +28,19 @@ typedef struct queue {
  } queue_t;	/* queue template */
  
  /* fifo */
-extern void init_fifo(fifo_t *F);
-extern void init_queue(queue_t *F);
-extern uint8_t fifo_full(fifo_t *F);
-extern uint8_t fifo_empty(fifo_t *F);
-extern uint8_t queue_full(queue_t *F);
-extern uint8_t queue_empty(queue_t *F);
-extern uint8_t fifo_size(fifo_t *F);
-extern uint8_t queue_size(queue_t *F);
-extern void put_data(fifo_t *F, data_t *data);
-extern void put_queue(queue_t *F, uint32_t ptr);
-extern data_t *get_data(fifo_t *F);
-extern uint32_t get_queue(queue_t *F);
-extern data_t *read_data(fifo_t *F);
-extern data_t *read_else_data(fifo_t *F, uint8_t dist);
+void init_fifo(fifo_t *F);
+void init_queue(queue_t *F);
+uint8_t fifo_full(fifo_t *F);
+uint8_t fifo_empty(fifo_t *F);
+uint8_t queue_full(queue_t *F);
+uint8_t queue_empty(queue_t *F);
+uint8_t fifo_size(fifo_t *F);
+uint8_t queue_size(queue_t *F);
+void put_data(fifo_t *F, data_t *data);
+void put_queue(queue_t *F, uint32_t ptr);
+data_t *get_data(fifo_t *F);
+uint32_t get_queue(queue_t *F);
+data_t *read_data(fifo_t *F);
+data_t *read_else_data(fifo_t *F, uint8_t dist);
 
 #endif /* __FIFO_H__ */

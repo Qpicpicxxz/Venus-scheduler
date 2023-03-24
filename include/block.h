@@ -20,19 +20,17 @@
 typedef struct Block {
   uint8_t flags;
   uint32_t spm_addr;
-  actor_t *actor;
-  uint32_t result; // JUST simulation!!!
+  actor_t* actor;
+  uint32_t result;  // JUST simulation!!!
 } block_f;
 
 typedef struct linger {
-  block_f *block;
-  data_t *data;
+  block_f* block;
+  data_t* data;
 } linger_t;
 
-static inline void _set_block_flag(struct Block *block, uint8_t flags) {
-  block->flags |= flags;
-}
+static inline void _set_block_flag(struct Block* block, uint8_t flags) { block->flags |= flags; }
 
-static inline void _clear_block_flag(struct Block *block) { block->flags = 0; }
+static inline void _clear_block_flag(struct Block* block) { block->flags = 0; }
 
 #endif /* __BLOCK_H__ */
