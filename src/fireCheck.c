@@ -5,12 +5,12 @@ list_t* ready_l; /* linked list for ready actor */
 queue_t block_q; /* idle-block queue            */
 actor_t* actor;  /* current handle actor        */
 ready_t* ready;  /* current ready descriptor    */
-block_f* block;  /* current block descriptor    */
+block_t* block;  /* current block descriptor    */
 
 /* taskCallback.c  */
 extern void callback(actor_t* g);
 /* block.c */
-extern void block_sim(block_f* block);
+extern void block_sim(block_t* block);
 extern fifo_t dma_trans_in;
 /* dma.c */
 extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
@@ -196,7 +196,7 @@ void actor_check(void) {
     // 1. if there is any idle block and ready actor
     if (queue_size(&block_q) >= 1 && !is_list_empty(ready_l)) {
       // 2. get out this idle block from idle-queue
-      block = (block_f*)get_queue(&block_q);
+      block = (block_t *)get_queue(&block_q);
       // 3. parse the ready actor descriptor
       node_t* ready_node = ready_l->tail->prev;
       ready = (ready_t*)ready_node->item;

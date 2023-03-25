@@ -94,3 +94,9 @@ void memcpy_test(void) {
   printf("q = %d\n", *(uint32_t*)q);
 }
 
+void delay(volatile int count) {
+  count *= 10000;
+  while (count--)
+    ;
+}
+

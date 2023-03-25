@@ -2,7 +2,7 @@
 #ifndef __LINKEDLIST_H__
 #define __LINKEDLIST_H__
 
-#include "os.h"
+#include "common.h"
 
 typedef struct node node_t;
 

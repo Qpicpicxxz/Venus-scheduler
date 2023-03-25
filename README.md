@@ -10,11 +10,12 @@
 │   ├── assert.h	// assert macro
 │   ├── block.h         // define Block-task relation flags
 │   ├── codeAddr.h	// declare task code's position
+│   ├── common.h	// basic tool functions
 │   ├── daddr.h         // define VENUS block's data memory address
+│   ├── defs.h		// declare some task relative structs
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h		// font style for printf
 │   ├── linkedlist.h    // header file of linked list
-│   ├── os.h            // include all the header file and define tasks context
 │   ├── platform.h      // define machine's physical property
 │   ├── riscv.h         // some basic privileged register assemble instructions
 │   ├── saddr.h         // VENUS block's sratchpad memory address
@@ -40,7 +41,6 @@
 │   ├── memBlock.c	// some functions to control allocation unit blocks
 │   ├── memFree.c	// handlers to manage free block list
 │   ├── mem.S           // define some macros for catch section's address
-│   ├── page.c          // dynamic allocation for page (deprecated)
 │   ├── printf.c        // print strings to QEMU terminal   
 │   ├── start.S         // first code to execute when launch a kernel
 │   ├── switchContext.c // some method for switch operation

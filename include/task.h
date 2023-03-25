@@ -1,16 +1,17 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
+#define NUM_BLOCKS 8
+#define MAXFIFO 8
+#define MAXIO 4
+
 #include "actor.h"
 #include "block.h"
 #include "codeAddr.h"
+#include "common.h"
 #include "daddr.h"
 #include "fifo.h"
-#include "types.h"
-#include "ulib.h"
-
-
-#define NUM_BLOCKS 8
+#include "linkedlist.h"
 
 extern list_t* actor_l;
 extern list_t* ready_l;
@@ -24,6 +25,5 @@ void edge_make(actor_t* src, actor_t* snk);
 void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len);
 void assign_root(actor_t* actor);
 void assign_sink(actor_t* actor);
-
 
 #endif /* __TASK_H__ */

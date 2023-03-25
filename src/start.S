@@ -1,6 +1,6 @@
 #include "platform.h"
 	
-	.equ STACK_SIZE, 65536	# 64KiB stack space
+	.equ STACK_SIZE, 1024	# 64KiB stack space
 	
 	.global	_start
 

@@ -14,7 +14,7 @@ void init_sentinel(void) {
    *  ----+---------------+----------+----------+----------+---
    * alloc_start  prologue(+4)       +8        +12        +16
    */
-  uint32_t prologue_header = get_prologue(); // alloc_start + 4
+  uint32_t prologue_header = get_prologue();  // alloc_start + 4
   set_allocated(prologue_header, ALLOCATED);
   set_blocksize(prologue_header, 8);
   uint32_t prologue_footer = prologue_header + 4;
@@ -27,7 +27,7 @@ void init_sentinel(void) {
    *  ------+--------------------+
    *     epilogue(-4)       alloc_end
    */
-  uint32_t epilogue_header = get_epilogue(); // alloc_end - 4
+  uint32_t epilogue_header = get_epilogue();  // alloc_end - 4
   set_allocated(epilogue_header, ALLOCATED);
   set_blocksize(epilogue_header, 0);
   /*
@@ -38,7 +38,7 @@ void init_sentinel(void) {
    * get_firstblock -> get_prologue() + 8 -> regularblock
    * get_lastblock  -> get_prevblock(get_epilogue()) -> regularblock
    */
-  uint32_t first_header = get_firstblock(); // get_prologue() + 8
+  uint32_t first_header = get_firstblock();  // get_prologue() + 8
   set_allocated(first_header, FREE);
   set_blocksize(first_header, alloc_end - alloc_start - 4 - 8 - 4);
   uint32_t first_footer = get_footer(first_header);
@@ -113,11 +113,12 @@ static uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request
     } else if (blocksize - request_blocksize < MIN_BLOCKSIZE) {
       // if splitted, it could't contain header + prevfree + nextfree + footer descriptor
 
-      set_allocated(block_header, ALLOCATED);
-      uint32_t block_footer = get_footer(block_header);
-      set_allocated(block_footer, ALLOCATED);
+      // set_allocated(block_header, ALLOCATED);
+      // uint32_t block_footer = get_footer(block_header);
+      // set_allocated(block_footer, ALLOCATED);
 
-      return get_payload(block_header);
+      // return get_payload(block_header);
+      return 0;
     }
   }
   return 0;
@@ -148,9 +149,8 @@ void* malloc(uint32_t size) {
       // assert(cur_blocksize <= old_blocksize);
       free_list_delete(block_header);
       // if current block has been splitted
-      if (old_blocksize > cur_blocksize) {
+      if (old_blocksize > cur_blocksize)
         free_list_insert(get_nextheader(block_header));
-      }
       return (void*)block_payload;
     } else {
       // go to the next free block
@@ -239,6 +239,22 @@ void free(void* ptr) {
   }
 }
 
+void print_heap() {
+  printf("============\nheap blocks:\n");
+  uint32_t h = get_firstblock();
+  int i = 0;
+  while (h != 0 && h < get_epilogue()) {
+    uint32_t a = get_allocated(h);
+    uint32_t s = get_blocksize(h);
+    uint32_t f = get_footer(h);
+    printf("[H:%p,F:%p,S:%d,A:%d]  ", h, f, s, a);
+    h = get_nextheader(h);
+    i += 1;
+    printf("\n");
+  }
+  printf("============\n");
+}
+
 void malloc_test() {
   printf(YELLOW("\nTesting Malloc...\n"));
   void* p = malloc(1);
@@ -256,5 +272,6 @@ void malloc_test() {
   p1 = malloc(3);
   p1 = malloc(24);
   // assert(p == p1);
+  print_heap();
   printf(GREEN("Malloc Pass\n"));
 }

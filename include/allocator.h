@@ -2,6 +2,7 @@
 #ifndef __ALLOCATOR_H_
 #define __ALLOCATOR_H_
 #include "assert.h"
+#include "common.h"
 #include "font.h"
 #include "types.h"
 #include <stddef.h>  // use NULL
@@ -14,10 +15,6 @@ extern uint32_t alloc_end;
 
 extern uint32_t free_list_head;
 extern uint32_t free_list_counter;
-
-/* printf */
-extern int printf(const char* s, ...);
-extern void panic(char* s);
 
 #define FREE (0)
 #define ALLOCATED (1)

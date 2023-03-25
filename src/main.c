@@ -1,19 +1,11 @@
-#include "os.h"
+#include "common.h"
 
+/* actorInit.c */
 extern void actor_launch(void);
+/* switchContext.c */
+void thread_create(void (*task)(void));
 
-void user_task1(void) {
-  uart_puts("Task 1: Created!\n");
-  while (1) {
-    uart_puts("Task 1: Running...\n");
-    task_delay(DELAY);
-    task_yield();
-  }
-}
-
-/* NOTICE: DON'T LOOP INFINITELY IN main() */
 void os_main(void) {
-  switch_task_create(actor_launch);
-  // switch_task_create(user_task1);
+   thread_create(actor_launch);
 }
 

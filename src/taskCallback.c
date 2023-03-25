@@ -88,7 +88,7 @@ void alloc_result(void) {
   }
 }
 
-void linger_insert(block_f* n_block) {
+void linger_insert(block_t* n_block) {
   // bind interrupt block with current actor's linger list
   if (n_block->actor->linger_list == NULL)
     n_block->actor->linger_list = create_list();
@@ -107,7 +107,7 @@ void linger_insert(block_f* n_block) {
  *	4. Flush current block's status flag
  *	5. Add current block into idle block queue
  */
-void block_recycle(block_f* n_block) {
+void block_recycle(block_t* n_block) {
   // SIMULATE ONLY: pass the result here
   result = n_block->result;
   // check if this block needs to recycle result

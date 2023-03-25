@@ -1,7 +1,7 @@
 /* Simulate block's behaviour, DO NOT exist in real scheme. */
 
 #include "task.h"
-static block_f *block;
+static block_t *block;
 extern uint8_t actor_index;
 
 /* 
@@ -61,7 +61,7 @@ void taskG_exe() {
   block->result = t1 + t2 + t3;
 }
 
-void block_sim(block_f *n_block) {
+void block_sim(block_t *n_block) {
   block = n_block;
   switch (actor_index) {
   case 0:

@@ -1,5 +1,6 @@
-/* Exception Control Flow(ECP) --> execption / interrupt --> trap */
 /*
+ * refs: https://github.com/plctlab/riscv-operating-system-mooc/blob/main/code/os/05-traps/trap.c
+ * Exception Control Flow(ECP) --> execption / interrupt --> trap
  * 1. trap initialize
  * 2. top half of trap: hardware would complete
  * -- set pc to be mtvec
@@ -8,11 +9,14 @@
  * 3. bottom half of trap: software should complete
  * 4. back to normal
  */
-#include "os.h"
 
-// trap entry address in switch.S
+#include "common.h"
+#include "platform.h"
+#include "riscv.h"
+
+/* switch.S */
 extern void trap_vector(void);
-// a external interrupt handler in externalIRQ.c
+/* externalIRQ.c */
 extern void external_interrupt_handler(void);
 
 /*
@@ -163,23 +167,13 @@ reg_t trap_handler(reg_t epc, reg_t cause) {
       printf(REDSET"Exception %d:"RESET);
       printf(" Reserved\n", cause_code);
     }
-    /*
-     * panic is a dead loop
-     * because exception will back to where it trigger
-     * so without any other operation, it would trigge it again
-     * to avoid this happen
-     * we process a dead loop to prevent it return back
-     */
-    // panic("OOPS! What can I do!");
-    //  we can change return address by ourself
-    // return_pc += 4;
   }
 
   return return_pc;
 }
 
 void trap_test() {
-  uart_puts("\nSCHEDULER: Testing trap function...\n");
+  printf("\nSCHEDULER: Testing trap function...\n");
   /*
     raise a memory access failure exception
     synchronous exception code = 7
@@ -192,9 +186,6 @@ void trap_test() {
     Synchronous exception code = 5
     Load access fault
   */
-  // int a = *(int *)0x00000000;
-
-  // if we make return_pc + 4, it would return back to this instruction
-  uart_puts("Return back from trap...\n");
+  printf("Return back from trap...\n");
 }
 

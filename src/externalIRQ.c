@@ -1,4 +1,4 @@
-#include "os.h"
+#include "common.h"
 #include "block.h"
 #include "saddr.h"
 
@@ -11,20 +11,19 @@ extern int uart_getc(void);
  * 	1. recycle idle blocks
  * 	2. pass the computing result to the successor
  */
-extern void block_recycle(block_f *block);
+extern void block_recycle(block_t *block);
 
 /* define all the block's flag --- allocate their memory space */
-static block_f block1;
-static block_f block2;
-static block_f block3;
-static block_f block4;
-static block_f block5;
-static block_f block6;
-static block_f block7;
-static block_f block8;
+static block_t block1;
+static block_t block2;
+static block_t block3;
+static block_t block4;
+static block_t block5;
+static block_t block6;
+static block_t block7;
+static block_t block8;
 
-
-void init_block_spm() {
+void spm_init() {
 	block1.spm_addr = SPM1_ADDR;
 	block2.spm_addr = SPM2_ADDR;
 	block3.spm_addr = SPM3_ADDR;
