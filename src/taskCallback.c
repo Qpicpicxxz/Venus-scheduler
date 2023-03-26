@@ -1,7 +1,6 @@
 #include "task.h"
 
 /* fireCheck.c */
-extern queue_t block_q;
 extern void ready_search(void);
 /* dma.c */
 extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
@@ -32,7 +31,7 @@ void pass_result() {
     ideal_block = read_last(cur_actor->fire_list)->item;
 }
 
-void check_if_done(node_t* p) {
+static inline void check_if_done(node_t* p) {
   linger_t* linger = (linger_t*)(p->item);
   if ((uint32_t)linger->block == ideal_block) {
     printf("SCHEDULER: Linger result %d is found...\n", *(uint32_t*)linger->data->ptr);
@@ -49,7 +48,7 @@ void check_if_done(node_t* p) {
  *	3. Check if this result the right arrival sequence
  *	4. If the right arrival sequence, pass the result's pointer to sucessor's dependency fifo
  */
-void alloc_result(void) {
+static inline void alloc_result(void) {
   printf("\nSCHEDULER: Allocating result...\n");
 
   // prpare return result's store space in advance
@@ -88,7 +87,7 @@ void alloc_result(void) {
   }
 }
 
-void linger_insert(block_t* n_block) {
+static inline void linger_insert(block_t* n_block) {
   // bind interrupt block with current actor's linger list
   if (n_block->actor->linger_list == NULL)
     n_block->actor->linger_list = create_list();

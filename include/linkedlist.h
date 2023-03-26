@@ -20,6 +20,7 @@ typedef struct list {
 list_t* create_list(void);
 node_t* create_node(uint32_t item);
 void free_node(node_t* p);
+void free_list(list_t* l);
 node_t* search(list_t* list, uint32_t key);
 void insert(list_t* list, node_t* p);
 void delete_node(node_t* p);

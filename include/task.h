@@ -15,6 +15,7 @@
 
 extern list_t* actor_l;
 extern list_t* ready_l;
+extern queue_t block_q;
 extern uint8_t actor_index;
 extern uint32_t actor_space;
 extern uint32_t actor_start;

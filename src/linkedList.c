@@ -33,6 +33,7 @@ node_t* create_node(uint32_t item) {
  *	assign which linked list.
  */
 inline void free_node(node_t* p) { free(p); }
+inline void free_list(list_t* l) { free(l); }
 
 /* Function: Search item==key node in specific linkedlist */
 node_t* search(list_t* list, uint32_t key) {
@@ -64,7 +65,7 @@ void traverse(list_t* list, void (*visit)(node_t*)) {
     visit(p);
 }
 
-/* Function: Destory a linklist */
+/* Function: Free every node from current list and free current list */
 void destroy_list(list_t* list) {
   node_t* q = list->head->next;
   node_t* p = list->head->next;
@@ -75,9 +76,10 @@ void destroy_list(list_t* list) {
     p = p->next;
     free_node(q);
   }
+  free_list(list);
 }
 
-/* Function: delete and free a node from a list */
+/* Function: Delete and free a node from a list */
 inline void destroy_node(node_t* node) {
   delete_node(node);
   free_node(node);
