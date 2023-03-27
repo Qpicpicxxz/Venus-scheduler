@@ -69,3 +69,44 @@ typedef struct linger {
   data_t* data
 } linger_t
 ```
+***
+### **👾Tips: 设计struct的时候可以考虑结构体的占用空间**
+```
+struct stru_1{
+  uint8_t a
+  uint8_t b
+}
+sizeof(struct stru_1) == 2
+```
+```
+struct stru_2{
+  uint8_t a
+  uint32_t b
+}
+sizeof(struct stru_2) == 8
+```
+```
+struct stru_3{
+  uint8_t a
+  uint32_t b
+  uint8_t c
+}
+sizeof(struct stru_3) == 12
+```
+```
+struct stru_4{
+  uint8_t a
+  uint8_t b
+  uint32_t c
+}
+sizeof(struct stru_4) == 8
+```
+```
+struct ex_4{
+  uint8_t a
+  uint8_t b
+  uint16_t c
+  uint32_t d
+}
+sizeof(struct ex_3) == 12
+```

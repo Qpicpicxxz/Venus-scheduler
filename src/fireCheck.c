@@ -95,12 +95,15 @@ void ready_search(void) {
   for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
     actor = (actor_t*)p->item;
+    int cnt = 0;
     // 2. handle ready actors
-    if (fire_check()) {
+    while (fire_check()) {
       // 3. schedule ready list
       ready_insert(ready_create());
-      // 4. put current actor into ready list (ready_t descriptor)
-      printf(GREEN("%c✔  "), actor_index + 65);
+      cnt ++;
+    }
+    if (cnt){
+      printf(GREEN("%d%c✔  "), cnt, actor_index + 65);
     } else {
       printf(PINK("%c✘  "), actor_index + 65);
     }

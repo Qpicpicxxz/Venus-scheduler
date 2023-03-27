@@ -7,10 +7,10 @@
  * Every in/out is a fifo queue
  */
 typedef struct actor {
+  uint8_t dep_num;
+  uint8_t nxt_num;
   fifo_t* in[MAXIO];
-  uint32_t dep_num;
   fifo_t* out[MAXIO];
-  uint32_t nxt_num;
   uint32_t result_len;
   uint32_t task_addr;
   uint32_t task_len;

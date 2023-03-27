@@ -2,8 +2,12 @@
 #define __TASK_H__
 
 #define NUM_BLOCKS 8
-#define MAXFIFO 8
-#define MAXIO 4
+#define NUM_PACKET 5
+#define NUM_BUFFER 8
+#define NUM_DEGREE 4
+
+#define MAXFIFO (NUM_BUFFER + 1)
+#define MAXIO NUM_DEGREE
 
 #include "actor.h"
 #include "block.h"
@@ -19,6 +23,7 @@ extern queue_t block_q;
 extern uint8_t actor_index;
 extern uint32_t actor_space;
 extern uint32_t actor_start;
+extern uint32_t block_start;
 
 /* actor create */
 actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len);

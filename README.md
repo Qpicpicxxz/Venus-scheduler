@@ -19,7 +19,7 @@
 │   ├── platform.h      // define machine's physical property
 │   ├── README.md	// introduce all the struct descriptor
 │   ├── riscv.h         // some basic privileged register assemble instructions
-│   ├── saddr.h         // VENUS block's sratchpad memory address
+│   ├── saddr.h         // VENUS block's scratchpad memory address
 │   ├── task.h          // include "actor.h && block.h" and extern some functions
 │   ├── types.h         // unifom bit length
 │   └── ulib.h          // memory and string handlers
@@ -64,6 +64,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 58 files
+3 directories, 59 files
 ```
 

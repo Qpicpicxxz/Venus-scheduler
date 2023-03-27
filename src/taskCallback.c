@@ -111,7 +111,7 @@ void block_recycle(block_t* n_block) {
   result = n_block->result;
   // check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf(YELLOW("\nBLOCK 0x%x: Job done, result is: %d\n"), n_block, result);
+    printf(YELLOW("\nBLOCK %d: Job done\n"), ((uint32_t)n_block - block_start) / sizeof(block_t) + 1);
     linger_insert(n_block);
     cur_actor = n_block->actor;
     alloc_result();

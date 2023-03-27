@@ -57,6 +57,11 @@ void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len) {
   data->len = data_len;
   // by default, initial packet data will only be used by one actor
   data->cnt = 1;
+  if (fifo_full(actor->in[0])) {
+    // if input buffer is full
+    printf(RED("Input buffer overflowed, discard residual data...\n"));
+    return;
+  }
   put_data(actor->in[0], data);
 }
 

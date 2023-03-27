@@ -42,9 +42,10 @@ void DAG_depict() {
   assign_root(A);
   assign_sink(G);
   /* means to input initial data packets */
-  void* p = malloc(sizeof(int));
-  *(uint32_t*)p = 10;
-  packet_input(A, (uint32_t)p, 4);
+  for (int i = 0; i < NUM_PACKET; i++) {
+    // Note: It just create a void pointer to the actor input
+    packet_input(A, (uint32_t)malloc(sizeof(int)), 4);
+  }
 }
 
 /* SIMULATION ONLY: locate which task execution */

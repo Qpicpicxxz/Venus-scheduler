@@ -3,11 +3,6 @@
 
 #include "defs.h"
 
-/* stored in higher 16bits of ptr */
-#define WPTR(fifo) ((fifo)->ptr >> 16)
-/* stored in lower 16bits of ptr */
-#define RPTR(fifo) ((fifo)->ptr & 0xFFFF)
-
 /* data descriptor */
 typedef struct data {
   uint32_t ptr;  // where the data resides
@@ -18,19 +13,21 @@ typedef struct data {
 /* token-fifo descriptor between actors */
 typedef struct fifo {
   data_t* data[MAXFIFO];  // data descriptor's pointer
-  uint32_t ptr;
+  uint8_t wptr;
+  uint8_t rptr;
 } fifo_t; /* fifo template */
 
 /* normal fifo-queue descriptor */
 typedef struct queue {
   uint32_t addr;  // any data you want to represent
-  uint32_t ptr;
+  uint8_t wptr;
+  uint8_t rptr;
 } queue_t; /* queue template */
 
 /* fifo */
 void init_fifo(fifo_t* F);
 void init_queue(queue_t* F);
-uint32_t fifo_full(fifo_t* F);
+uint8_t fifo_full(fifo_t* F);
 uint8_t fifo_empty(fifo_t* F);
 uint8_t queue_full(queue_t* F);
 uint8_t queue_empty(queue_t* F);

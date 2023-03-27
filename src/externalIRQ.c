@@ -13,6 +13,8 @@ extern int uart_getc(void);
  */
 extern void block_recycle(block_t *block);
 
+uint32_t block_start;
+
 /* define all the block's flag --- allocate their memory space */
 static block_t block1;
 static block_t block2;
@@ -32,6 +34,7 @@ void spm_init() {
 	block6.spm_addr = SPM6_ADDR;
 	block7.spm_addr = SPM7_ADDR;
 	block8.spm_addr = SPM8_ADDR;
+	block_start = (uint32_t)&block1;
 }
 
 /* handle external interrupt */
