@@ -6,12 +6,12 @@ queue_t block_q;       /* idle-block queue            */
 static actor_t* actor; /* current handle actor        */
 static ready_t* ready; /* current ready descriptor    */
 static block_t* block; /* current block descriptor    */
+static fifo_t dma_trans_in;
 
 /* taskCallback.c  */
 extern void callback(actor_t* g);
 /* block.c */
 extern void block_sim(block_t* block);
-extern fifo_t dma_trans_in;
 /* dma.c */
 extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
 extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
@@ -40,7 +40,6 @@ static inline uint8_t fire_check() { return actor_ready() && !successor_full(); 
 
 /* Function: A handler to bind in-flight actor with current block */
 static inline void task_bind(void) {
-  printf("\nBLOCK: Computing task...\n");
   block->actor = actor;
 }
 
@@ -155,7 +154,6 @@ static inline void inform_dma(void) {
 static inline void add_firelist(void) {
   if (actor->fire_list == NULL)
     actor->fire_list = create_list();
-  printf("SCHEDULER: Inserting block into in-flight list...\n");
   insert(actor->fire_list, create_node((uint32_t)block));
 }
 
@@ -165,7 +163,6 @@ static inline void recycle_garbage(void) {
     data_t* data = get_data(&dma_trans_in);
     if (data->cnt == 1) {
       // garbage collection
-      printf("SCHEDULER: Last use, free data space...\n");
       free((void*)data->ptr);  // free data space
       free((void*)data);       // free data flag space
     } else {
@@ -178,10 +175,9 @@ static inline void recycle_garbage(void) {
 /* Function: Parse descriptor and inform DMA */
 static inline void actor_fire(void) {
   // 1. get an actor from ready actor list
-  printf("\nSCHEDULER: Actor ");
+  printf("SCHEDULER: Actor ");
   printf(GREEN("%c"), actor_index + 65);
   printf(" Fired\n");
-  printf("SCHEDULER: 0x%x block is ready...\n", block);
   // 2. mark this block to be inflight status
   _set_block_flag(block, BLOCK_INFLIGHT);
   // 3. inform task code and dependency to DMA
@@ -198,13 +194,14 @@ static inline void actor_fire(void) {
 
 /* Funcition: Fire ready actors when VENUS has idle blocks */
 void actor_check(void) {
-  printf(GREEN("\nSCHEDULER: Waiting for blocks to be ready...\n"));
+  printf(BOLD("SCHEDULER: Waiting for blocks to be ready...\n"));
   while (1) {
     // 1. if there is any idle block and ready actor
     if (queue_size(&block_q) >= 1 && !is_list_empty(ready_l)) {
       // 2. get out this idle block from idle-queue
       block = (block_t*)get_queue(&block_q);
-      printf("block actor= %p\n", block->actor);
+      printf("SCHEDULER: Select block ");
+      printf(YELLOW("%d\n"), ((uint32_t)block - block_start) / sizeof(block_t) +1);
       // 3. parse the ready actor descriptor
       node_t* ready_node = ready_select();
       ready = (ready_t*)ready_node->item;

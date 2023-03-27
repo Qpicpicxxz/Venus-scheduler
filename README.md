@@ -30,6 +30,7 @@
 │   ├── actorCreate.c	// API export to user to depict DAG
 │   ├── actorInit.c     // depict DAG and declare actors and fifo-queues
 │   ├── block.c         // simulate block compute behaviour
+│   ├── DAG.c           // python script generated DAG
 │   ├── debug.c         // print out all sections range and size
 │   ├── dma.c           // simulate DMA's behaviour
 │   ├── externalIRQ.c   // initialize block's struct and handle external interrupt
@@ -43,7 +44,7 @@
 │   ├── memFree.c       // handlers to manage free block list
 │   ├── mem.S           // define some macros for catch section's address
 │   ├── printf.c        // print strings to QEMU terminal
-│   ├── README.md       // Simple struct of current mechanism
+│   ├── README.md       // simple struct of current mechanism
 │   ├── start.S         // first code to execute when launch a kernel
 │   ├── switchContext.c // some method for switch operation
 │   ├── switch.S        // some method switch operation
@@ -52,6 +53,7 @@
 │   ├── uart.c          // UART functions for print && external interrupt
 │   └── ulib.c          // memory and string c lib functions
 └── task
+    ├── generateDAG.py  // create a DAG randomly
     ├── Makefile
     ├── modifyHeader.py
     ├── modifyLinker.py // auto add tasks section into os.ld
@@ -64,6 +66,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 59 files
+3 directories, 61 files
 ```
 

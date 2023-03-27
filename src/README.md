@@ -92,7 +92,7 @@ actor_check(){
             dma_data()
           }
         }
-        add_firelist();
+        add_firelist()
         task_bind(){
           block->actor = actor
         }
@@ -149,11 +149,11 @@ block_recycle(n_block){
         }
       }
     }
-    _clear_block_flag(n_block);
-    ready_search(); (在fireCheck里面)
+    _clear_block_flag(n_block)
+    ready_search() (在fireCheck里面)
   }
   if (block is not in BLOCKFIFO){
-    _set_block_flag(n_block, BLOCK_INFIFO);
+    _set_block_flag(n_block, BLOCK_INFIFO)
     add current block into idle block queue
   }
 }

@@ -38,7 +38,8 @@ SRCS_C = \
 				 $(SOURCE)externalIRQ.c \
 				 $(SOURCE)actorInit.c \
 				 $(SOURCE)fireCheck.c	\
-				 $(SOURCE)actorCreate.c
+				 $(SOURCE)actorCreate.c \
+				 $(SOURCE)DAG.c
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 

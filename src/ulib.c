@@ -95,7 +95,7 @@ void memcpy_test(void) {
 }
 
 void delay(volatile int count) {
-  count *= 10000;
+  count *= DELAY;
   while (count--)
     ;
 }

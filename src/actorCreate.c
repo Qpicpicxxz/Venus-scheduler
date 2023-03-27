@@ -15,7 +15,6 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len)
   actor->task_len = taskLen;
   /* 2. Transforming function invocations into task linked constructs */
   insert(actor_l, create_node((uint32_t)actor));
-  printf("Task 0x%x created...\n", actor);
   return actor;
 }
 
@@ -38,6 +37,7 @@ void edge_make(actor_t* src, actor_t* snk) {
   success = node_make(src->out, fifo);
   if (!success) {
     printf(RED("Dependency actor's fifo is full\n"));
+    printf("Actor: %p -> %p\n",src, snk); 
   } else {
     src->nxt_num += 1;
   }

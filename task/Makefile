@@ -51,6 +51,11 @@ all: word ${BINARY}
 	@python modifyHeader.py
 	@echo ""
 	@echo "  declare every task codes' description"
+	@echo ""
+	@echo "========== CREATING DAG.c =========="
+	@python generateDAG.py
+	@echo ""
+	@echo "  generate a DAG description randomly"
 	
 .PHONY: code
 code: all

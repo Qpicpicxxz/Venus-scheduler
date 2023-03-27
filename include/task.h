@@ -4,10 +4,10 @@
 #define NUM_BLOCKS 8
 #define NUM_PACKET 5
 #define NUM_BUFFER 8
-#define NUM_DEGREE 4
+#define NUM_DEGREE 10
 
 #define MAXFIFO (NUM_BUFFER + 1)
-#define MAXIO NUM_DEGREE
+#define MAXIO (NUM_DEGREE + 1)
 
 #include "actor.h"
 #include "block.h"

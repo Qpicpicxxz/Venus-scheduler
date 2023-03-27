@@ -6,12 +6,11 @@ extern void ready_search(void);
 extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
 /* Some inner variables */
 static uint32_t ideal_block;
-static uint32_t result;  // just simulation
 static actor_t* cur_actor;
 static data_t* cur_data;
 
 void pass_result() {
-  printf("SCHEDULER: Expected result, pass to the successor...\n");
+  printf("SCHEDULER: Pass result to the successor...\n");
 
   // pass the result to successors
   for (int i = 0; i < cur_actor->nxt_num; i++) {
@@ -34,7 +33,7 @@ void pass_result() {
 static inline void check_if_done(node_t* p) {
   linger_t* linger = (linger_t*)(p->item);
   if ((uint32_t)linger->block == ideal_block) {
-    printf("SCHEDULER: Linger result %d is found...\n", *(uint32_t*)linger->data->ptr);
+    printf("SCHEDULER: Linger result is found...\n");
     cur_data = linger->data;
     pass_result();
   }
@@ -49,8 +48,6 @@ static inline void check_if_done(node_t* p) {
  *	4. If the right arrival sequence, pass the result's pointer to sucessor's dependency fifo
  */
 static inline void alloc_result(void) {
-  printf("\nSCHEDULER: Allocating result...\n");
-
   // prpare return result's store space in advance
   void* p = malloc(cur_actor->result_len);
   uint32_t alloc_addr = (uint32_t)p;
@@ -64,8 +61,8 @@ static inline void alloc_result(void) {
   // told DMA where to move and store the result
   dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // SIMULATE DMA stored the result (in a allocated memory space)
-  *(int*)p = result;
-  printf(BLUE("DMA: Result %d is stored in 0x%x\n"), *(uint32_t*)alloc_addr, alloc_addr);
+  *(int*)p = 1;
+  printf(BLUE("DMA: Result data is stored in 0x%x\n"), alloc_addr);
 
   // check whether the right arrival sequence or not
   ideal_block = read_last((cur_actor->fire_list))->item;
@@ -91,7 +88,6 @@ static inline void linger_insert(block_t* n_block) {
   // bind interrupt block with current actor's linger list
   if (n_block->actor->linger_list == NULL)
     n_block->actor->linger_list = create_list();
-  printf("SCHEDULER: Inserting block into finish list...\n");
   linger_t* linger = malloc(sizeof(linger_t));
   linger->block = n_block;
   linger->data = NULL;
@@ -107,15 +103,12 @@ static inline void linger_insert(block_t* n_block) {
  *	5. Add current block into idle block queue
  */
 void block_recycle(block_t* n_block) {
-  // SIMULATE ONLY: pass the result here
-  result = n_block->result;
   // check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf(YELLOW("\nBLOCK %d: Job done\n"), ((uint32_t)n_block - block_start) / sizeof(block_t) + 1);
+    printf(YELLOW("BLOCK %d: Job done\n"), ((uint32_t)n_block - block_start) / sizeof(block_t) +1);
     linger_insert(n_block);
     cur_actor = n_block->actor;
     alloc_result();
-    printf("SCHEDULER: Callback handler done...\n");
     // reset the block's status flag
     _clear_block_flag(n_block);
     ready_search();
