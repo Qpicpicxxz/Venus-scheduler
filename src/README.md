@@ -1,4 +1,40 @@
-### **👻整个task里面通用的变量**
+***
+### **🐡启动流程**
+***
+**https://github.com/qemu/qemu/blob/master/hw/riscv/virt.c**
+```
+static const MemMapEntry virt_memmap[] = {
+    [VIRT_DEBUG] =        {        0x0,         0x100 },
+    [VIRT_MROM] =         {     0x1000,        0xf000 },
+    [VIRT_TEST] =         {   0x100000,        0x1000 },
+    [VIRT_RTC] =          {   0x101000,        0x1000 },
+    [VIRT_CLINT] =        {  0x2000000,       0x10000 },
+    [VIRT_ACLINT_SSWI] =  {  0x2F00000,        0x4000 },
+    [VIRT_PCIE_PIO] =     {  0x3000000,       0x10000 },
+    [VIRT_PLATFORM_BUS] = {  0x4000000,     0x2000000 },
+    [VIRT_PLIC] =         {  0xc000000, VIRT_PLIC_SIZE(VIRT_CPUS_MAX * 2) },
+    [VIRT_APLIC_M] =      {  0xc000000, APLIC_SIZE(VIRT_CPUS_MAX) },
+    [VIRT_APLIC_S] =      {  0xd000000, APLIC_SIZE(VIRT_CPUS_MAX) },
+    [VIRT_UART0] =        { 0x10000000,         0x100 },
+    [VIRT_VIRTIO] =       { 0x10001000,        0x1000 },
+    [VIRT_FW_CFG] =       { 0x10100000,          0x18 },
+    [VIRT_FLASH] =        { 0x20000000,     0x4000000 },
+    [VIRT_IMSIC_M] =      { 0x24000000, VIRT_IMSIC_MAX_SIZE },
+    [VIRT_IMSIC_S] =      { 0x28000000, VIRT_IMSIC_MAX_SIZE },
+    [VIRT_PCIE_ECAM] =    { 0x30000000,    0x10000000 },
+    [VIRT_PCIE_MMIO] =    { 0x40000000,    0x40000000 },
+    [VIRT_DRAM] =         { 0x80000000,           0x0 }, // 这里是模拟器上电第一条指令取指执行的地方
+}
+```
+**所以在os.ld里，我们将我们的RAM空间设置为：**
+```
+MEMORY
+{
+	ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M
+}  /* 0x80000000 ~ 0x88000000 */
+```
+***
+### **👻task里面通用的变量**
 ***
 **actorInit.c**
 ```
@@ -13,7 +49,8 @@ actor_l  // DAG里所有的actor描述符链表
 ready_l  // 能够发射的所有ready actor描述符链表
 block_q  // block描述符队列(一开始就初始化好了，静态的)
 ```
-**🦔fireCheck.c**
+***
+### **🦔fireCheck.c流程**
 ***
 ```
 static actor_t* actor
@@ -112,7 +149,8 @@ actor_check(){
   }
 }
 ```
-**🕊️taskCallback.c**
+***
+### **🕊️taskCallback.c流程**
 ***
 ```
 ideal_block

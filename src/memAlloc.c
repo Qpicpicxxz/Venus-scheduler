@@ -239,6 +239,56 @@ void free(void* ptr) {
   }
 }
 
+void* malloc_LLI(void) {
+  uint32_t request_blocksize = 64 + 4 + 4;
+  uint32_t block_header = free_list_head;
+  uint32_t counter = free_list_counter;
+  uint32_t block_payload = 0;
+  for (int i = 0; i < counter; ++i) {
+    uint32_t old_blocksize = get_blocksize(block_header);
+    // check if this payload is 64-byte aligned
+    uint32_t unaligned_size = get_payload(block_header) % 64;
+    // if not aligned, extend request block size
+    if (unaligned_size)
+      request_blocksize = 128 - unaligned_size;
+    block_payload = try_alloc_with_splitting(block_header, request_blocksize);
+
+    if (block_payload) {
+      uint32_t cur_blocksize = get_blocksize(block_header);
+      free_list_delete(block_header);
+      if (old_blocksize > cur_blocksize)
+        free_list_insert(get_nextheader(block_header));
+      // if the original allocated payload is 64-byte aligned, return back
+      if (!unaligned_size)
+        return (void*)block_payload;
+      else {
+        uint32_t aligned_block_payload = block_payload + 64 - unaligned_size;
+        // store the real payload before the 64-byte aligned payload
+        *(uint32_t*)(aligned_block_payload - 4) = block_payload;
+        // return the 64-byte aligned payload
+        return (void*)aligned_block_payload;
+      }
+    } else {
+      // go to the next free block
+      block_header = get_nextfree(block_header);
+    }
+  }
+  printf(RED("There is not enough HEAP memory to allocate!"));
+  return NULL;
+}
+
+void free_LLI(uint32_t ptr) {
+  uint32_t last_byte = *(uint32_t*)(ptr - 4);
+  if (last_byte & 0x1) {
+    // if this is a header, normal free
+    free((void*)ptr);
+  } else {
+    // this is a 64-byte aligned block, find real payload start
+    uint32_t real_payload = *(uint32_t*)(ptr - 4);
+    free((void*)real_payload);
+  }
+}
+
 void print_heap() {
   printf("============\nheap blocks:\n");
   uint32_t h = get_firstblock();
@@ -253,6 +303,21 @@ void print_heap() {
     printf("\n");
   }
   printf("============\n");
+}
+
+void malloc_64_test() {
+  void* p = malloc_LLI();
+  printf("64-byte aligned malloc p is %p\n", p);
+  // free_LLI((uint32_t)p);
+  // void *q = malloc(64);
+  void* q = malloc_LLI();
+  printf("64-byte aligned malloc q is %p\n", q);
+  void* x = malloc(54);
+  x = malloc_LLI();
+  printf("64-byte aligned malloc x is %p\n", x);
+  free_LLI((uint32_t)p);
+  free_LLI((uint32_t)q);
+  free_LLI((uint32_t)x);
 }
 
 void malloc_test() {

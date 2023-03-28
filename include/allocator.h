@@ -24,6 +24,8 @@ extern uint32_t free_list_counter;
 void heap_init();
 void* malloc(uint32_t size);
 void free(void* ptr);
+void* malloc_LLI(void);
+void free_LLI(uint32_t ptr);
 
 /* Tools */
 uint32_t _align_up(uint32_t x, uint32_t n);
