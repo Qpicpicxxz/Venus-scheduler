@@ -28,8 +28,8 @@ _start:
 
 	.section .bss.stack
 	
-	.globl _stack_lower_bound
-_stack_lower_bound:
+	.globl _stack_start
+_stack_start:
 
 	.space	STACK_SIZE
 

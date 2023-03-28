@@ -5,6 +5,7 @@
 actor_index
 actor_space
 actor_start
+block_start
 ```
 **fireCheck.c**
 ```
@@ -12,12 +13,14 @@ actor_l  // DAG里所有的actor描述符链表
 ready_l  // 能够发射的所有ready actor描述符链表
 block_q  // block描述符队列(一开始就初始化好了，静态的)
 ```
+**🦔fireCheck.c**
 ***
 ```
 static actor_t* actor
 static ready_t* ready
-static block_t*block
+static block_t* block
 ```
+***
 ```
 ready_create(){ // 首先创建一个ready actor的描述符，把数据从fifo中取出来[L2]
   allocate space for ready_t *actor_r
@@ -40,7 +43,8 @@ ready_search(){
         从ready_create()拿到ready, 进行schedule,
         这里可以根据自定义的actor发射优先级或者其它block无关的东西进行调度
         目前的实现:
-          traverse ready list from list tail{ // 从尾部开始遍历(block会默认从尾部开始取actor[L1]，所以ready list尾部的那个actor copy优先级是最高的)
+          traverse ready list from list tail{
+          // 从尾部开始遍历(block会默认从尾部开始取actor[L1]，所以ready list尾部的那个actor copy优先级是最高的)
           以下是目前的算法：
           cur_nxt = 当前actor的出度
           p_nxt = 当前遍历到的ready list里面的acotr的出度
@@ -109,6 +113,7 @@ actor_check(){
 }
 ```
 **🕊️taskCallback.c**
+***
 ```
 ideal_block
 result
