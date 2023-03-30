@@ -7,14 +7,14 @@
 extern void uart_puts(char* s);
 
 static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
-  int format = 0;
+  int format  = 0;
   int longarg = 0;
-  size_t pos = 0;
+  size_t pos  = 0;
   for (; *s; s++) {
     if (format) {
       switch (*s) {
       case 'l': {
-        longarg = 1;
+        longarg = 2;
         break;
       }
       case 'p': {
@@ -29,8 +29,10 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
         pos++;
       }
       case 'x': {
-        long num = longarg ? va_arg(vl, long) : va_arg(vl, int);
+        long num      = longarg ? va_arg(vl, long) : va_arg(vl, int);
+        num           = longarg == 2 ? va_arg(vl, long long) : va_arg(vl, long);
         int hexdigits = 2 * (longarg ? sizeof(long) : sizeof(int)) - 1;
+        hexdigits     = 2 * (longarg == 2 ? sizeof(long long) : sizeof(long)) - 1;
         for (int i = hexdigits; i >= 0; i--) {
           int d = (num >> (4 * i)) & 0xF;
           if (out && pos < n) {
@@ -39,7 +41,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
           pos++;
         }
         longarg = 0;
-        format = 0;
+        format  = 0;
         break;
       }
       case 'd': {
@@ -62,7 +64,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
         }
         pos += digits;
         longarg = 0;
-        format = 0;
+        format  = 0;
         break;
       }
       case 's': {
@@ -75,7 +77,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
           s2++;
         }
         longarg = 0;
-        format = 0;
+        format  = 0;
         break;
       }
       case 'c': {
@@ -84,7 +86,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
         }
         pos++;
         longarg = 0;
-        format = 0;
+        format  = 0;
         break;
       }
       default:
@@ -120,7 +122,7 @@ static int _vprintf(const char* s, va_list vl) {
   return res;
 }
 
-// support %p, %s, %d, %x only
+// support %p, %s, %d, %x, %lx only
 int printf(const char* s, ...) {
   int res = 0;
   va_list vl;
