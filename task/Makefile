@@ -29,7 +29,7 @@ all: word ${BINARY}
 	@echo ""
 	@echo "============ CONVERTING ============"
 	@echo ""
-	@python readBin.py ${BINARY}
+	@python read_bin.py ${BINARY}
 	@echo ""
 	@echo "============ MOVING CODE ==========="
 	@echo ""
@@ -38,22 +38,22 @@ all: word ${BINARY}
 	@echo "  copied to the root directory"
 	@echo ""
 	@echo "========== MODIFYING LINKER ========"
-	@python modifyLinker.py
+	@python modify_linker.py
 	@echo ""
 	@echo "  place every task codes' section"
 	@echo ""
 	@echo "========== MODIFYING mem.S ========="
-	@python modifyMem.py
+	@python modify_mem.py
 	@echo ""
 	@echo "  define every task codes' description"
 	@echo ""
-	@echo "======= MODIFYING codeAddr.h ======="
-	@python modifyHeader.py
+	@echo "======= MODIFYING codeaddr.h ======="
+	@python modify_header.py
 	@echo ""
 	@echo "  declare every task codes' description"
 	@echo ""
-	@echo "========== CREATING DAG.c =========="
-	@python generateDAG.py
+	@echo "========== CREATING dag.c =========="
+	@python generate_dag.py
 	@echo ""
 	@echo "  generate a DAG description randomly"
 	
@@ -68,7 +68,7 @@ code: all
 .PHONY: clean
 clean:
 	rm -rf *.elf *.bin *_bin.c *.txt *.map
-	@python rollbackLinker.py
-	@python rollbackMem.py
-	@python rollbackHeader.py
+	@python rollback_linker.py
+	@python rollback_mem.py
+	@python rollback_header.py
 

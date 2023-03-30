@@ -23,23 +23,23 @@ SRCS_C = \
 			 	 $(SOURCE)uart.c \
 				 $(SOURCE)printf.c \
 				 $(SOURCE)ulib.c  \
-				 $(SOURCE)memBlock.c \
-				 $(SOURCE)memAlloc.c \
-				 $(SOURCE)memFree.c \
-				 $(SOURCE)linkedList.c \
-				 $(SOURCE)switchContext.c \
+				 $(SOURCE)mem_block.c \
+				 $(SOURCE)mem_alloc.c \
+				 $(SOURCE)mem_free.c \
+				 $(SOURCE)linked_list.c \
+				 $(SOURCE)switch_context.c \
 				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \
 				 $(SOURCE)block.c \
-				 $(SOURCE)taskCallback.c \
-				 $(SOURCE)externalIRQ.c \
-				 $(SOURCE)actorInit.c \
-				 $(SOURCE)fireCheck.c	\
-				 $(SOURCE)actorCreate.c \
-				 $(SOURCE)DAG.c
+				 $(SOURCE)task_callback.c \
+				 $(SOURCE)external_irq.c \
+				 $(SOURCE)actor_init.c \
+				 $(SOURCE)fire_check.c	\
+				 $(SOURCE)actor_create.c \
+				 $(SOURCE)dag.c
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 

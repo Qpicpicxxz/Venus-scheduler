@@ -48,7 +48,7 @@ for node,od in enumerate(out_degree):
             in_degree[n-1]+=1
 
 def write_code(edges):
-    with open('../src/DAG.c', 'w') as f:
+    with open('../src/dag.c', 'w') as f:
         f.write('#include "task.h"\n\n')
         f.write('void random_DAG(void){\n')
         f.write('  /* means to specify a actor (node) */\n')

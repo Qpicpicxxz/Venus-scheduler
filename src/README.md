@@ -50,7 +50,7 @@ ready_l  // 能够发射的所有ready actor描述符链表
 block_q  // block描述符队列(一开始就初始化好了，静态的)
 ```
 ***
-### **🦔fireCheck.c流程**
+### **🦔fire_check.c流程**
 ***
 ```
 static actor_t* actor
@@ -150,7 +150,7 @@ actor_check(){
 }
 ```
 ***
-### **🕊️taskCallback.c流程**
+### **🕊️task_callback.c流程**
 ***
 ```
 ideal_block

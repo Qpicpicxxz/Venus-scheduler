@@ -1,4 +1,4 @@
-with open('../include/codeAddr.h', 'r') as f:
+with open('../include/codeaddr.h', 'r') as f:
     lines = f.readlines()
 
 output = []
@@ -13,5 +13,5 @@ for line in lines:
     elif not ignore:
         output.append(line)
 
-with open('../include/codeAddr.h', 'w') as f:
+with open('../include/codeaddr.h', 'w') as f:
     f.writelines(output)
