@@ -4,6 +4,7 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
+#include "lli.h"
 #include <stdarg.h>
 #include <stddef.h>
 
@@ -19,8 +20,8 @@ extern void free(void* ptr);
 extern void delay(volatile int count);
 
 /* dma tools */
-extern void* malloc_LLI(void);
-extern void free_LLI(uint32_t ptr);
+extern lli_t* malloc_LLI(void);
+extern void free_LLI(lli_t* ptr);
 
 /* string tools */
 extern char* strcpy(char*, const char*);

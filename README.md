@@ -3,6 +3,10 @@
 ```
 .
 ├── common.mk           // rules and files to compile scheduler code
+├── dma
+│   ├── dma.c           // scheduler & dma interface
+│   ├── lli_create.c    // setup DMA linked list item
+│   └── phy_wr.c        // handlers to write/read physical address
 ├── gdbinit             // initialize GNU debuger script
 ├── include             // header files
 │   ├── actor.h         // define actor struct
@@ -13,9 +17,11 @@
 │   ├── common.h        // basic tool functions
 │   ├── daddr.h         // define VENUS block's data memory address
 │   ├── defs.h          // declare some task relative structs
+│   ├── dma.h           // common functions relative to DMA
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h          // font style for printf
 │   ├── linkedlist.h    // header file of linked list
+│   ├── lli.h           // define DMA linked list item structure
 │   ├── platform.h      // define machine's physical property
 │   ├── README.md	// introduce all the struct descriptor
 │   ├── riscv.h         // some basic privileged register assemble instructions

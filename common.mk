@@ -5,12 +5,14 @@ QFLAGS = -nographic -machine virt -bios none \
 				 -smp cores=1,threads=1,sockets=1
 
 SOURCE = src/
+DMA = dma/
 GDB = gdb-multiarch
 CC = ${CROSS_COMPILE}gcc
 OBJCOPY = ${CROSS_COMPILE}objcopy
 OBJDUMP = ${CROSS_COMPILE}objdump
 NM = ${CROSS_COMPILE}nm
 MAKEFLAGS += --silent
+CFLAGS += -DDEBUG_DMA
 
 SRCS_ASM = \
 					 $(SOURCE)start.S \
@@ -32,14 +34,15 @@ SRCS_C = \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)main.c \
-				 $(SOURCE)dma.c \
 				 $(SOURCE)block.c \
 				 $(SOURCE)task_callback.c \
 				 $(SOURCE)external_irq.c \
 				 $(SOURCE)actor_init.c \
 				 $(SOURCE)fire_check.c	\
 				 $(SOURCE)actor_create.c \
-				 $(SOURCE)dag.c
+				 $(SOURCE)dag.c \
+				 $(DMA)lli_create.c \
+				 $(DMA)dma.c 
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 

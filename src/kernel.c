@@ -15,6 +15,9 @@ extern void malloc_test(void);
 extern void link_test(void);
 extern void memcpy_test(void);
 extern void malloc_64_test(void);
+extern void dma_test(void);
+
+#include "lli.h"
 
 void start_kernel(void) {
   uart_init();
@@ -24,10 +27,11 @@ void start_kernel(void) {
   trap_init();
   sched_init();
   spm_init();
-  // malloc_64_test();
   // malloc_test();
   // link_test();
   // memcpy_test();
+  // malloc_64_test();
+   dma_test();
   // while(1){};
   os_main();
 }
