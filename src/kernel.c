@@ -19,8 +19,10 @@ extern void dma_test(void);
 
 void start_kernel(void) {
   uart_init();
+#ifdef DEBUG_SCHEDULER
   printf(GREEN("Hello, VENUS!\n"));
   mem_info();
+#endif
   heap_init();
   trap_init();
   sched_init();

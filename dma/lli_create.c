@@ -60,20 +60,19 @@ void lli_setup(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len, lli_t
   lli->WB_CHx_SSTAT             = 0;
   lli->CHx_CTL                  = CTL_concatenate(lli_last);
   lli->CHx_LLP                  = (uint64_t)next_item_pointer;
-  lli->Reserved1                = 0;
-  lli->CHx_BLOCK_TS             = transfer_length_byte / pow(2, source_transfer_width);
-  lli->CHx_DAR                  = destination_addr;
-  lli->CHx_SAR                  = source_addr;
+  lli->CHx_BLOCK_TS = transfer_length_byte / pow(2, source_transfer_width);
+  lli->CHx_DAR      = destination_addr;
+  lli->CHx_SAR = source_addr;
 #ifdef DEBUG_DMA
   printf("\n--------------------------------------------\n");
-  printf("Reserved0                   %lx\n", current_lli->Reserved0);
-  printf("CHx_LLP_STATUS              %lx\n", current_lli->CHx_LLP_STATUS);
+  printf("Reserved0                   %x%x\n", (uint32_t)(current_lli->Reserved0 >> 32), (uint32_t)(current_lli->Reserved0));
+  printf("CHx_LLP_STATUS              %x%x\n", (uint32_t)(current_lli->CHx_LLP_STATUS >> 32), (uint32_t)(current_lli->CHx_LLP_STATUS));
   printf("WB_CHx_DSTAT | WB_CHx_SSTAT %x%x\n", current_lli->WB_CHx_DSTAT, current_lli->WB_CHx_SSTAT);
-  printf("CHx_CTL                     %lx\n", current_lli->CHx_CTL);
-  printf("CHx_LLP                     %lx\n", current_lli->CHx_LLP);
+  printf("CHx_CTL                     %x%x\n", (uint32_t)(current_lli->CHx_CTL >> 32), (uint32_t)(current_lli->CHx_CTL));
+  printf("CHx_LLP                     %x%x\n", (uint32_t)(current_lli->CHx_LLP >> 32), (uint32_t)(current_lli->CHx_LLP));
   printf("Reserved1 | CHx_BLOCK_TS    %x%x\n", current_lli->Reserved1, current_lli->CHx_BLOCK_TS);
-  printf("CHx_DAR                     %lx\n", current_lli->CHx_DAR);
-  printf("CHx_SAR                     %lx\n", current_lli->CHx_SAR);
+  printf("CHx_DAR                     %x%x\n", (uint32_t)(current_lli->CHx_DAR >> 32), (uint32_t)(current_lli->CHx_DAR));
+  printf("CHx_SAR                     %x%x\n", (uint32_t)(current_lli->CHx_SAR >> 32), (uint32_t)(current_lli->CHx_SAR));
   printf("--------------------------------------------\n");
 #endif
 }

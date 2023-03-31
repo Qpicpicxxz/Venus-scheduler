@@ -54,8 +54,10 @@ void heap_init(void) {
   //   *(uint32_t*)i = 0;
   // }
   // memset(alloc_start, 0, alloc_end - alloc_start);
+#ifdef DEBUG_SCHEDULER
   printf("ALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
   printf("    SIZE:   0x%x\n", alloc_end - alloc_start);
+#endif
   /* prologue + alloc area + epilogue */
   init_sentinel();
   uint32_t first_block = get_firstblock();

@@ -36,18 +36,20 @@ void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len) {
 }
 
 void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
-  delay(5000);
+  // delay(5000);
+#ifdef DEBUG_SCHEDULER
   printf("DMA: Received data address 0x%x\n", data_addr);
+#endif
 }
 
 void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
-  delay(5000);
+  // delay(5000);
 }
 
 void dma_test(void) {
   uint32_t i_spm_addr = 0x99999999;
   uint32_t task_addr  = 0x33333333;
-  uint32_t task_len   = 1234;
+  uint32_t task_len   = 123000;
   dma_code(i_spm_addr, task_addr, task_len);
 }
 

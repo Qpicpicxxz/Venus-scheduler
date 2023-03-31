@@ -15,6 +15,9 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
       switch (*s) {
       case 'l': {
         longarg = 2;
+        if(!pos){
+          pos -=2;
+        }
         break;
       }
       case 'p': {
@@ -31,7 +34,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
       case 'x': {
         int hexdigits = 2 * sizeof(long) - 1;
         if (longarg == 2) {
-          long long lower_num  = va_arg(vl, long long);
+          long long lower_num = va_arg(vl, long long);
           long long higher_num = va_arg(vl, long long);
           for (int i = hexdigits; i >= 0; i--) {
             int d = (higher_num >> (4 * i)) & 0xF;

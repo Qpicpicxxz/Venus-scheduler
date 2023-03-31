@@ -89,7 +89,9 @@ static inline void print_ready_list(void) {
 
 /* Function: Traverse all the actors in DAG to search for readys */
 void ready_search(void) {
+#ifdef DEBUG_SCHEDULER
   printf(GREEN("\nChecking actor: "));
+#endif
   // 1. search all the actors in DAG
   for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
@@ -101,13 +103,17 @@ void ready_search(void) {
       ready_insert(ready_create());
       cnt ++;
     }
+#ifdef DEBUG_SCHEDULER
     if (cnt){
       printf(GREEN("%d%c✔  "), cnt, actor_index + 65);
     } else {
       printf(PINK("%c✘  "), actor_index + 65);
     }
+#endif
   }
+#ifdef DEBUG_SCHEDULER
   print_ready_list();
+#endif
 }
 
 static inline node_t* ready_select() {
@@ -174,34 +180,41 @@ static inline void recycle_garbage(void) {
 
 /* Function: Parse descriptor and inform DMA */
 static inline void actor_fire(void) {
-  // 1. get an actor from ready actor list
+#ifdef DEBUG_SCHEDULER
   printf("SCHEDULER: Actor ");
   printf(GREEN("%c"), actor_index + 65);
   printf(" Fired\n");
-  // 2. mark this block to be inflight status
+#endif
+  // 1. mark this block to be inflight status
   _set_block_flag(block, BLOCK_INFLIGHT);
-  // 3. inform task code and dependency to DMA
+  // 2. inform task code and dependency to DMA
   inform_dma();
-  // 4. associate block and in-flight actor
+  // 3. associate block and in-flight actor
   add_firelist();
-  // 5. associate block and task
+  // 4. associate block and task
   task_bind();
-  // 6. JUST SIMULATION: compute result
+#ifdef DEBUG_SCHEDULER
+  // 5. JUST SIMULATION: compute result
   block_sim(block);
-  // 7. DMA get out the dependency, check their lifecycle
+#endif
+  // 6. DMA get out the dependency, check their lifecycle
   recycle_garbage();
 }
 
 /* Funcition: Fire ready actors when VENUS has idle blocks */
 void actor_check(void) {
+#ifdef DEBUG_SCHEDULER
   printf(BOLD("SCHEDULER: Waiting for blocks to be ready...\n"));
+#endif
   while (1) {
     // 1. if there is any idle block and ready actor
     if (queue_size(&block_q) >= 1 && !is_list_empty(ready_l)) {
       // 2. get out this idle block from idle-queue
       block = (block_t*)get_queue(&block_q);
+#ifdef DEBUG_SCHEDULER
       printf("SCHEDULER: Select block ");
       printf(YELLOW("%d\n"), ((uint32_t)block - block_start) / sizeof(block_t) +1);
+#endif
       // 3. parse the ready actor descriptor
       node_t* ready_node = ready_select();
       ready = (ready_t*)ready_node->item;
