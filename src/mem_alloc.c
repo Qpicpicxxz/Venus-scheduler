@@ -1,5 +1,6 @@
 /* ref: https://github.com/yangminz/bcst_csapp/blob/main/src/malloc/mem_alloc.c */
 #include "allocator.h"
+#include "dma/lli.h"
 
 uint32_t alloc_start;
 uint32_t alloc_end;

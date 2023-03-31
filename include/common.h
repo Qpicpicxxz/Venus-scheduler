@@ -4,7 +4,6 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
-#include "dma/lli.h"
 #include <stdarg.h>
 #include <stddef.h>
 
@@ -18,10 +17,6 @@ extern int printf(const char* s, ...);  // only understands %d, %x, %p, %s
 extern void* malloc(uint32_t size); // input the bit size
 extern void free(void* ptr);
 extern void delay(volatile int count);
-
-/* dma tools */
-extern lli_t* malloc_LLI(void);
-extern void free_LLI(lli_t* ptr);
 
 /* string tools */
 extern char* strcpy(char*, const char*);

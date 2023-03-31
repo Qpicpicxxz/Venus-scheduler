@@ -13,8 +13,7 @@ extern void callback(actor_t* g);
 /* block.c */
 extern void block_sim(block_t* block);
 /* dma.c */
-extern void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len);
-extern void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
+extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len);
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
@@ -143,7 +142,7 @@ static inline void ready_free(node_t* ready_node) {
 
 /* Function: Traverse all dependencies of current and inform DMA */
 static inline void inform_dma(void) {
-  dma_code(block->spm_addr, actor->task_addr, actor->task_len);
+  dma_transfer(block->spm_addr, actor->task_addr, actor->task_len);
   list_t* dep_list = (list_t*)ready->dep_list;
   node_t* dep_node = dep_list->tail->prev;
   while (dep_node != dep_list->head) {
@@ -151,7 +150,7 @@ static inline void inform_dma(void) {
     data_t* data = (data_t*)dep_node->item;
     put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
-    dma_data(DATA1_ADDR, data->ptr, data->len);
+    dma_transfer(DATA1_ADDR, data->ptr, data->len);
     dep_node = dep_node->prev;
   }
 }

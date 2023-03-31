@@ -14,6 +14,7 @@ NM = ${CROSS_COMPILE}nm
 MAKEFLAGS += --silent
 CFLAGS += -DDEBUG_DMA
 CFLAGS += -DDEBUG_SCHEDULER
+CFLAGS += -DSIMULATE_QEMU
 
 SRCS_ASM = \
 					 $(SOURCE)start.S \
@@ -43,7 +44,10 @@ SRCS_C = \
 				 $(SOURCE)actor_create.c \
 				 $(SOURCE)dag.c \
 				 $(DMA)lli_create.c \
-				 $(DMA)dma.c 
+				 $(DMA)dma.c    \
+				 $(DMA)chx_ctl.c \
+				 $(DMA)chx_cfg.c \
+				 $(DMA)phy_interface.c
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 

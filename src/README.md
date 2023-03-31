@@ -128,9 +128,9 @@ actor_check(){
       actor_fire(){
         _set_block_flag(block, BLOCK_INFLIGHT)
         inform_dma(){
-          dma_code()
+          dma_transfer()
           traverse ready->dep_list(){
-            dma_data()
+            dma_transfer()
           }
         }
         add_firelist()

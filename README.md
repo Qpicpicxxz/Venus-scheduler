@@ -4,9 +4,11 @@
 .
 ├── common.mk           // rules and files to compile scheduler code
 ├── dma
+│   ├── chx_cfg.c       // CHx_CFG register concatenate
+│   ├── chx_ctl.c       // CHx_CTL register concatenate
 │   ├── dma.c           // scheduler & dma interface
 │   ├── lli_create.c    // setup DMA linked list item
-│   └── phy_wr.c        // handlers to write/read physical address
+│   └── phy_interface   // handlers to write/read physical address
 ├── gdbinit             // initialize GNU debuger script
 ├── include             // header files
 │   ├── actor.h         // define actor struct
@@ -18,10 +20,13 @@
 │   ├── daddr.h         // define VENUS block's data memory address
 │   ├── defs.h          // declare some task relative structs
 │   ├── dma
+│   │   ├── addressmap.h
 │   │   ├── axi.h       // axi properties
+│   │   ├── cfg.h
 │   │   ├── common.h    // common functions relative to DMA
 │   │   ├── ctl.h       // CHx_CTL configurations
-│   │   └── lli.h       // define DMA linked list item structure
+│   │   ├── lli.h       // define DMA linked list item structure
+│   │   └── offset.h
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h          // font style for printf
 │   ├── linkedlist.h    // header file of linked list
@@ -75,6 +80,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-5 directories, 67 files
+5 directories, 73 files
 ```
 

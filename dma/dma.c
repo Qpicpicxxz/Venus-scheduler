@@ -1,55 +1,70 @@
 #include "dma/common.h"
 
-/*
- * Use DMA to move the code to the designated place
- * i_spm_addr: the target block's code memory address (destination)
- * task_addr: the origin task's address in DDR (source)
- * task_len: the total length of this task (length)
- */
+/* lli_create.c */
+extern void lli_setup(uint64_t destination_addr, uint64_t source_addr, uint32_t transfer_length_byte, lli_t* current_lli, lli_t* next_lli, uint32_t lli_last);
+/* chx_cfg.c */
+extern uint64_t cfg_config(void);
+/* phy_interface.c */
+extern uint32_t get_free_channel(void);
+extern void     specify_first_lli(lli_t* head_lli, uint32_t free_channel_index);
+extern void     enable_channel(uint32_t free_channel_index);
 
-void dma_code(uint32_t i_spm_addr, uint32_t task_addr, uint32_t task_len) {
-  // delay(5000);
-  lli_t* current_lli   = malloc_LLI();
-  uint32_t total_chunk = (task_len / DMA_MAX_TRANSFER_LENGTH) + 1;
+static lli_t*   head_lli;
+static uint64_t destination_addr;
+static uint64_t source_addr;
+static uint32_t transfer_length_byte;
+
+static inline void lli_link(void) {
+  lli_t*   current_lli          = head_lli;
+  uint32_t total_chunk          = (transfer_length_byte / DMA_MAX_TRANSFER_LENGTH) + 1;
+  uint64_t current_source_addr  = source_addr;
+  uint64_t left_transfer_length = transfer_length_byte;
   for (int i = 0; i < total_chunk; i++) {
     // if its the last chunk to be transmitted
     if (i == total_chunk - 1) {
-      lli_setup(i_spm_addr,
-                task_addr,
-                task_len,
+      lli_setup(destination_addr,
+                current_source_addr,
+                left_transfer_length,
                 current_lli,
                 current_lli,
                 LAST_SHADOW_REGISTER);
     } else {
       lli_t* next_lli = malloc_LLI();
-      lli_setup(i_spm_addr,
-                task_addr,
+      lli_setup(destination_addr,
+                current_source_addr,
                 DMA_MAX_TRANSFER_LENGTH,
                 current_lli,
                 next_lli,
                 NOT_LAST_SHADOW_REGISTER);
-      task_addr   = task_addr + 4 * (DMA_MAX_TRANSFER_LENGTH);
-      task_len    = task_len - DMA_MAX_TRANSFER_LENGTH;
-      current_lli = next_lli;
+      current_source_addr  = current_source_addr + 4 * (DMA_MAX_TRANSFER_LENGTH);
+      left_transfer_length = left_transfer_length - DMA_MAX_TRANSFER_LENGTH;
+      current_lli          = next_lli;
     }
   }
 }
 
-void dma_data(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
-  // delay(5000);
-#ifdef DEBUG_SCHEDULER
-  printf("DMA: Received data address 0x%x\n", data_addr);
+void dma_transfer(uint32_t dst, uint32_t src, uint32_t len) {
+  head_lli             = malloc_LLI();
+  destination_addr     = (uint64_t)dst;
+  source_addr          = (uint64_t)src;
+  transfer_length_byte = len;
+  lli_link();
+#ifndef SIMULATE_QEMU
+  uint32_t free_channel_index = get_free_channel();
+  cfg_config();
+  specify_first_lli(head_lli, free_channel_index);
+  enable_channel(free_channel_index);
 #endif
-}
-
-void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
-  // delay(5000);
 }
 
 void dma_test(void) {
   uint32_t i_spm_addr = 0x99999999;
   uint32_t task_addr  = 0x33333333;
   uint32_t task_len   = 123000;
-  dma_code(i_spm_addr, task_addr, task_len);
+  dma_transfer(i_spm_addr, task_addr, task_len);
+}
+
+void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len) {
+  // delay(5000);
 }
 
