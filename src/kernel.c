@@ -17,8 +17,6 @@ extern void memcpy_test(void);
 extern void malloc_64_test(void);
 extern void dma_test(void);
 
-#include "lli.h"
-
 void start_kernel(void) {
   uart_init();
   printf(GREEN("Hello, VENUS!\n"));

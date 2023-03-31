@@ -4,7 +4,7 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
-#include "lli.h"
+#include "dma/lli.h"
 #include <stdarg.h>
 #include <stddef.h>
 

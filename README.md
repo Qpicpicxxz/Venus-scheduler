@@ -17,11 +17,14 @@
 │   ├── common.h        // basic tool functions
 │   ├── daddr.h         // define VENUS block's data memory address
 │   ├── defs.h          // declare some task relative structs
-│   ├── dma.h           // common functions relative to DMA
+│   ├── dma
+│   │   ├── axi.h       // axi properties
+│   │   ├── common.h    // common functions relative to DMA
+│   │   ├── ctl.h       // CHx_CTL configurations
+│   │   └── lli.h       // define DMA linked list item structure
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h          // font style for printf
 │   ├── linkedlist.h    // header file of linked list
-│   ├── lli.h           // define DMA linked list item structure
 │   ├── platform.h      // define machine's physical property
 │   ├── README.md	// introduce all the struct descriptor
 │   ├── riscv.h         // some basic privileged register assemble instructions
@@ -72,6 +75,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-3 directories, 61 files
+5 directories, 67 files
 ```
 

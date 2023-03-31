@@ -1,5 +1,5 @@
-#ifndef __LLI_H__
-#define __LLI_H__
+#ifndef __DMA_LLI_H__
+#define __DMA_LLI_H__
 
 #include "types.h"
 
@@ -16,4 +16,4 @@ typedef struct lli {
   uint64_t CHx_SAR;
 } lli_t;
 
-#endif /* __LLI_H__ */
+#endif /* __DMA_LLI_H__ */

@@ -1,4 +1,4 @@
-#include "dma.h"
+#include "dma/common.h"
 
 /*
  * Use DMA to move the code to the designated place

@@ -1,17 +1,5 @@
-#include "dma.h"
-
-/*
- * Destination / Source Transfer Width [P.156]
- * Used in CHx_CTL.SRC_TR_WIDTH / CHx_CTL.DST_TR_WIDTH
- * size is 8 ~ 512 bits
- */
-#define AXI4_BURST_SIZE_1_BYTE 0b000
-#define AXI4_BURST_SIZE_2_BYTE 0b001
-#define AXI4_BURST_SIZE_4_BYTE 0b010
-#define AXI4_BURST_SIZE_8_BYTE 0b011
-#define AXI4_BURST_SIZE_16_BYTE 0b100
-#define AXI4_BURST_SIZE_32_BYTE 0b101
-#define AXI4_BURST_SIZE_64_BYTE 0b110
+#include "dma/common.h"
+#include "dma/ctl.h"
 
 static uint64_t destination_max_burst_length = 256;
 static uint64_t source_max_burst_length      = 256;
@@ -26,30 +14,37 @@ static inline uint32_t pow(uint32_t base, uint32_t power) {
   return result;
 }
 
+/* CHx_CTL: Control the DMA transfer [P.148] */
 static inline uint64_t CTL_concatenate(uint64_t lli_last) {
   uint64_t CHx_CTL =
-      ((uint64_t)1 << 63) |                                   // SHADOWREG_OR_LLI_VALID, Shadow Register content/Linked List Item Valid
-      ((uint64_t)lli_last << 62) |                            // SHADOWREG_OR_LLI_LAST, Last Shadow Register/Linked List Item. 0 = Not last Shadow Register/LLI 1 = Last Shadow Register/LLI
-      ((uint64_t)0 << 58) |                                   // IOC_BlkTfr, Interrupt On completion of Block Transfer
-      ((uint64_t)0 << 57) |                                   // DST_STAT_EN, Destination Status Enable, Enable the logic to fetch status from destination peripheral of channel x pointed to by the content of CHx_DSTATAR register and stores it in CHx_DSTAT register.
-      ((uint64_t)0 << 56) |                                   // SRC_STAT_EN, Source Status Enable, Enable the logic to fetch status from source peripheral of channel x pointed to by the content of CH1_SSTATAR register and stores it in CHx_SSTAT register.
-      ((uint64_t)(destination_max_burst_length - 1) << 48) |  // AWLEN, Destination Max Burst Length
-      ((uint64_t)1 << 47) |                                   // AWLEN_EN, Destination Burst Length Enable
-      ((uint64_t)(source_max_burst_length - 1) << 39) |       // ARLEN, Source Max Burst Length
-      ((uint64_t)1 << 38) |                                   // ARLEN_EN, Source Burst Length Enable
-      ((uint64_t)0 << 35) |                                   // AW_PROT, AXI 'aw_prot' signal
-      ((uint64_t)0 << 32) |                                   // AR_PROT, AXI 'ar_prot' signal
-      ((uint64_t)1 << 30) |                                   // NonPosted_LastWrite_En, Non Posted Last Write Enable, This bit decides whether posted writes can be used throughout the block transfer or not.
-      ((uint64_t)0 << 26) |                                   // AW_CACHE, AXI 'aw_cache' signal
-      ((uint64_t)0 << 22) |                                   // AR_CACHE, AXI 'ar_cache' signal
-      ((uint64_t)2 << 18) |                                   // DST_MSIZE, Destination Burst Transaction Length. 0010=8bytes?
-      ((uint64_t)2 << 14) |                                   // SRC_MSIZE, Source Burst Transaction Length. 0010=8bytes?
-      ((uint64_t)(destination_transfer_width) << 11) |        // DST_TR_WIDTH, Destination Transfer Width 011=64bits
-      ((uint64_t)(source_transfer_width) << 8) |              // SRC_TR_WIDTH, Source Transfer Width 011=64bits
-      ((uint64_t)0 << 6) |                                    // DINC, Destination Address Increment,0 = Increment 1 = No Change
-      ((uint64_t)0 << 4) |                                    // SINC, Source Address Increment,0 = Increment 1 = No Change
-      ((uint64_t)0 << 2) |                                    // DMS, Destination Master Select, 0 = AXI master 1 1 = AXI Master 2
-      ((uint64_t)0 << 0);                                     // SMS, Source Master Select, 0 = AXI master 1 1 = AXI Master 2
+      SHADOWREG_OR_LLI_VALID(1) |                 // [SHADOWREG_OR_LLI_VALID] Shadow Register content/Linked List Item Valid
+      SHADOWREG_OR_LLI_LAST(lli_last) |           // [SHADOWREG_OR_LLI_LAST] Last Shadow Register/Linked List Item. 0 = Not last Shadow Register/LLI 1 = Last Shadow Register/LLI
+      RESERVED_61_59 |                            // Reserved and read as zero [61:59]
+      IOC_BlkTfr(0) |                             // [IOC_BlkTfr] Interrupt On completion of Block Transfer
+      DST_STAT_EN(0) |                            // [DST_STAT_EN] Destination Status Enable, Enable the logic to fetch status from destination peripheral of channel x pointed to by the content of CHx_DSTATAR register and stores it in CHx_DSTAT register.
+      SRC_STAT_EN(0) |                            // [SRC_STAT_EN] Source Status Enable, Enable the logic to fetch status from source peripheral of channel x pointed to by the content of CH1_SSTATAR register and stores it in CHx_SSTAT register.
+      AWLEN(destination_max_burst_length - 1) |   // [AWLEN] Destination Max Burst Length [55:48]
+      AWLEN_EN(1) |                               // [AWLEN_EN] Destination Burst Length Enable
+      ARLEN(source_max_burst_length - 1) |        // [ARLEN] Source Max Burst Length [46:39]
+      ARLEN_EN(1) |                               // [ARLEN_EN] Source Burst Length Enable
+      AW_PROT(0) |                                // [AW_PROT] AXI 'aw_prot' signal [37:35]
+      AR_PROT(0) |                                // [AR_PROT] AXI 'ar_prot' signal [34:32]
+      RESERVED_31 |                               // Reserved and read as zero [31]
+      NonPosted_LastWrite_En(1) |                 // [NonPosted_LastWrite_En] Non Posted Last Write Enable, This bit decides whether posted writes can be used throughout the block transfer or not.
+      AW_CACHE(0) |                               // [AW_CACHE] AXI 'aw_cache' signal [29:26]
+      AR_CACHE(0) |                               // [AR_CACHE] AXI 'ar_cache' signal [25:22]
+      DST_MSIZE(2) |                              // [DST_MSIZE] Destination Burst Transaction Length. [21:18] 0010=8bytes?
+      SRC_MSIZE(2) |                              // [SRC_MSIZE] Source Burst Transaction Length. [17:14] 0010=8bytes?
+      DST_TR_WIDTH(destination_transfer_width) |  // [DST_TR_WIDTH] Destination Transfer Width [13:11] 011=64bits
+      SRC_TR_WIDTH(source_transfer_width) |       // [SRC_TR_WIDTH] Source Transfer Width [10:8] 011=64bits
+      RESERVED_7 |                                // Reserved and read as zero [7]
+      DINC(0) |                                   // [DINC] Destination Address Increment,0 = Increment 1 = No Change
+      RESERVED_5 |                                // Reserved and read as zero [5]
+      SINC(0) |                                   // [SINC] Source Address Increment,0 = Increment 1 = No Change
+      RESERVED_3 |                                // Reserved and read as zero [3]
+      DMS(0) |                                    // [DMS] Destination Master Select, 0 = AXI master 1 1 = AXI Master 2
+      RESERVED_1 |                                // Reserved and read as zero [1]
+      SMS(0);                                     // [SMS] Source Master Select, 0 = AXI master 1 1 = AXI Master 2
   return CHx_CTL;
 }
 
