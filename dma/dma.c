@@ -3,11 +3,11 @@
 /* lli_create.c */
 extern void lli_setup(uint64_t destination_addr, uint64_t source_addr, uint32_t transfer_length_byte, lli_t* current_lli, lli_t* next_lli, uint32_t lli_last);
 /* chx_cfg.c */
-extern uint64_t cfg_config(void);
+extern void cfg_config(uint32_t free_channel_index);
 /* phy_interface.c */
-extern uint32_t get_free_channel(void);
-extern void     specify_first_lli(lli_t* head_lli, uint32_t free_channel_index);
-extern void     enable_channel(uint32_t free_channel_index);
+extern uint32_t DMAC_get_free_channel(void);
+extern void     DMAC_CHx_specify_first_lli(lli_t* head_lli, uint32_t free_channel_index);
+extern void     DMAC_CHx_enable_channel(uint32_t free_channel_index);
 
 static lli_t*   head_lli;
 static uint64_t destination_addr;
@@ -49,18 +49,16 @@ void dma_transfer(uint32_t dst, uint32_t src, uint32_t len) {
   source_addr          = (uint64_t)src;
   transfer_length_byte = len;
   lli_link();
-#ifndef SIMULATE_QEMU
-  uint32_t free_channel_index = get_free_channel();
-  cfg_config();
-  specify_first_lli(head_lli, free_channel_index);
-  enable_channel(free_channel_index);
-#endif
+  uint32_t free_channel_index = DMAC_get_free_channel();
+  cfg_config(free_channel_index);
+  DMAC_CHx_specify_first_lli(head_lli, free_channel_index);
+  DMAC_CHx_enable_channel(free_channel_index);
 }
 
 void dma_test(void) {
   uint32_t i_spm_addr = 0x99999999;
   uint32_t task_addr  = 0x33333333;
-  uint32_t task_len   = 123000;
+  uint32_t task_len   = 17000;
   dma_transfer(i_spm_addr, task_addr, task_len);
 }
 

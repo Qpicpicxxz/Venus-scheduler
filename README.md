@@ -26,7 +26,8 @@
 │   │   ├── common.h    // common functions relative to DMA
 │   │   ├── ctl.h       // CHx_CTL configurations
 │   │   ├── lli.h       // define DMA linked list item structure
-│   │   └── offset.h
+│   │   ├── offset.h
+│   │   └── phy.h
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h          // font style for printf
 │   ├── linkedlist.h    // header file of linked list

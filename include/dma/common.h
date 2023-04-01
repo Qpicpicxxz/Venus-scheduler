@@ -2,7 +2,9 @@
 #define __DMA_COMMON_H__
 
 #include "assert.h"
+#include "dma/addressmap.h"
 #include "dma/lli.h"
+#include "dma/offset.h"
 #include "font.h"
 #include "types.h"
 #include <stdarg.h>
