@@ -8,6 +8,7 @@ extern void heap_init(void);
 extern void trap_init(void);
 extern void sched_init(void);
 extern void spm_init(void);
+extern void dma_init(void);
 extern void os_main(void);
 
 /* test function */
@@ -27,6 +28,7 @@ void start_kernel(void) {
   trap_init();
   sched_init();
   spm_init();
+  dma_init();
   // malloc_test();
   // link_test();
   // memcpy_test();

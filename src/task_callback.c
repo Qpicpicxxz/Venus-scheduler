@@ -3,7 +3,7 @@
 /* fireCheck.c */
 extern void ready_search(void);
 /* dma.c */
-extern void dma_result(uint32_t data_dst, uint32_t data_addr, uint32_t data_len);
+extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len);
 /* Some inner variables */
 static uint32_t ideal_block;
 static actor_t* cur_actor;
@@ -62,8 +62,8 @@ static inline void alloc_result(void) {
   cur_data->len = cur_actor->result_len;  // data length
   cur_data->cnt = cur_actor->nxt_num;     // data lifecycle
 
-  // told DMA where to move and store the result
-  dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
+  // told DMA where to move and store the result (dst, src, len)
+  dma_transfer(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // SIMULATE DMA stored the result (in a allocated memory space)
   *(int*)p = 1;
 #ifdef DEBUG_SCHEDULER

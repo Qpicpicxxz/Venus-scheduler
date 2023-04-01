@@ -257,7 +257,6 @@ lli_t* malloc_LLI(void) {
     else
       request_blocksize = LLI_SIZE + BOUNDART_SIZE;
     block_payload = try_alloc_with_splitting(block_header, request_blocksize);
-
     if (block_payload) {
       uint32_t cur_blocksize = get_blocksize(block_header);
       free_list_delete(block_header);
@@ -283,13 +282,13 @@ lli_t* malloc_LLI(void) {
 }
 
 void free_LLI(lli_t* ptr) {
-  uint32_t last_byte = *(uint32_t*)(ptr - 4);
+  uint32_t last_byte = *(uint32_t*)((uint32_t)ptr - 4);
   if (last_byte & 0x1) {
     // if this is a header, normal free
     free((void*)ptr);
   } else {
     // this is a 64-byte aligned block, find real payload start
-    uint32_t real_payload = *(uint32_t*)(ptr - 4);
+    uint32_t real_payload = *(uint32_t*)((uint32_t)ptr - 4);
     free((void*)real_payload);
   }
 }

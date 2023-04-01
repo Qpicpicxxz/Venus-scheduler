@@ -26,6 +26,7 @@
 │   │   ├── common.h    // common functions relative to DMA
 │   │   ├── ctl.h       // CHx_CTL configurations
 │   │   ├── lli.h       // define DMA linked list item structure
+│   │   ├── msg.h       // relative information of channel, lli and data
 │   │   ├── offset.h
 │   │   └── phy.h
 │   ├── fifo.h          // define data && fifo && queue structure type
@@ -81,6 +82,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-5 directories, 73 files
+5 directories, 74 files
 ```
 

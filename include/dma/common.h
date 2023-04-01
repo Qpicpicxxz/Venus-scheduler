@@ -11,11 +11,6 @@
 #include <stddef.h>
 
 #define DMA_MAX_TRANSFER_LENGTH (2048 * 8)
-
-/* CHx_CTL in bits 62: SHADOWREG_OR_LLI_LAST [P.150] */
-#define NOT_LAST_SHADOW_REGISTER 0
-#define LAST_SHADOW_REGISTER     1
-
 #define DMAC_NUMBER_OF_CHANNELS 8
 
 /* dma tools */
