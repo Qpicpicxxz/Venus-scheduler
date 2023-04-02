@@ -4,8 +4,6 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
-#include <stdarg.h>
-#include <stddef.h>
 
 #define DELAY 500
 #define STACK_SIZE 1024

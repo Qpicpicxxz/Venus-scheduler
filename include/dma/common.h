@@ -7,8 +7,6 @@
 #include "dma/offset.h"
 #include "font.h"
 #include "types.h"
-#include <stdarg.h>
-#include <stddef.h>
 
 #define DMA_MAX_TRANSFER_LENGTH (2048 * 8)
 #define DMAC_NUMBER_OF_CHANNELS 8

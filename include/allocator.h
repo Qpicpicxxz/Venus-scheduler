@@ -5,7 +5,6 @@
 #include "common.h"
 #include "font.h"
 #include "types.h"
-#include <stddef.h>  // use NULL
 
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
