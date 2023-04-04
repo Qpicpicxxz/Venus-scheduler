@@ -1,19 +1,19 @@
 #include "task.h"
 
-list_t* actor_l;       /* linked list for all actor   */
-list_t* ready_l;       /* linked list for ready actor */
-queue_t block_q;       /* idle-block queue            */
-static actor_t* actor; /* current handle actor        */
-static ready_t* ready; /* current ready descriptor    */
-static block_t* block; /* current block descriptor    */
-static fifo_t dma_trans_in;
+list_t*         actor_l; /* linked list for all actor   */
+list_t*         ready_l; /* linked list for ready actor */
+queue_t         block_q; /* idle-block queue            */
+static actor_t* actor;   /* current handle actor        */
+static ready_t* ready;   /* current ready descriptor    */
+static block_t* block;   /* current block descriptor    */
+static fifo_t   dma_trans_in;
 
 /* taskCallback.c  */
 extern void callback(actor_t* g);
 /* block.c */
 extern void block_sim(block_t* block);
 /* dma.c */
-extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len);
+extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
@@ -65,7 +65,7 @@ static inline void ready_insert(ready_t* r) {
   int found = 0;
   for (node_t* p = ready_l->head->next; p != ready_l->tail; p = p->next) {
     int cur_nxt = ((actor_t*)r->actor_addr)->nxt_num;
-    int p_nxt = ((actor_t*)((ready_t*)p->item)->actor_addr)->nxt_num;
+    int p_nxt   = ((actor_t*)((ready_t*)p->item)->actor_addr)->nxt_num;
     if (cur_nxt == p_nxt) {
       insert_before(ready_l, p, (uint32_t)r);
       found = 1;
@@ -94,16 +94,16 @@ void ready_search(void) {
   // 1. search all the actors in DAG
   for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
-    actor = (actor_t*)p->item;
-    int cnt = 0;
+    actor       = (actor_t*)p->item;
+    int cnt     = 0;
     // 2. handle ready actors
     while (fire_check()) {
       // 3. schedule ready list
       ready_insert(ready_create());
-      cnt ++;
+      cnt++;
     }
 #ifdef DEBUG_SCHEDULER
-    if (cnt){
+    if (cnt) {
       printf(GREEN("%d%c✔  "), cnt, actor_index + 65);
     } else {
       printf(PINK("%c✘  "), actor_index + 65);
@@ -130,8 +130,8 @@ static inline node_t* ready_select() {
 
 // this copy of ready actor has been fired and is deprecated
 static inline void ready_free(node_t* ready_node) {
-  ready_t* ready = (ready_t*)ready_node->item;
-  list_t* dep_list = ready->dep_list;
+  ready_t* ready    = (ready_t*)ready_node->item;
+  list_t*  dep_list = ready->dep_list;
   // 1. free node of current ready fire
   destroy_node(ready_node);
   // 2. free current ready fire dep list
@@ -142,7 +142,10 @@ static inline void ready_free(node_t* ready_node) {
 
 /* Function: Traverse all dependencies of current and inform DMA */
 static inline void inform_dma(void) {
-  dma_transfer(block->spm_addr, actor->task_addr, actor->task_len);
+  uint32_t total_trans_num = 1 + actor->dep_num;
+  set_dma_transmit_num(block, total_trans_num);
+  data_t* pseudo_data = NULL;
+  dma_transfer(block->spm_addr, actor->task_addr, actor->task_len, block, pseudo_data);
   list_t* dep_list = (list_t*)ready->dep_list;
   node_t* dep_node = dep_list->tail->prev;
   while (dep_node != dep_list->head) {
@@ -150,7 +153,7 @@ static inline void inform_dma(void) {
     data_t* data = (data_t*)dep_node->item;
     put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
-    dma_transfer(DATA1_ADDR, data->ptr, data->len);
+    dma_transfer(DATA1_ADDR, data->ptr, data->len, block, data);
     dep_node = dep_node->prev;
   }
 }
@@ -162,21 +165,6 @@ static inline void add_firelist(void) {
   insert(actor->fire_list, create_node((uint32_t)block));
 }
 
-// NOTE: this step should invoke after DMA has already moved the code to blocks!!!
-static inline void recycle_garbage(void) {
-  for (int i = 0; i < actor->dep_num; i++) {
-    data_t* data = get_data(&dma_trans_in);
-    if (data->cnt == 1) {
-      // garbage collection
-      free((void*)data->ptr);  // free data space
-      free((void*)data);       // free data flag space
-    } else {
-      // upate reference count (lifecycle)
-      data->cnt--;
-    }
-  }
-}
-
 /* Function: Parse descriptor and inform DMA */
 static inline void actor_fire(void) {
 #ifdef DEBUG_SCHEDULER
@@ -186,18 +174,12 @@ static inline void actor_fire(void) {
 #endif
   // 1. mark this block to be inflight status
   _set_block_flag(block, BLOCK_INFLIGHT);
-  // 2. inform task code and dependency to DMA
-  inform_dma();
-  // 3. associate block and in-flight actor
+  // 2. associate block and in-flight actor
   add_firelist();
-  // 4. associate block and task
+  // 3. associate block and task
   task_bind();
-#ifdef DEBUG_SCHEDULER
-  // 5. JUST SIMULATION: compute result
-  block_sim(block);
-#endif
-  // 6. DMA get out the dependency, check their lifecycle
-  recycle_garbage();
+  // 4. inform task code and dependency to DMA
+  inform_dma();
 }
 
 /* Funcition: Fire ready actors when VENUS has idle blocks */
@@ -212,13 +194,13 @@ void actor_check(void) {
       block = (block_t*)get_queue(&block_q);
 #ifdef DEBUG_SCHEDULER
       printf("SCHEDULER: Select block ");
-      printf(YELLOW("%d\n"), ((uint32_t)block - block_start) / sizeof(block_t) +1);
+      printf(YELLOW("%d\n"), ((uint32_t)block - block_start) / sizeof(block_t) + 1);
 #endif
       // 3. parse the ready actor descriptor
       node_t* ready_node = ready_select();
-      ready = (ready_t*)ready_node->item;
-      actor = (actor_t*)ready->actor_addr;
-      actor_index = ((uint32_t)actor - actor_start) / actor_space;
+      ready              = (ready_t*)ready_node->item;
+      actor              = (actor_t*)ready->actor_addr;
+      actor_index        = ((uint32_t)actor - actor_start) / actor_space;
       // 4. fire actor
       actor_fire();
       // 5. actor fire done, free fired actor resource

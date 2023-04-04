@@ -17,6 +17,9 @@ extern void link_test(void);
 extern void memcpy_test(void);
 extern void malloc_64_test(void);
 extern void dma_test(void);
+#ifdef SIMULATE_QEMU
+extern void simulate_channel_status_test(void);
+#endif
 
 void start_kernel(void) {
   uart_init();
@@ -33,7 +36,8 @@ void start_kernel(void) {
   // link_test();
   // memcpy_test();
   // malloc_64_test();
-   dma_test();
+  // dma_test();
+  // simulate_channel_status_test();
   // while(1){};
   os_main();
 }

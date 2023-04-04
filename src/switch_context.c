@@ -48,7 +48,7 @@ void sched_init() {
   w_mscratch(0);
 }
 
-/* Function: Create a thead */
+/* Function: Create a thread */
 void thread_create(void (*start_routin)(void)) {
   ctx_task.sp = (reg_t)&task_stack[STACK_SIZE - 1];
   ctx_task.ra = (reg_t)start_routin;
