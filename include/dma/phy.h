@@ -18,47 +18,59 @@ static inline uint64_t read_burst_64(uint32_t base, uint32_t offset) {
 #ifndef SIMULATE_QEMU
   return *(volatile uint64_t*)(base + offset);
 #else
+#ifdef DEBUG_DMA
   printf("READ_BURST_64: Reading address %p\n", base + offset);
+#endif  // DEBUG_DMA
   return 0;
-#endif
+#endif  // SIMULATE_QEMU
 }
 static inline void write_burst_64(uint32_t base, uint32_t offset, uint64_t value) {
 #ifndef SIMULATE_QEMU
   volatile uint64_t* localaddr = (volatile uint64_t*)(base + offset);
   *localaddr                   = value;
 #else
+#ifdef DEBUG_DMA
   printf("WRITE_BURST_64: Writing address %p\n", base + offset);
-#endif
+#endif  // DEBUG_DMA
+#endif  // SIMULATE_QEMU
 }
 static inline uint32_t read_burst_32(uint32_t base, uint32_t offset) {
 #ifndef SIMULATE_QEMU
   return *(volatile uint32_t*)(base + offset);
 #else
+#ifdef DEBUG_DMA
   printf("READ_BURST_32: Reading address %p\n", base + offset);
+#endif  // DEBUG_DMA
   return 0;
-#endif
+#endif  // SIMULATE_QEMU
 }
 static inline void write_burst_32(uint32_t base, uint32_t offset, uint32_t value) {
 #ifndef SIMULATE_QEMU
   volatile uint32_t* localaddr = (volatile uint32_t*)(base + offset);
   *localaddr                   = value;
 #else
+#ifdef DEBUG_DMA
   printf("WRITE_BURST_32: Writing address %p\n", base + offset);
-#endif
+#endif  // DEBUG_DMA
+#endif  // SIMULATE_QEMU
 }
 static inline uint32_t read_burst_16(uint32_t base, uint32_t offset) {
 #ifndef SIMULATE_QEMU
   return *(volatile uint16_t*)(base + offset);
 #else
+#ifdef DEBUG_DMA
   printf("READ_BURST_16: Reading address %p\n", base + offset);
+#endif  // DEBUG_DMA
   return 0;
-#endif
+#endif  // SIMULATE_QEMU
 }
 static inline void write_burst_16(uint32_t base, uint32_t offset, uint16_t value) {
 #ifndef SIMULATE_QEMU
   volatile uint16_t* localaddr = (volatile uint16_t*)(base + offset);
   *localaddr                   = value;
 #else
+#ifdef DEBUG_DMA
   printf("WRITE_BURST_16: Writing address %p\n", base + offset);
-#endif
+#endif  // DEBUG_DMA
+#endif  // SIMULATE_QEMU
 }

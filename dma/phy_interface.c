@@ -1,16 +1,56 @@
 #include "dma/phy.h"
 
+#ifdef SIMULATE_QEMU
+/* 1--BUSY 0--IDLE */
+uint32_t channel_status;
+
+static inline void set_channel_busy(uint32_t index) { channel_status |= (1 << index); }
+
+void set_channel_idle(uint32_t index) { channel_status &= ~(1 << index); }
+
+void DMAC_free_channel_init(void) { channel_status = 0; }
+
+static uint32_t get_free_channel(void) {
+  for (uint32_t index = 0; index < DMAC_NUMBER_OF_CHANNELS; index++) {
+    if (((channel_status >> index) & 0x1) == 0) {
+      set_channel_busy(index);
+      return index;
+    }
+  }
+  return DMAC_NUMBER_OF_CHANNELS;
+}
+
+void simulate_channel_status_test(void) {
+  DMAC_free_channel_init();
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  printf("index = %d\n", get_free_channel());
+  set_channel_idle(1);
+  printf("index = %d\n", get_free_channel());
+}
+#endif
+
 uint32_t DMAC_get_free_channel(void) {
+#ifndef SIMULATE_QEMU
+#ifdef DEBUG_DMA
   printf("\n=========================================================================\n");
   printf("[Hardware] SCHEDULER: scheduler is looking for an available dmac channel...\n");
-  uint64_t ch_en_reg = read_burst_64(VENUS_DMAC_ADDR, DMAC_CFG_REG_OFFSET);
-#ifdef SIMULATE_QEMU
-  ch_en_reg = 0b00101011;  // free_channel_index should be 2
 #endif
+  uint64_t ch_en_reg = read_burst_64(VENUS_DMAC_ADDR, DMAC_CFG_REG_OFFSET);
   uint32_t free_channel_index;
   // while(READDATA64[(DMAC_NUMBER_OF_CHANNELS-1):0]=={(DMAC_NUMBER_OF_CHANNELS){1'b1}})
-  while ((ch_en_reg & CHANNEL_MASK) == CHANNEL_MASK) {
-    printf("[Hardware] SCHEDULER: Waiting for an available DMAC channel...\n");
+  //   while ((ch_en_reg & CHANNEL_MASK) == CHANNEL_MASK) {
+  // #ifdef DEBUG_DMA
+  //     printf("[Hardware] SCHEDULER: Waiting for an available DMAC channel...\n");
+  // #endif
+  //   }
+  if ((ch_en_reg & CHANNEL_MASK) == CHANNEL_MASK) {
+    return DMAC_NUMBER_OF_CHANNELS;
   }
   for (int i = 0; i < DMAC_NUMBER_OF_CHANNELS; i = i + 1) {
     // READDATA64[i]==1'b0
@@ -19,8 +59,15 @@ uint32_t DMAC_get_free_channel(void) {
       break;
     }
   }
+#ifdef DEBUG_DMA
   printf("[Hardware] SCHEDULER: DMAC channel %d is free...\n", free_channel_index);
   printf("\n=========================================================================\n");
+#endif
+#else  // SIMULATE_QEMU
+  uint32_t free_channel_index = get_free_channel();
+  if (free_channel_index != DMAC_NUMBER_OF_CHANNELS)
+    printf("DMA get free channel %d...\n", free_channel_index);
+#endif
   return free_channel_index;
   // while (tb.dut.u_venus.venus_glob_intr == 1)
   //   begin
@@ -51,7 +98,9 @@ void DMAC_CHx_specify_first_lli(lli_t* head_lli, uint32_t free_channel_index) {
       RESERVED_5_1 |  // [5:1] Reserved and read as zero
       LMS;            // [LMS][0] LLI master Select (does not exist in this design)
 #ifdef SIMULATE_QEMU
+#ifdef DEBUG_DMA
   printf("CHx_LLP is %x%x\n", (uint32_t)(CHx_LLP >> 32), (uint32_t)(CHx_LLP));
+#endif
 #endif
   write_burst_64(VENUS_DMAC_ADDR,
                  DMAC_CH_LLP_REG_OFFSET_CH(free_channel_index),
@@ -68,7 +117,9 @@ void DMAC_CHx_enable_channel(uint32_t free_channel_index) {
   uint16_t CH_EN             = 1 << free_channel_index;        // [(NC-1):0]
   uint16_t DMAC_CHEnReg_15_0 = CH_EN_WE | CH_EN;
 #ifdef SIMULATE_QEMU
+#ifdef DEBUG_DMA
   printf("DMAC_CHEnReg_15_0 is %x\n", DMAC_CHEnReg_15_0);
+#endif
 #endif
   write_burst_16(VENUS_DMAC_ADDR,
                  DMAC_CH_EN_REG_OFFSET,
@@ -76,8 +127,10 @@ void DMAC_CHx_enable_channel(uint32_t free_channel_index) {
 }
 
 void DMAC_config(void) {
+#ifdef DEBUG_DMA
   printf("\n=====================================================\n");
   printf("[Hardware] SCHEDULER: Scheduler is turning on dmac...\n");
+#endif
   /* [P.134] DMAC_CfgReg */
   uint64_t RESERVED_63_2 = ((uint64_t)0 << 2);
   uint64_t INT_EN        = ((uint64_t)1 << 1);
@@ -110,12 +163,16 @@ void DMAC_config(void) {
                    DMAC_CH_INTR_SIGNAL_ENABLE_REG_OFFSET_CH(i),
                    ALL_1_RESET);
   }
+#ifdef DEBUG_DMA
   printf("\n=====================================================\n");
+#endif
 }
 
 void DMAC_reset(void) {
+#ifdef DEBUG_DMA
   printf("\n====================================================\n");
   printf("[Hardware] SCHEDULER: Scheduler is reseting DMAC...   \n");
+#endif
   /* [P.144] DMAC_ResetReg */
   uint64_t DMAC_RST = ((uint64_t)1 << 0);  // [DMAC_RST][0] DMAC Reset Request bit
   write_burst_64(VENUS_DMAC_ADDR,
@@ -124,15 +181,21 @@ void DMAC_reset(void) {
   uint64_t reset_reg = read_burst_64(VENUS_DMAC_ADDR, DMAC_RST_REG_REG_OFFSET);
   while (BIT_PICK(reset_reg, 0) == 1) {
     reset_reg = read_burst_64(VENUS_DMAC_ADDR, DMAC_RST_REG_REG_OFFSET);
+#ifdef DEBUG_DMA
     printf("[Hardware] SCHEDULER: Scheduler is waiting for DMAC...\n");
+#endif
   }
+#ifdef DEBUG_DMA
   printf("[Hardware] SCHEDULER: DMAC has been reset successfully\n");
   printf("\n====================================================\n");
+#endif
 }
 
 void DMAC_interrupt_handler(void) {
+#ifdef DEBUG_DMA
   printf("\n=================================================\n");
   printf("[Hardware] SCHEDULER: DMAC interrupt is detected...\n");
+#endif
   /* [P.137] DMAC_IntStatusReg */
   uint64_t DMAC_IntStatusReg = read_burst_64(VENUS_DMAC_ADDR, DMAC_INTR_STATUS_REG_OFFSET);
   uint8_t  CommonReg_IntStat = BIT_PICK(DMAC_IntStatusReg, 16);
@@ -164,12 +227,16 @@ void DMAC_interrupt_handler(void) {
     DMAC_CHx_interrupt_handler(0);
   else
     printf("[Hardware] SCHEDULER: Fatal Error, An Unexpected DMAC interrupt occurred, please check...\n");
+#ifdef DEBUG_DMA
   printf("\n=================================================\n");
+#endif
 }
 
 void DMAC_CommonReg_interrupt_handler(void) {
   /* [P.141] DMAC_CommonReg_IntStatusReg */
+#ifdef DEBUG_DMA
   printf("[Hardware] SCHEDULER: DMAC common Register Interrupt occurred...\n");
+#endif
   uint64_t DMAC_CommonReg_IntStatusReg          = read_burst_64(VENUS_DMAC_ADDR, DMAC_COMMON_INTR_STATUS_REG_OFFSET);
   uint8_t  SLVIF_UndefinedReg_DEC_ERR_IntStat   = BIT_PICK(DMAC_CommonReg_IntStatusReg, 8);
   uint8_t  SLVIF_CommonReg_WrOnHold_ERR_IntStat = BIT_PICK(DMAC_CommonReg_IntStatusReg, 3);
@@ -388,6 +455,7 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
     write_burst_64(VENUS_DMAC_ADDR,
                    DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
                    Clear_DMA_TFR_DONE_IntStat);
+    // TODO: DMA done callback...
   } else if (BLOCK_TFR_DONE_IntStat) {
     printf("[Hardware] SCHEDULER: DMAC Channel %d Block Transfer Done Interrupt occurred...\n", channel_index);
     uint64_t Clear_BLOCK_TFR_DONE = ((uint64_t)1 << 0);

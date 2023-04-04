@@ -6,8 +6,7 @@ set disassemble-next-line on
 b _start
 b start_kernel
 b os_main
-b schedule
-b switch_to
+b trap_vector
 target remote : 1234
 c
 

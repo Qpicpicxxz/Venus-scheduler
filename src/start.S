@@ -1,6 +1,6 @@
 #include "platform.h"
 	
-	.equ STACK_SIZE, 1024	# 64KiB stack space
+	.equ KERNAL_STACK, 1024	# 64KiB stack space
 	
 	.global	_start
 
@@ -31,7 +31,7 @@ _start:
 	.globl _stack_start
 _stack_start:
 
-	.space	STACK_SIZE
+	.space	KERNAL_STACK
 
 	.globl _stack_top
 _stack_top:

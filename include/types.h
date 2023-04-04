@@ -17,6 +17,10 @@ typedef __builtin_va_list va_list;
 #define va_arg(ap, type) __builtin_va_arg(ap, type)
 #define va_end(ap) __builtin_va_end(ap)
 
+/* <stdbool.h> */
+#define true 1
+#define false 0
+
 /* RISCV32: register is 32bits width */
 typedef uint32_t reg_t;
 

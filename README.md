@@ -8,7 +8,8 @@
 │   ├── chx_ctl.c       // CHx_CTL register concatenate
 │   ├── dma.c           // scheduler & dma interface
 │   ├── lli_create.c    // setup DMA linked list item
-│   └── phy_interface   // handlers to write/read physical address
+│   ├── phy_interface   // handlers to write/read physical address
+│   └── transfer_callback.c  // a callback to handle DMA transfer done
 ├── gdbinit             // initialize GNU debuger script
 ├── include             // header files
 │   ├── actor.h         // define actor struct
@@ -43,7 +44,7 @@
 ├── os.ld               // linker script
 ├── README.md           // introduction
 ├── src
-│   ├── actor_create.c	// API export to user to depict DAG
+│   ├── actor_create.c   // API export to user to depict DAG
 │   ├── actor_init.c     // depict DAG and declare actors and fifo-queues
 │   ├── block.c         // simulate block compute behaviour
 │   ├── dag.c           // python script generated DAG
@@ -82,6 +83,6 @@
     ├── task2.c
     ├── task3.c
     └── task.ld         // linker script to control task's
-5 directories, 74 files
+5 directories, 75 files
 ```
 

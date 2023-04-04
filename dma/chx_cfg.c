@@ -29,7 +29,9 @@ void cfg_config(uint32_t free_channel_index) {
       DST_MULTBLK_TYPE(0b11) |  // [DST_MULTBLK_TYPE][3:2] Destination Multi Block Transfer Type. 11 = Linked List
       SRC_MULTBLK_TYPE(0b11);   // [SRC_MULTBLK_TYPE][1:0] Source Multi Block Transfer Type. 11 = Linked List
 #ifdef SIMULATE_QEMU
+#ifdef DEBUG_DMA
   printf("CHx_CFG is %x%x\n", (uint32_t)(CHx_CFG >> 32), (uint32_t)(CHx_CFG));
+#endif
 #endif
   DMAC_CHx_cfg_write(CHx_CFG, free_channel_index);
 }
