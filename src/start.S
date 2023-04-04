@@ -1,5 +1,3 @@
-#include "platform.h"
-	
 	.equ KERNAL_STACK, 1024	# 64KiB stack space
 	
 	.global	_start
