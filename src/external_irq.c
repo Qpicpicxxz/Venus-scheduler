@@ -107,7 +107,7 @@ void external_interrupt_handler() {
         printf("\nDMA CH2: Interrupt...\n");
         dma_transfer_done_handler(2);
         break;
-      case 104:
+      case 114:
         printf("\nDMA CH3: Interrupt...\n");
         dma_transfer_done_handler(3);
         break;

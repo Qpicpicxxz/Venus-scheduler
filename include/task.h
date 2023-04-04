@@ -2,7 +2,7 @@
 #define __TASK_H__
 
 #define NUM_BLOCKS 8
-#define NUM_PACKET 5
+#define NUM_PACKET 2
 #define NUM_BUFFER 8
 #define NUM_DEGREE 10
 

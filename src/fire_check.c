@@ -6,7 +6,6 @@ queue_t         block_q; /* idle-block queue            */
 static actor_t* actor;   /* current handle actor        */
 static ready_t* ready;   /* current ready descriptor    */
 static block_t* block;   /* current block descriptor    */
-static fifo_t   dma_trans_in;
 
 /* taskCallback.c  */
 extern void callback(actor_t* g);
@@ -151,7 +150,6 @@ static inline void inform_dma(void) {
   while (dep_node != dep_list->head) {
     // get data descriptor
     data_t* data = (data_t*)dep_node->item;
-    put_data(&dma_trans_in, data);
     // inform data descriptor to DMA
     dma_transfer(DATA1_ADDR, data->ptr, data->len, block, data);
     dep_node = dep_node->prev;
