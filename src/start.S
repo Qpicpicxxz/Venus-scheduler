@@ -2,20 +2,20 @@
 
 .section .text
 
-	.equ KERNAL_STACK, 1024	# stack size for kernel start
+	.equ KERNAL_STACK, 2048	# stack size for kernel start
 	.global irq_handler
 	.global	_start
 
 reset_vec:
-	j _start
   	# to ensure irq_vec is located in 0x00000010 address
   	# no more than 16 bytes instruction here
         picorv32_waitirq_insn(zero)
 	picorv32_maskirq_insn(zero, zero)
+	j _start
 
 .balign 16
 irq_vec:
-  picorv32_setq_insn(q2, x1)
+ 	picorv32_setq_insn(q2, x1)
 	picorv32_setq_insn(q3, x2)   # 把两个通用寄存器的值暂存起来(按理来说任意的两个GPR都可以)
 
   /*
@@ -130,15 +130,7 @@ irq_regs:                     # 定义了一个标签，标注其在内存中的
   /* .fill repeat, size, value 用size个字节填充value填充repeat次 */
 	.fill 32,4                  # 用4-byte的0填充32次，留够32个寄存器的空间
 
-.global dma_channel
-dma_channel:
-  .fill 32,1
-
 _start:
-# --------------only exit in qemu
-	csrr	t0, mhartid
-	mv	tp, t0
-# -------------------------
 	# Set all bytes in the BSS section to zero.
 	# to make sure every uninitialized variable to be zero
 	la	a0, _bss_start

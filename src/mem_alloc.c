@@ -54,8 +54,6 @@ void heap_init(void) {
   //   *(uint32_t*)i = 0;
   // }
   // memset(alloc_start, 0, alloc_end - alloc_start);
-  printf("ALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
-  printf("    SIZE:   0x%x\n", alloc_end - alloc_start);
   /* prologue + alloc area + epilogue */
   init_sentinel();
   uint32_t first_block = get_firstblock();
@@ -157,13 +155,11 @@ void* malloc(uint32_t size) {
       block_header = get_nextfree(block_header);
     }
   }
-  printf(RED("There is not enough HEAP memory to allocate!"));
   return NULL;
 }
 
 void free(void* ptr) {
   if (ptr == NULL) {
-    printf(YELLOW("Free a NULL pointer...\n"));
     return;
   }
   uint32_t payload_addr = (uint32_t)ptr;
@@ -234,7 +230,6 @@ void free(void* ptr) {
     free_list_insert(merged_header);
     assert(free_list_counter >= 1);
   } else {
-    printf(RED("Exception for free ptr\n"));
     assert(1 == -1);
   }
 }
@@ -273,7 +268,6 @@ void* malloc_LLI(void) {
       block_header = get_nextfree(block_header);
     }
   }
-  printf(RED("There is not enough HEAP memory to allocate!"));
   return NULL;
 }
 
@@ -289,54 +283,3 @@ void free_LLI(uint32_t ptr) {
   }
 }
 
-void print_heap() {
-  printf("============\nheap blocks:\n");
-  uint32_t h = get_firstblock();
-  int i = 0;
-  while (h != 0 && h < get_epilogue()) {
-    uint32_t a = get_allocated(h);
-    uint32_t s = get_blocksize(h);
-    uint32_t f = get_footer(h);
-    printf("[H:%p,F:%p,S:%d,A:%d]  ", h, f, s, a);
-    h = get_nextheader(h);
-    i += 1;
-    printf("\n");
-  }
-  printf("============\n");
-}
-
-void malloc_64_test() {
-  void* p = malloc_LLI();
-  printf("64-byte aligned malloc p is %p\n", p);
-  // free_LLI((uint32_t)p);
-  // void *q = malloc(64);
-  void* q = malloc_LLI();
-  printf("64-byte aligned malloc q is %p\n", q);
-  void* x = malloc(54);
-  x = malloc_LLI();
-  printf("64-byte aligned malloc x is %p\n", x);
-  free_LLI((uint32_t)p);
-  free_LLI((uint32_t)q);
-  free_LLI((uint32_t)x);
-}
-
-void malloc_test() {
-  printf(YELLOW("\nTesting Malloc...\n"));
-  void* p = malloc(1);
-  printf("p = 0x%x\n", p);
-  void* p1 = malloc(sizeof(int));
-  printf("p1 = 0x%x\n", p1);
-  void* p2 = malloc(1000000);
-  printf("p2 = 0x%x\n", p2);
-  free(p);
-  free(p1);
-  free(p2);
-  p1 = malloc(1);
-  p1 = malloc(55);
-  free(p1);
-  p1 = malloc(3);
-  p1 = malloc(24);
-  // assert(p == p1);
-  print_heap();
-  printf(GREEN("Malloc Pass\n"));
-}

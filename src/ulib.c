@@ -14,7 +14,7 @@ char* strcpy(char* dest, const char* src) {
 int strcmp(const char* p, const char* q) {
   while (*p && *p == *q)
     p++, q++;
-  return (uchar)*p - (uchar)*q;
+  return (unsigned char)*p - (unsigned char)*q;
 }
 
 /* Function: String length */
@@ -84,14 +84,6 @@ int memcmp(const void* s1, const void* s2, uint32_t n) {
 
 void* memcpy(void* dst, const void* src, uint32_t n) {
   return memmove(dst, src, n);
-}
-
-void memcpy_test(void) {
-  void* p = malloc(sizeof(int));
-  void* q = malloc(sizeof(int));
-  *(uint32_t*)p = 1;
-  memcpy(q, p, 4);
-  printf("q = %d\n", *(uint32_t*)q);
 }
 
 void delay(volatile int count) {

@@ -88,7 +88,6 @@ inline void destroy_node(node_t* node) {
 /* Function: Read first node (after head node) */
 node_t* read_first(list_t* list) {
   if (list->tail->prev == list->head) {
-    printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
   } else
     return list->head->next;
@@ -97,7 +96,6 @@ node_t* read_first(list_t* list) {
 /* Function: Read last node (before tail node) */
 node_t* read_last(list_t* list) {
   if (list->tail->prev == list->head) {
-    printf(RED("ERROR: Reading empty list!\n"));
     return NULL;
   } else
     return list->tail->prev;
@@ -127,19 +125,4 @@ void insert_before(list_t* list, node_t* node, uint32_t item) {
   node->prev = new;
 }
 
-void link_test(void) {
-  printf(YELLOW("\nTesting Linked List...\n"));
-  node_t* node2 = create_node(2);  // 24
-  printf("node 2 = 0x%x\n", node2);
-  node_t* node3 = create_node(3);  // 24
-  node_t* node5 = create_node(5);  // 24
-  free_node(node2);
-  node_t* node4 = create_node(4);  // 24
-  printf("node 4 = 0x%x\n", node4);
-  free_node(node3);
-  free_node(node4);
-  printf("node 5 = 0x%x\n", node5);
-  void* p = malloc(7);
-  printf("p = 0x%x\n", p);
-}
 

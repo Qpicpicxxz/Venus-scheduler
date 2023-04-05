@@ -36,14 +36,11 @@ void edge_make(actor_t* src, actor_t* snk) {
   int success;
   success = node_make(src->out, fifo);
   if (!success) {
-    printf(RED("Dependency actor's fifo is full\n"));
-    printf("Actor: %p -> %p\n",src, snk); 
   } else {
     src->nxt_num += 1;
   }
   success = node_make(snk->in, fifo);
   if (!success) {
-    printf(RED("Successor actor's fifo is full\n"));
   } else {
     snk->dep_num += 1;
   }
@@ -58,8 +55,6 @@ void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len) {
   // by default, initial packet data will only be used by one actor
   data->cnt = 1;
   if (fifo_full(actor->in[0])) {
-    // if input buffer is full
-    printf(RED("Input buffer overflowed, discard residual data...\n"));
     return;
   }
   put_data(actor->in[0], data);

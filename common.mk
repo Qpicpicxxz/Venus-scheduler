@@ -20,21 +20,16 @@ SRCS_ASM = \
 
 SRCS_C = \
 				 $(SOURCE)kernel.c \
-			 	 $(SOURCE)uart.c \
-				 $(SOURCE)printf.c \
 				 $(SOURCE)ulib.c  \
 				 $(SOURCE)mem_block.c \
 				 $(SOURCE)mem_alloc.c \
 				 $(SOURCE)mem_free.c \
 				 $(SOURCE)linked_list.c \
-				 $(SOURCE)trap.c \
+				 $(SOURCE)irq.c  \
 				 $(SOURCE)fifo.c \
-				 $(SOURCE)debug.c \
 				 $(SOURCE)main.c \
 				 $(SOURCE)dma.c \
-				 $(SOURCE)block.c \
 				 $(SOURCE)task_callback.c \
-				 $(SOURCE)external_irq.c \
 				 $(SOURCE)actor_init.c \
 				 $(SOURCE)fire_check.c	\
 				 $(SOURCE)actor_create.c \

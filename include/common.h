@@ -2,16 +2,10 @@
 #define __COMMON_H__
 
 #include "assert.h"
-#include "font.h"
 #include "types.h"
-#include <stdarg.h>
-#include <stddef.h>
 
 #define DELAY 500
 #define STACK_SIZE 1024
-
-/* printf */
-extern int printf(const char* s, ...);  // only understands %d, %x, %p, %s
 
 /* heap memory management */
 extern void* malloc(uint32_t size); // input the bit size

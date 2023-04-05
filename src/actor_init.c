@@ -21,7 +21,6 @@ void list_init(void) {
 
 /* DAG depict example */
 void DAG_depict() {
-  printf(GREEN("\nSCHEDULER: Creating task...\n"));
   // DAG with random dependencies
   random_DAG();
   /* means to input initial data packets */

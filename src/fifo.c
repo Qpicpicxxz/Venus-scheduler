@@ -29,8 +29,6 @@ uint8_t queue_size(queue_t* F) {
 /* Push in a token */
 void put_data(fifo_t* F, data_t* data) {
   if (fifo_full(F)) {
-    printf(REDSET "SCHEDULER: Fifo is full!" RESET);
-    printf(" pointer 0x%x write failed\n", data->ptr);
   } else {
     F->data[F->wptr] = data;
     F->wptr = (F->wptr + 1) % MAXFIFO;
@@ -38,8 +36,6 @@ void put_data(fifo_t* F, data_t* data) {
 }
 void put_queue(queue_t* F, uint32_t ptr) {
   if (queue_full(F)) {
-    printf(REDSET "SCHEDULER: Queue is full!" RESET);
-    printf(" pointer 0x%x write failed\n", ptr);
   } else {
     F->addr = ptr;
     F->wptr = (F->wptr + 1) % MAXFIFO;
@@ -72,14 +68,12 @@ data_t* read_data(fifo_t* F) {
     data_t* data = F->data[F->rptr];
     return data;
   }
-  printf(RED("FIFO WRONG[rptr==wptr]\n"));
   return NULL;
 }
 data_t* read_else_data(fifo_t* F, uint8_t dist) {
   if (F->rptr != F->wptr) {
     return F->data[(F->rptr + dist) % MAXFIFO];
   }
-  printf(RED("QUEUE WRONG[rptr==wptr]\n"));
   return NULL;
 }
 

@@ -45,8 +45,6 @@ void block_init() {
 }
 
 void pass_result() {
-  printf("SCHEDULER: Pass result to the successor...\n");
-
   // pass the result to successors
   for (int i = 0; i < cur_actor->nxt_num; i++) {
     put_data(cur_actor->out[i], cur_data);
@@ -68,7 +66,6 @@ void pass_result() {
 static inline void check_if_done(node_t* p) {
   linger_t* linger = (linger_t*)(p->item);
   if ((uint32_t)linger->block == ideal_block) {
-    printf("SCHEDULER: Linger result is found...\n");
     cur_data = linger->data;
     pass_result();
   }
@@ -97,8 +94,6 @@ static inline void alloc_result(void) {
   dma_result(alloc_addr, DATA1_ADDR, cur_actor->result_len);
   // SIMULATE DMA stored the result (in a allocated memory space)
   *(int*)p = 1;
-  printf(BLUE("DMA: Result data is stored in 0x%x\n"), alloc_addr);
-
   // check whether the right arrival sequence or not
   ideal_block = read_last((cur_actor->fire_list))->item;
   linger_t* linger = (linger_t*)read_first((cur_actor->linger_list))->item;
@@ -106,7 +101,6 @@ static inline void alloc_result(void) {
 
   // if the wrong arrival sequence happen (sporadic)
   if (ideal_block != actual_block) {
-    printf(PINK("SCHEDULER: Oops! Wrong result arrival sequence...\n"));
     // bind store the data descripor into linger list descriptor
     linger->data = cur_data;
   } else {
@@ -141,7 +135,6 @@ void block_handler(uint32_t block_index) {
   block_t* n_block = block_array[block_index];
   // check if this block needs to recycle result
   if ((n_block->flags & BLOCK_INFLIGHT) != 0) {
-    printf(YELLOW("BLOCK %d: Job done\n"), ((uint32_t)n_block - block_start) / sizeof(block_t) +1);
     linger_insert(n_block);
     cur_actor = n_block->actor;
     alloc_result();
