@@ -32,8 +32,7 @@ SRCS_C = \
 				 $(SOURCE)task_callback.c \
 				 $(SOURCE)actor_init.c \
 				 $(SOURCE)fire_check.c	\
-				 $(SOURCE)actor_create.c \
-				 $(SOURCE)dag.c
+				 $(SOURCE)actor_create.c 
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 
