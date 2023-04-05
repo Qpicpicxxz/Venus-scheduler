@@ -4,6 +4,8 @@
 #include "assert.h"
 #include "font.h"
 #include "types.h"
+#include <stdarg.h>
+#include <stddef.h>
 
 #define DELAY 500
 #define STACK_SIZE 1024
@@ -15,6 +17,10 @@ extern int printf(const char* s, ...);  // only understands %d, %x, %p, %s
 extern void* malloc(uint32_t size); // input the bit size
 extern void free(void* ptr);
 extern void delay(volatile int count);
+
+/* dma tools */
+extern void* malloc_LLI(void);
+extern void free_LLI(uint32_t ptr);
 
 /* string tools */
 extern char* strcpy(char*, const char*);

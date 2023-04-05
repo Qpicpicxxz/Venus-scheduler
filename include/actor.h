@@ -1,7 +1,6 @@
 #ifndef __ACTOR_H__
 #define __ACTOR_H__
 
-#include "common.h"
 #include "defs.h"
 /*
  * This supports MAXIO inputs and outputs per actor

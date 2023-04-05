@@ -5,6 +5,7 @@
 #include "common.h"
 #include "font.h"
 #include "types.h"
+#include <stddef.h>  // use NULL
 
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
@@ -18,8 +19,13 @@ extern uint32_t free_list_counter;
 #define FREE (0)
 #define ALLOCATED (1)
 #define MIN_BLOCKSIZE (16)
-#define BOUNDART_SIZE 8
-#define LLI_SIZE 64
+
+/* Interface */
+void heap_init();
+void* malloc(uint32_t size);
+void free(void* ptr);
+void* malloc_LLI(void);
+void free_LLI(uint32_t ptr);
 
 /* Tools */
 uint32_t _align_up(uint32_t x, uint32_t n);
