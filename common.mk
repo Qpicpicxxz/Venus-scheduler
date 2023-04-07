@@ -16,7 +16,7 @@ SRCS_ASM = \
 				 $(SOURCE)irq_vector.S \
 				 $(SOURCE)start.S \
 				 $(SOURCE)mem.S \
-				 $(SOURCE)switch.S
+				 $(SOURCE)hal.S
 
 
 SRCS_C = \

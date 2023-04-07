@@ -5,8 +5,8 @@
 .section .startup
 reset_vec:
 	# 不知道下面这个是个啥...反正用了pico就会一直等着，直到中断来了才执行下一条
-	//picorv32_waitirq_insn(zero)
-	picorv32_maskirq_insn(zero, zero) # 这个操作也可以放到bootloader里面
+	// picorv32_waitirq_insn(zero)
+	// picorv32_maskirq_insn(zero, zero) # 这个操作也可以放到bootloader里面
 	j _start
 
 .section .startirq

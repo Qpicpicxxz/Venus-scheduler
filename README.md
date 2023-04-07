@@ -74,23 +74,23 @@ reset_vec:
 .section .startirq
 irq_vec:
 	picorv32_setq_insn(q2, x1)
-	picorv32_setq_insn(q3, x2) 
-  
+	picorv32_setq_insn(q3, x2)
+
   ...
 ```
   4. 触发中断方式
   ```
   initial begin
-	irq = 32'h0;
+  irq = 32'h0;
   repeat(300000) @(posedge clk);   // 至少得300,000个时钟周期，留给scheduler初始化软件代码
-	$display("[%t]: testbench: issuing an interrupt",$time);
-	$stop;
-	irq = 32'h16;     		          // 拉高Block中断信号 0x1000
+  $display("[%t]: testbench: issuing an interrupt",$time);
+  $stop;
+  irq = 32'h16;                    // 拉高Block中断信号 0x1000
   repeat(10) @(posedge clk);
-	$stop;
-	irq = 32'h0;                    // 清空外部中断
+  $stop;
+  irq = 32'h0;                     // 清空外部中断
   repeat(100000) @(posedge clk);
-	$finish;
+  $finish;
 end
 ```
 5. 编译出vcs仿真需要的`os.bin`

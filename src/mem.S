@@ -1,7 +1,5 @@
 .section .rodata
 
-# python end jacklight
-
 .global BSS_START
 BSS_START: 	.word _bss_start
 

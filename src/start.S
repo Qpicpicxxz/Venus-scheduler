@@ -3,7 +3,6 @@
 	.equ KERNAL_STACK, 1024	# stack size for kernel start
 	.global	_start
 
-.section .text
 _start:
 	# Set all bytes in the BSS section to zero.
 	# to make sure every uninitialized variable to be zero
