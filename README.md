@@ -68,7 +68,6 @@ SECTIONS
 ```
 .section .startup
 reset_vec:
-	picorv32_maskirq_insn(zero, zero) # 这个操作也可以放到bootloader里面
 	j _start
 
 .section .startirq
@@ -98,3 +97,42 @@ end
 make code
 ```
 6. 编译完成后会生成`objdump.txt`文件，可查看反汇编
+7. 中断端口定义
+```
+#define IRQ_TIMER 0
+#define IRQ_BADINSTR 1
+#define IRQ_MEMERROR 2
+#define IRQ_DMA 3
+#define IRQ_BLOCK 4
+```
+8. 中断开启以及回调绑定硬件抽象层实现
+```
+set_handler(IRQ_BLOCK, IRQ_blockhandler);
+enable_irq(IRQ_BLOCK);
+```
+```
+void set_handler(uint32_t irq, VoidFunc callback) {
+  irq_callback[irq] = callback;
+}
+
+void enable_irq(uint32_t irq) {
+  EN_Interrupts(1 << irq);
+}
+```
+```
+	EN_Interrupts:
+		not t0, zero
+		picorv32_maskirq_insn(t0, t0) # load interrupts from register
+		not a0, a0
+		and t0, t0, a0
+		picorv32_maskirq_insn(zero, t0) # write back new value
+		ret
+	
+	# '1' means to diable the interrupt
+	DIS_Interrupts:
+		not t0, zero
+		picorv32_maskirq_insn(t0, t0)
+		or t0, t0, a0
+		picorv32_maskirq_insn(zero, t0)
+		ret
+```
