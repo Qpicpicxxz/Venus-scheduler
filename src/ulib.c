@@ -14,7 +14,7 @@ char* strcpy(char* dest, const char* src) {
 int strcmp(const char* p, const char* q) {
   while (*p && *p == *q)
     p++, q++;
-  return (unsigned char)*p - (unsigned char)*q;
+  return (uchar)*p - (uchar)*q;
 }
 
 /* Function: String length */

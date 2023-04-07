@@ -1,5 +1,5 @@
 # save all General-Purpose(GP) registers to context
-# both caller and callee need two pieces of assembly code 
+# both caller and callee need two pieces of assembly code
 # matching the save and restore registers due to the calling behaviour
 # Prologue and Epilogue
 # abouve will be automatically inserted by the compiler
@@ -80,77 +80,45 @@
 	lw t6, 120(\base)
 .endm
 
-# Something to note about save/restore:
-# - We use mscratch to hold a pointer to context of previous task
-# - We use t6 as the 'base' for reg_save/reg_restore, because it is the
-#   very bottom register (x31) and would not be overwritten during loading.
-
 .text
-
-# void switch_to(struct context *next);
-# a0: pointer to the context of the next task
-.globl switch_to
-.align 4
-switch_to:
-	csrrw	t6, mscratch, t6	# swap t6 and mscratch
-	beqz	t6, 1f			# Notice: the first time switch_to() is
-	                                # called, mscratch is initialized as zero
-					# (in sched_init()), which makes t6 zero,
-					# and that's the special case we have to
-					# handle with t6
-	reg_save t6			# save context of prev task
-
-	# Save the actual t6 register, which we swapped into
-	# mscratch
-	mv	t5, t6		# t5 points to the context of next task
-	csrr	t6, mscratch	# read t6 back from mscratch
-	sw	t6, 120(t5)	# save t6 with t5 as base
-
-1:
-	# switch mscratch to point to the context of the next task
-	csrw	mscratch, a0
-
-	# Restore all GP registers
-	# Use t6 to point to the context of the new task
-	mv	t6, a0
-	reg_restore t6
-
-	# Do actual context switching.
-	ret
-	
 .globl trap_vector
 .align 4
 trap_vector:
-	# save current control flow's context 
+	# save current control flow's context
 	csrrw t6, mscratch, t6
+	lui t6, %hi(irq_regs)
+	addi t6, t6, %lo(irq_regs)
+
 	reg_save t6
-	
-	# save actual t6
+
 	mv t5, t6
 	csrr t6, mscratch
 	sw t6, 120(t5)
-	
+
 	# restore the context pointer back to mscratch
 	csrw mscratch, t5
-	
+
 	# call C trap handler in trap.c
 	csrr a0, mepc
 	csrr a1, mcause
-	call trap_handler
-	
+	call irq_handler
+
 	# trap_handler return parameter is a0 (may be changed)
 	csrw mepc, a0
-	
+
 	# restore context
 	csrr t6, mscratch
 	reg_restore t6
-	
+
 	# return to wherever we are doing before trap
 	# hart would restore previous authority level
 	# pc = mepc
 	# different privilege has different return instruction
 	mret
-	
+
+irq_regs:
+	.fill 32,4
+
 .end
 
 

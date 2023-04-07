@@ -1,7 +1,6 @@
 #ifndef __DEFS_H__
 #define __DEFS_H__
 
-#include "common.h"
 #include "types.h"
 
 /* fifo.h */

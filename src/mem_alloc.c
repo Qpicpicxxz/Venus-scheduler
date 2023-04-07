@@ -1,10 +1,9 @@
 /* ref: https://github.com/yangminz/bcst_csapp/blob/main/src/malloc/mem_alloc.c */
 #include "allocator.h"
-#include "dma/lli.h"
 
 uint32_t alloc_start;
 uint32_t alloc_end;
-uint32_t free_list_head    = 0;
+uint32_t free_list_head = 0;
 uint32_t free_list_counter = 0;
 
 void init_sentinel(void) {
@@ -49,23 +48,21 @@ void init_sentinel(void) {
 
 void heap_init(void) {
   alloc_start = _align_up(HEAP_START, 8);
-  alloc_end   = _align_down(HEAP_START + HEAP_SIZE, 8);
+  alloc_end = _align_down(HEAP_START + HEAP_SIZE, 8);
   /* Clear heap area to zero */
   // for (int i = alloc_start; i < alloc_end - 4; i += 4) {
   //   *(uint32_t*)i = 0;
   // }
   // memset(alloc_start, 0, alloc_end - alloc_start);
-#ifdef DEBUG_SCHEDULER
   printf("ALLOC:   0x%x -> 0x%x", alloc_start, alloc_end);
   printf("    SIZE:   0x%x\n", alloc_end - alloc_start);
-#endif
   /* prologue + alloc area + epilogue */
   init_sentinel();
   uint32_t first_block = get_firstblock();
   /* Bidirectional ring linked list */
   set_prevfree(first_block, first_block);
   set_nextfree(first_block, first_block);
-  free_list_head    = 0;
+  free_list_head = 0;
   free_list_counter = 0;
   /* Insert initial free block into free list */
   free_list_insert(first_block);
@@ -131,7 +128,7 @@ void* malloc(uint32_t size) {
   // make sure it's a legal size
   assert(0 < size && size < alloc_end - alloc_start - 4 - 8 - 4);
   // payload size + header size + footer size
-  uint32_t request_blocksize = _align_up(size, 8) + BOUNDART_SIZE;
+  uint32_t request_blocksize = _align_up(size, 8) + 4 + 4;
   // make it to minimum allocatable space
   request_blocksize = request_blocksize < MIN_BLOCKSIZE ? MIN_BLOCKSIZE : request_blocksize;
   // search free block from free list head
@@ -171,15 +168,15 @@ void free(void* ptr) {
   }
   uint32_t payload_addr = (uint32_t)ptr;
 
-  uint32_t req_header    = get_header(payload_addr);
-  uint32_t req_footer    = get_footer(req_header);
+  uint32_t req_header = get_header(payload_addr);
+  uint32_t req_footer = get_footer(req_header);
   uint32_t req_allocated = get_allocated(req_header);
   uint32_t req_blocksize = get_blocksize(req_header);
   assert(req_allocated == ALLOCATED);
   assert(req_blocksize >= MIN_BLOCKSIZE);
 
-  uint32_t next_header    = get_nextheader(req_header);
-  uint32_t prev_header    = get_prevheader(req_header);
+  uint32_t next_header = get_nextheader(req_header);
+  uint32_t prev_header = get_prevheader(req_header);
   uint32_t next_allocated = get_allocated(next_header);
   uint32_t prev_allocated = get_allocated(prev_header);
 
@@ -242,21 +239,20 @@ void free(void* ptr) {
   }
 }
 
-lli_t* malloc_LLI(void) {
-  uint32_t request_blocksize;
-  uint32_t block_header  = free_list_head;
-  uint32_t counter       = free_list_counter;
+void* malloc_LLI(void) {
+  uint32_t request_blocksize = 64 + 4 + 4;
+  uint32_t block_header = free_list_head;
+  uint32_t counter = free_list_counter;
   uint32_t block_payload = 0;
   for (int i = 0; i < counter; ++i) {
     uint32_t old_blocksize = get_blocksize(block_header);
     // check if this payload is 64-byte aligned
-    uint32_t unaligned_size = get_payload(block_header) % LLI_SIZE;
+    uint32_t unaligned_size = get_payload(block_header) % 64;
     // if not aligned, extend request block size
     if (unaligned_size)
-      request_blocksize = LLI_SIZE * 2 - unaligned_size + BOUNDART_SIZE;
-    else
-      request_blocksize = LLI_SIZE + BOUNDART_SIZE;
+      request_blocksize = 128 - unaligned_size;
     block_payload = try_alloc_with_splitting(block_header, request_blocksize);
+
     if (block_payload) {
       uint32_t cur_blocksize = get_blocksize(block_header);
       free_list_delete(block_header);
@@ -264,13 +260,13 @@ lli_t* malloc_LLI(void) {
         free_list_insert(get_nextheader(block_header));
       // if the original allocated payload is 64-byte aligned, return back
       if (!unaligned_size)
-        return (lli_t*)block_payload;
+        return (void*)block_payload;
       else {
         uint32_t aligned_block_payload = block_payload + 64 - unaligned_size;
         // store the real payload before the 64-byte aligned payload
         *(uint32_t*)(aligned_block_payload - 4) = block_payload;
         // return the 64-byte aligned payload
-        return (lli_t*)aligned_block_payload;
+        return (void*)aligned_block_payload;
       }
     } else {
       // go to the next free block
@@ -281,14 +277,14 @@ lli_t* malloc_LLI(void) {
   return NULL;
 }
 
-void free_LLI(lli_t* ptr) {
-  uint32_t last_byte = *(uint32_t*)((uint32_t)ptr - 4);
+void free_LLI(uint32_t ptr) {
+  uint32_t last_byte = *(uint32_t*)(ptr - 4);
   if (last_byte & 0x1) {
     // if this is a header, normal free
     free((void*)ptr);
   } else {
     // this is a 64-byte aligned block, find real payload start
-    uint32_t real_payload = *(uint32_t*)((uint32_t)ptr - 4);
+    uint32_t real_payload = *(uint32_t*)(ptr - 4);
     free((void*)real_payload);
   }
 }
@@ -296,7 +292,7 @@ void free_LLI(lli_t* ptr) {
 void print_heap() {
   printf("============\nheap blocks:\n");
   uint32_t h = get_firstblock();
-  int i      = 0;
+  int i = 0;
   while (h != 0 && h < get_epilogue()) {
     uint32_t a = get_allocated(h);
     uint32_t s = get_blocksize(h);
@@ -310,18 +306,18 @@ void print_heap() {
 }
 
 void malloc_64_test() {
-  lli_t* p = malloc_LLI();
+  void* p = malloc_LLI();
   printf("64-byte aligned malloc p is %p\n", p);
   // free_LLI((uint32_t)p);
   // void *q = malloc(64);
-  lli_t* q = malloc_LLI();
-  void* x  = malloc(54);
-  x        = malloc_LLI();
+  void* q = malloc_LLI();
   printf("64-byte aligned malloc q is %p\n", q);
+  void* x = malloc(54);
+  x = malloc_LLI();
   printf("64-byte aligned malloc x is %p\n", x);
-  free_LLI(p);
-  free_LLI(q);
-  free_LLI(x);
+  free_LLI((uint32_t)p);
+  free_LLI((uint32_t)q);
+  free_LLI((uint32_t)x);
 }
 
 void malloc_test() {
