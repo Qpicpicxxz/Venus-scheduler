@@ -13,9 +13,10 @@ NM = ${CROSS_COMPILE}nm
 MAKEFLAGS += --silent
 
 SRCS_ASM = \
-					 $(SOURCE)start.S \
-					 $(SOURCE)mem.S \
-					 $(SOURCE)switch.S
+				 $(SOURCE)irq_vector.S \
+				 $(SOURCE)start.S \
+				 $(SOURCE)mem.S \
+				 $(SOURCE)switch.S
 
 
 SRCS_C = \
