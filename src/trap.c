@@ -69,7 +69,7 @@ void trap_init() {
  * <mtval>: Machine Trap Value Register,
  *          other supplementary information to identify exception
  */
-reg_t irq_handler(reg_t epc, reg_t cause) {
+reg_t trap_handler(reg_t epc, reg_t cause) {
   reg_t return_pc = epc;
   reg_t cause_code = cause & 0xfff; // catch the highest order
 

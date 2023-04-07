@@ -10,8 +10,8 @@ extern void ready_search(void);
 extern void actor_check(void);
 extern uint8_t fire_check(actor_t* g);
 
-/* DAG.c */
-extern void random_DAG(void);
+#define TASK1_START 1
+#define TASK1_LEN   1
 
 /* Function: Initialize all actor's list and ready actor's list */
 void list_init(void) {
@@ -21,9 +21,29 @@ void list_init(void) {
 
 /* DAG depict example */
 void DAG_depict() {
-  printf(GREEN("\nSCHEDULER: Creating task...\n"));
   // DAG with random dependencies
-  random_DAG();
+  /* means to specify a actor (node) */
+  actor_t* A = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* B = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* C = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* D = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* E = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* F = actor_create(TASK1_START, TASK1_LEN, 4);
+  actor_t* G = actor_create(TASK1_START, TASK1_LEN, 4);
+  /* meas to specify dependencies */
+  edge_make(A, B);
+  edge_make(A, C);
+  edge_make(A, D);
+  edge_make(B, D);
+  edge_make(B, F);
+  edge_make(C, D);
+  edge_make(C, E);
+  edge_make(D, G);
+  edge_make(E, G);
+  edge_make(F, G);
+  /* means to specify root and sink node of DAG */
+  assign_root(A);
+  assign_sink(G);
   /* means to input initial data packets */
   for (int i = 0; i < NUM_PACKET; i++) {
     // Note: It just create a void pointer to the actor input
@@ -49,4 +69,3 @@ void actor_launch(void) {
   schedule_init();
   actor_check();
 }
-

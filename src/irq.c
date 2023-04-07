@@ -22,11 +22,11 @@ extern void block_handler(uint32_t block_index);
 
 /* In start.S: a0 --> *regs  a1 --> cause(q1) */
 void irq_handler(reg_t* regs, reg_t cause) {
-  if ((mcause & 6) != 0) {
+  if ((cause & 6) != 0) {
     uint32_t pc    = (regs[0] & 1) ? regs[0] - 3 : regs[0] - 4;
     uint32_t instr = *(uint32_t*)pc;
 
-    if ((mcause & 2) != 0) {
+    if ((cause & 2) != 0) {
       if (instr == 0x00100073 || instr == 0x9002) {
         // print_str("EBREAK instruction at 0x");
         // print_hex(pc, 8);
@@ -40,23 +40,25 @@ void irq_handler(reg_t* regs, reg_t cause) {
       }
     }
 
-    if ((mcause & 4) != 0) {
+    if ((cause & 4) != 0) {
       // print_str("Bus error in Instruction at 0x");
       // print_hex(pc, 8);
       // print_str(": 0x");
       // print_hex(instr, ((instr & 3) == 3) ? 8 : 4);
       // print_str("\n");
     }
+    __asm__ volatile ("ebreak");
   }
 
-  if ((mcause & 8) != 0) {
+  if ((cause & 8) != 0) {
     // DMA Interrupt
   }
 
-  if ((mcause & 16) != 0) {
+  if ((cause & 16) != 0) {
     // need q1 = 0000_0000_0001_0000
     // Block Interrupt
     block_handler(0);
+    __asm__ volatile ("ebreak");
   }
 }
 

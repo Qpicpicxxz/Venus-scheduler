@@ -14,9 +14,10 @@ MAKEFLAGS += --silent
 CFLAGS += -DSIMULATE_QEMU
 
 SRCS_ASM = \
-					 $(SOURCE)start.S \
-					 $(SOURCE)mem.S \
-					 $(SOURCE)switch.S
+				 $(SOURCE)irq_vector.S \
+				 $(SOURCE)start.S \
+				 $(SOURCE)mem.S \
+				 $(SOURCE)switch.S
 
 
 SRCS_C = \
@@ -29,6 +30,7 @@ SRCS_C = \
 				 $(SOURCE)mem_free.c \
 				 $(SOURCE)linked_list.c \
 				 $(SOURCE)trap.c \
+				 $(SOURCE)irq.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)debug.c \
 				 $(SOURCE)main.c \
@@ -38,8 +40,7 @@ SRCS_C = \
 				 $(SOURCE)external_irq.c \
 				 $(SOURCE)actor_init.c \
 				 $(SOURCE)fire_check.c	\
-				 $(SOURCE)actor_create.c \
-				 $(SOURCE)dag.c
+				 $(SOURCE)actor_create.c
 				 
 SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
 

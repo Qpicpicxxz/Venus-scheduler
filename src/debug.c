@@ -1,4 +1,3 @@
-#include "codeaddr.h"
 #include "common.h"
 
 extern uint32_t TEXT_START;
@@ -7,12 +6,16 @@ extern uint32_t DATA_START;
 extern uint32_t DATA_END;
 extern uint32_t RODATA_START;
 extern uint32_t RODATA_END;
+extern uint32_t TASK1_START;
+extern uint32_t TASK1_END;
+extern uint32_t TASK2_START;
+extern uint32_t TASK2_END;
+extern uint32_t TASK3_START;
+extern uint32_t TASK3_END;
 extern uint32_t BSS_START;
 extern uint32_t BSS_END;
 extern uint32_t HEAP_START;
 extern uint32_t HEAP_SIZE;
-extern uint32_t STACK_START;
-extern uint32_t STACK_END;
 
 void mem_info() {
   uint32_t TEXT = TEXT_END - TEXT_START;
@@ -36,8 +39,6 @@ void mem_info() {
   printf("    SIZE:   %p\n", TASK3);
   printf("BSS:     %p -> %p", BSS_START, BSS_END);
   printf("    SIZE:   %p\n", BSS);
-  printf("STACK:   %p -> %p", STACK_START, STACK_END);
-  printf("    SIZE:   %p\n", STACK_SIZE);
   printf("");
 }
 

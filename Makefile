@@ -7,7 +7,7 @@ OBJS += $(SRCS_C:.c=.o)
 OBJS += $(patsubst %.c,%.o,$(SRCS_BIN))
 
 # start.o must be the first in dependency!
-os.elf: taskgenerate  word ${OBJS}
+os.elf: word ${OBJS}
 	@echo "  *.o os.ld ---> os.elf"
 	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS} -lc
 
@@ -83,9 +83,8 @@ tree:
 
 .PHONY : clean
 clean:
-	rm -rf *.o *.bin *.elf *.txt *.out *_bin.c *.map
+	rm -rf *.o *.bin *.elf *.txt *.out *.map
 	@cd src && rm -rf *.o *.bin *.elf *.txt
-	@cd task && ${MAKE} clean
 
 
 
