@@ -1,7 +1,7 @@
 #include "task.h"
 
 /* dma.c */
-extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
+extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
 
 /* internal variables */
 static block_t* cur_block;
@@ -15,9 +15,9 @@ static inline void alloc_result(void) {
   data->ptr    = alloc_addr;         // data pointer
   data->len    = actor->result_len;  // data length
   data->cnt    = actor->nxt_num;     // data lifecycle
-  
+
   // inform DMA
-  dma_transfer(alloc_addr, DATA1_ADDR, cur_block->actor->result_len, cur_block, data);
+  dma_transfer_link(alloc_addr, DATA1_ADDR, cur_block->actor->result_len, cur_block, data);
 }
 
 void block_handler(block_t* n_block) {

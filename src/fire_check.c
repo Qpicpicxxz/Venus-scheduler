@@ -1,18 +1,18 @@
 #include "task.h"
 
-list_t*         actor_l; /* linked list for all actor   */
-list_t*         ready_l; /* linked list for ready actor */
-queue_t         block_q; /* idle-block queue            */
-static actor_t* actor;   /* current handle actor        */
-static ready_t* ready;   /* current ready descriptor    */
-static block_t* block;   /* current block descriptor    */
+list_t* actor_l;       /* linked list for all actor   */
+list_t* ready_l;       /* linked list for ready actor */
+queue_t block_q;       /* idle-block queue            */
+static actor_t* actor; /* current handle actor        */
+static ready_t* ready; /* current ready descriptor    */
+static block_t* block; /* current block descriptor    */
 
 /* taskCallback.c  */
 extern void callback(actor_t* g);
 /* block.c */
 extern void block_sim(block_t* block);
 /* dma.c */
-extern void dma_transfer(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
+extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
@@ -129,8 +129,8 @@ static inline node_t* ready_select() {
 
 // this copy of ready actor has been fired and is deprecated
 static inline void ready_free(node_t* ready_node) {
-  ready_t* ready    = (ready_t*)ready_node->item;
-  list_t*  dep_list = ready->dep_list;
+  ready_t* ready   = (ready_t*)ready_node->item;
+  list_t* dep_list = ready->dep_list;
   // 1. free node of current ready fire
   destroy_node(ready_node);
   // 2. free current ready fire dep list
@@ -143,16 +143,18 @@ static inline void ready_free(node_t* ready_node) {
 static inline void inform_dma(void) {
   uint32_t total_trans_num = 1 + actor->dep_num;
   set_dma_transmit_num(block, total_trans_num);
-  data_t* pseudo_data = NULL;
-  dma_transfer(block->spm_addr, actor->task_addr, actor->task_len, block, pseudo_data);
+  data_t* pseudo_data   = NULL;
+  block_t* pseudo_block = NULL;
+  dma_transfer_link(block->spm_addr, actor->task_addr, actor->task_len, pseudo_block, pseudo_data);
   list_t* dep_list = (list_t*)ready->dep_list;
-  node_t* dep_node = dep_list->tail->prev;
-  while (dep_node != dep_list->head) {
-    // get data descriptor
-    data_t* data = (data_t*)dep_node->item;
+  for (node_t* p = dep_list->tail->prev; p != dep_list->head; p = p->prev) {
+    data_t* data = (data_t*)p->item;
     // inform data descriptor to DMA
-    dma_transfer(DATA1_ADDR, data->ptr, data->len, block, data);
-    dep_node = dep_node->prev;
+    if (p == dep_list->head->next) {
+      dma_transfer_link(DATA1_ADDR, data->ptr, data->len, block, data);
+    } else {
+      dma_transfer_link(DATA1_ADDR, data->ptr, data->len, pseudo_block, data);
+    }
   }
 }
 

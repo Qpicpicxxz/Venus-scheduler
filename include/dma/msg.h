@@ -8,7 +8,7 @@
 typedef struct message {
   lli_t*   lli;
   block_t* block;
-  data_t*  data;
+  list_t*  data_list;
 } msg_t;
 
 #endif /* __DMA_MSG_H__ */

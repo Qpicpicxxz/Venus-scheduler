@@ -13,7 +13,8 @@ extern void set_channel_idle(uint32_t index);
 
 /* internal variables */
 static block_t* block;
-static data_t*  data;
+static data_t* data;
+static list_t* data_list;
 static uint32_t ideal_block;
 
 static void scheduler_pass_result(void) {
@@ -31,8 +32,8 @@ static void scheduler_pass_result(void) {
   node_t* fire_node = actor->fire_list->tail->prev;
   destroy_node(fire_node);
   if (actor->linger_list != NULL) {
-    node_t*   linger_node = actor->linger_list->head->next;
-    linger_t* linger      = (linger_t*)linger_node->item;
+    node_t* linger_node = actor->linger_list->head->next;
+    linger_t* linger    = (linger_t*)linger_node->item;
     destroy_node(linger_node);
     free(linger);
   }
@@ -87,11 +88,13 @@ static void result_deliver() {
   }
 }
 
-// NOTE: this step should invoke after DMA has already moved the code to blocks!!!
 static inline void recycle_garbage(void) {
-  if (data != NULL) {
+  data_t* data;
+  for (node_t* p = data_list->head->next; p != data_list->tail; p = p->next) {
+    data = (data_t*)p->item;
     if (data->cnt == 1) {
       // garbage collection
+      printf(YELLOW("last use...\n"));
       free((void*)data->ptr);
       free((void*)data);  // free data flag space
     } else {
@@ -99,21 +102,26 @@ static inline void recycle_garbage(void) {
       data->cnt--;
     }
   }
+  destroy_list(data_list);
 }
 
 void dma_transfer_done_handler(uint32_t channel_index) {
   /* catch current DMA's transfer information */
-  msg_t*   msg     = msg_array[channel_index];
-  lli_t*   lli     = msg->lli;
-  uint32_t llp     = (uint32_t)msg->lli->CHx_LLP;
-  lli_t*   nxt_lli = (lli_t*)llp;
-  block            = msg->block;
-  data             = msg->data;
+  msg_t* msg     = msg_array[channel_index];
+  lli_t* lli     = msg->lli;
+  uint32_t llp   = (uint32_t)msg->lli->CHx_LLP;
+  lli_t* nxt_lli = (lli_t*)llp;
+  block          = msg->block;
+  data_list      = msg->data_list;
 
 #ifdef SIMULATE_QEMU
   set_channel_idle(channel_index);
   printf("DMA channel %d is free\n", channel_index);
 #endif
+  /* Note that by default, this interrupt is not triggered repeatedly.
+   * Which means one transfer would not be triggered more than once,
+   * otherwise free_LLI would free a free memory block.
+   */
 
   /* free this transfer's linked list */
   while (lli != nxt_lli) {
@@ -149,6 +157,7 @@ void dma_transfer_done_handler(uint32_t channel_index) {
 #endif
   } else {
     // TODO: pass result to the successor
+    data = (data_t*)data_list->head->next->item;
     result_deliver();
 #ifdef DEBUG_SCHEDULER
     printf("DMA: Result transfer done...\n");
