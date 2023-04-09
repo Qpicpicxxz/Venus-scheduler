@@ -54,6 +54,10 @@ irq_vec:
 	sw x31, 124(x1)             # 存储所有的中断发生之前的上下文
 
 	# 后面研究一下sp到底要不要存，因为目前我不打算专门给irq handler开个栈
+	
+	// picorv32_getq_insn(t0, q1)
+	// la t1, (irq_pending)
+	// sw t0, 0(t1)
 
 	// void irq_handler(uint32_t *regs, uint32_t cause)
 

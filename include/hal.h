@@ -29,6 +29,9 @@
 
 typedef void(*VoidFunc)(void);
 
+/* READ ONLY */
+// extern unsigned int _irq_pending;
+
 /* irq.c */
 void set_handler(uint32_t irq,VoidFunc callback);
 void enable_irq(uint32_t irq);
@@ -37,5 +40,10 @@ void disable_irq(uint32_t irq);
 /* hal.S */
 void EN_Interrupts(uint32_t mask);
 void DIS_Interrupts(uint32_t mask);
+
+/*static inline unsigned int irq_pending(void){
+  return _irq_pending;
+}*/
+
 
 #endif /* __HAL_H__ */
