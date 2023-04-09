@@ -12,7 +12,6 @@ typedef struct actor {
   uint8_t nxt_num;
   fifo_t* in[MAXIO];
   fifo_t* out[MAXIO];
-  uint32_t result_len;
   uint32_t task_addr;
   uint32_t task_len;
   list_t* fire_list;

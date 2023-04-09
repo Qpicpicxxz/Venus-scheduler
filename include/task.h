@@ -26,7 +26,7 @@ extern uint32_t actor_start;
 extern uint32_t block_start;
 
 /* actor create */
-actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len);
+actor_t* actor_create(uint32_t taskStart, uint32_t taskLen);
 void edge_make(actor_t* src, actor_t* snk);
 void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len);
 void assign_root(actor_t* actor);

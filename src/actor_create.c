@@ -2,7 +2,7 @@
 #include "task.h"
 
 /* API for actor create */
-actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len) {
+actor_t* actor_create(uint32_t taskStart, uint32_t taskLen) {
   /* 1. Transforming functions into task definitions */
   actor_t* actor = malloc(sizeof(actor_t));
   /* 2. Initializing descriptor */
@@ -10,7 +10,6 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen, uint32_t result_len)
   actor->nxt_num = 0;
   memset(actor->in, 0, MAXIO * sizeof(fifo_t*));
   memset(actor->out, 0, MAXIO * sizeof(fifo_t*));
-  actor->result_len = result_len;
   actor->task_addr = taskStart;
   actor->task_len = taskLen;
   /* 2. Transforming function invocations into task linked constructs */
