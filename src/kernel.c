@@ -7,6 +7,7 @@ extern void heap_init(void);
 extern void block_init(void);
 extern void os_main(void);
 
+
 void start_kernel(void) {
   irq_init();
   heap_init();
