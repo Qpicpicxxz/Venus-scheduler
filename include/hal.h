@@ -38,8 +38,8 @@ void enable_irq(uint32_t irq);
 void disable_irq(uint32_t irq);
 
 /* hal.S */
-void EN_Interrupts(uint32_t mask);
-void DIS_Interrupts(uint32_t mask);
+uint32_t EN_Interrupts(uint32_t mask);
+uint32_t DIS_Interrupts(uint32_t mask);
 
 /*static inline unsigned int irq_pending(void){
   return _irq_pending;

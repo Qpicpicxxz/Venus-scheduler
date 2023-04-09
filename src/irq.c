@@ -8,24 +8,25 @@ void IRQ_blockhandler(void) {
   block_handler(1);
 }
 
-static VoidFunc irq_callback[32];
 /* global variable to save irq mask values */
-uint32_t irq_mask = 0xffffffff;
+uint32_t irq_mask;
+static VoidFunc irq_callback[32];
 
 void set_handler(uint32_t irq, VoidFunc callback) {
   irq_callback[irq] = callback;
 }
 
 void enable_irq(uint32_t irq) {
-  EN_Interrupts(1 << irq);
+  irq_mask = EN_Interrupts(1 << irq);
 }
 
 void disable_irq(uint32_t irq) {
-  DIS_Interrupts(1 << irq);
+  irq_mask = DIS_Interrupts(1 << irq);
 }
 
 void mask_irq(uint32_t mask){
 	__asm__ __volatile__("mv a4, a0");
+	// maskirq a5, a4
 	__asm__ __volatile__(".word(0x0607678b)");
 	return;
 }
