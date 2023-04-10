@@ -1,1 +1,10 @@
-/src/dag.c
+src/*.o
+*_bin.c
+*_bin.o
+*.map
+*.txt
+*.map
+*.elf
+*.bin
+task/*.o
+task/*.elf
