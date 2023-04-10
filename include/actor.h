@@ -3,15 +3,15 @@
 
 #include "common.h"
 #include "defs.h"
+#include "task.h"
+
 /*
  * This supports MAXIO inputs and outputs per actor
  * Every in/out is a fifo queue
  */
 typedef struct actor {
-  uint8_t dep_num;
-  uint8_t nxt_num;
-  fifo_t* in[MAXIO];
-  fifo_t* out[MAXIO];
+  fifo_t* in[MAXIN];
+  fifo_t* out[MAXRES][MAXOUT];
   uint32_t task_addr;
   uint32_t task_len;
   list_t* fire_list;
@@ -24,3 +24,4 @@ typedef struct ready {
 } ready_t; /* ready-actor template */
 
 #endif /* __ACTOR_H__ */
+

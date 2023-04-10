@@ -17,7 +17,7 @@ extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t*
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
   // visit all dependencies' fifo
-  for (int i = 0; i < actor->dep_num; i++) {
+  for (int i = 0; actor->in[i] != NULL; i++) {
     if (fifo_empty(actor->in[i]))
       return 0;
   }
@@ -27,14 +27,17 @@ static inline uint32_t actor_ready(void) {
 /* Predicate: Check whether descendants' buffer are full */
 static inline uint32_t successor_full(void) {
   uint8_t flag = 1;
-  for (int i = 0; i < actor->nxt_num; i++) {
-    flag = flag && fifo_full(actor->out[i]);
+  for (int i = 0; actor->out[i][0] != NULL; i++) {
+    for (int j = 0; actor->out[i][j] != NULL; j++)
+      flag = flag && fifo_full(actor->out[i][j]);
   }
   return flag;
 }
 
 /* Predicate: Check whether the actor could fire in this iteration */
-static inline uint8_t fire_check() { return actor_ready() && !successor_full(); }
+static inline uint8_t fire_check() {
+  return actor_ready() && !successor_full();
+}
 
 /* Function: A handler to bind in-flight actor with current block */
 static inline void task_bind(void) {
@@ -50,7 +53,7 @@ static inline ready_t* ready_create(void) {
   // 3. initialize ready actor's dependencies list
   actor_r->dep_list = create_list();
   // 4. traverse actor's dependencies
-  for (uint32_t i = 0; i < actor->dep_num; i++) {
+  for (int i = 0; actor->in[i] != NULL; i++) {
     // 4.1 get the dependency out from fifo
     data_t* data = get_data(actor->in[i]);
     // 4.2 bind the dependency descriptor pointer
@@ -61,19 +64,8 @@ static inline ready_t* ready_create(void) {
 
 /* Function: Schedule the new ready actor to the proper position */
 static inline void ready_insert(ready_t* r) {
-  int found = 0;
-  for (node_t* p = ready_l->head->next; p != ready_l->tail; p = p->next) {
-    int cur_nxt = ((actor_t*)r->actor_addr)->nxt_num;
-    int p_nxt   = ((actor_t*)((ready_t*)p->item)->actor_addr)->nxt_num;
-    if (cur_nxt == p_nxt) {
-      insert_before(ready_l, p, (uint32_t)r);
-      found = 1;
-      break;
-    }
-  }
-  if (!found) {
-    insert(ready_l, create_node((uint32_t)r));
-  }
+  // for now, first ready first serve
+  insert(ready_l, create_node((uint32_t)r));
 }
 
 /* Function: Print out the current ready actor list */
@@ -141,8 +133,6 @@ static inline void ready_free(node_t* ready_node) {
 
 /* Function: Traverse all dependencies of current and inform DMA */
 static inline void inform_dma(void) {
-  uint32_t total_trans_num = 1 + actor->dep_num;
-  set_dma_transmit_num(block, total_trans_num);
   data_t* pseudo_data   = NULL;
   block_t* pseudo_block = NULL;
   dma_transfer_link(block->spm_addr, actor->task_addr, actor->task_len, pseudo_block, pseudo_data);
@@ -208,3 +198,4 @@ void actor_check(void) {
     }
   }
 }
+

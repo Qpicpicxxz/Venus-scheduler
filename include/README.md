@@ -68,6 +68,57 @@ typedef struct linger {
   data_t* data
 } linger_t
 ```
+---
+### **actor结构体定义取舍**
+---
+**1. 出度和不同的返回值都串为各自的列表**
+```
+list_t* fifo_out_list;  // actor里面存放串联各个返回值的链表指针
+```
+```
+list_t* result_1_list = (list_t*)fifo_out_list->head->next->item;  // 各个返回值链表串联各个返回值将要流去的fifo指针
+```
+```
+fifo_t* token_fifo = (fifo_t*)result_1_list->head->next->item;  // 即可定位到各个fifo (DAG图的各个edge)
+```
+<p>好处：最灵活，根据此task的实际性质动态添加</p>
+<p>坏处：代码写着很麻烦，一直在寻址</p>
+</br>
+
+**2. 出度和不同的返回值都设置成定长的数组**
+```
+fifo_t* fifo_out[MAXRES][MAXIO];
+```
+```
+fifo_t* result_1 = fifo_out[0][MAXIO];
+```
+```
+fifo_t* token_fifo = result_1[0];
+```
+<p>好处：查找快，代码书写方便</p>
+<p>坏处：<code>MAXRES</code>和<code>MAXIO</code>是固定的，内存利用率不高</p>
+</br>
+
+  **3. 出度和不同的返回值都设置成不定长的数组**
+```
+fifo_t*** fifo_out;
+```
+```
+actor_t* actor = malloc(sizeof(actor_t));
+actor->out = malloc(MAXRES * sizeof(fifo_t**));
+for (int i = 0; i < MAXRES; i++){
+  actor->out[i] = malloc(MAXIO * sizeof(fifo_t*));
+}
+```
+```
+fifo_t* result_1 = fifo_out[0][MAXIO];
+```
+```
+fifo_t* token_fifo = result_1[0];
+```
+<p>好处：查找快，内存利用率高</p>
+<p>坏处：需要程序员在创建actor的时候就输入此actor的入度出度情况，不能根据后续的<code>edge_make</code>函数来自动判断</p>
+
 ***
 ### **👾Tips: 设计struct的时候可以考虑结构体的占用空间**
 ```
@@ -109,3 +160,4 @@ struct ex_4{
 }
 sizeof(struct ex_3) == 12
 ```
+

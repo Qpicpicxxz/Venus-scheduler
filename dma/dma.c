@@ -79,7 +79,7 @@ static inline void print_lli_info(void) {
 /* Function: After linked-list completed construction, find a free DMA channel to transfer */
 void dma_transfer_channel(void) {
 #ifdef DEBUG_DMA
-  // print_lli_info();
+  print_lli_info();
 #endif
   uint32_t free_channel_index = DMAC_get_free_channel();
   while (free_channel_index == DMAC_NUMBER_OF_CHANNELS) {

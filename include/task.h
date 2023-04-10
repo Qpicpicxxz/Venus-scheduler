@@ -3,11 +3,15 @@
 
 #define NUM_BLOCKS 8
 #define NUM_PACKET 2
-#define NUM_BUFFER 8
-#define NUM_DEGREE 10
+#define MAX_BUFFER 8
+#define MAX_DEP    10
+#define MAX_NXT    10
+#define MAX_RESULT 10
 
-#define MAXFIFO (NUM_BUFFER + 1)
-#define MAXIO (NUM_DEGREE + 1)
+#define MAXFIFO (MAX_BUFFER + 1)  // to differentiate fifo-full and fifo-empty
+#define MAXIN   MAX_DEP
+#define MAXOUT  MAX_NXT
+#define MAXRES  MAX_RESULT
 
 #include "actor.h"
 #include "block.h"
@@ -27,9 +31,10 @@ extern uint32_t block_start;
 
 /* actor create */
 actor_t* actor_create(uint32_t taskStart, uint32_t taskLen);
-void edge_make(actor_t* src, actor_t* snk);
+void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk);
 void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len);
 void assign_root(actor_t* actor);
 void assign_sink(actor_t* actor);
 
 #endif /* __TASK_H__ */
+

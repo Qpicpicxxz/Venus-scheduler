@@ -4,11 +4,11 @@
 #include "defs.h"
 
 /*
- * flags format:                        7           3              2              1             0
- * --+------------------------------------------------------------------------------------------+--
- *   | 0000 0000 0000 0000 0000 0000 0  |   0000    |      0       |      0       |      0      |
- * --+------------------------------------------------------------------------------------------+--
- *               Reserved               | DMA_COUNT | BLOCK_RESULT | BLOCK_INFIFO | BLOCK_INFLIGHT
+ * flags format:                             3              2              1             0
+ * --+-----------------------------------------------------------------------------------+--
+ *   | 0000 0000 0000 0000 0000 0000 0000 0  |      0       |      0       |      0      |
+ * --+-----------------------------------------------------------------------------------+--
+ *               Reserved                    | BLOCK_RESULT | BLOCK_INFIFO | BLOCK_INFLIGHT
  */
 
 /* Mark the block as in-flight status,
@@ -36,21 +36,12 @@ typedef struct block {
 
 typedef struct linger {
   block_t* block;
-  data_t*  data;
+  list_t* data_list;
 } linger_t;
 
 static inline void _set_block_flag(block_t* block, uint8_t flags) { block->flags |= flags; }
 
 static inline void _clear_block_flag(block_t* block) { block->flags = 0; }
 
-static inline void set_dma_transmit_num(block_t* block, uint32_t num) {
-  // make sure dependencies are not more than 15-1
-  assert(num <= 15);
-  uint32_t num_mask = (num << 3) & 0b01111000;
-  uint32_t else_flag_mask = block->flags & 0b111;
-  block->flags = num_mask | else_flag_mask;
-}
-
-static inline uint32_t dma_transmit_all_done(block_t* block) { return ((block->flags & 0b01111000) == 0); }
-
 #endif /* __BLOCK_H__ */
+

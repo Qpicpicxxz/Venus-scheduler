@@ -13,19 +13,23 @@ extern void set_channel_idle(uint32_t index);
 
 /* internal variables */
 static block_t* block;
-static data_t* data;
+// static data_t* data;
 static list_t* data_list;
 static uint32_t ideal_block;
 
-static void scheduler_pass_result(void) {
+static void scheduler_pass_result() {
 #ifdef DEBUG_SCHEDULER
   printf("SCHEDULER: Pass result to the successor...\n");
 #endif
   actor_t* actor = block->actor;
+  node_t* p      = data_list->tail->prev;
 
-  // pass the result to successors
-  for (int i = 0; i < actor->nxt_num; i++) {
-    put_data(actor->out[i], data);
+  // pass the result to successors i -> different result |  j -> different fifo
+  for (int i = 0; actor->out[i][0] != NULL; i++) {
+    assert(p != data_list->head);
+    for (int j = 0; actor->out[i][j] != NULL; j++)
+      put_data(actor->out[i][j], (data_t*)p->item);
+    p = p->prev;
   }
 
   // release expired data
@@ -49,7 +53,7 @@ static inline void check_if_done(node_t* p) {
 #ifdef DEBUG_SCHEDULER
     printf("SCHEDULER: Linger result is found...\n");
 #endif
-    data = linger->data;
+    data_list = linger->data_list;
     scheduler_pass_result();
   }
   // if dismatch, visit next
@@ -59,9 +63,9 @@ static inline void linger_insert() {
   // bind interrupt block with current actor's linger list
   if (block->actor->linger_list == NULL)
     block->actor->linger_list = create_list();
-  linger_t* linger = malloc(sizeof(linger_t));
-  linger->block    = block;
-  linger->data     = data;
+  linger_t* linger  = malloc(sizeof(linger_t));
+  linger->block     = block;
+  linger->data_list = data_list;
   insert(block->actor->linger_list, create_node((uint32_t)linger));
 }
 
@@ -70,12 +74,12 @@ static void result_deliver() {
 
   ideal_block = read_last((actor->fire_list))->item;
 
+  linger_insert();
+
   if ((uint32_t)block != ideal_block) {
 #ifdef DEBUG_SCHEDULER
     printf(PINK("SCHEDULER: Oops! Wrong result arrival sequence...\n"));
 #endif
-    // bind store the data descripor into linger list descriptor
-    linger_insert();
   } else {
     // pass the result to the successor
     scheduler_pass_result();
@@ -113,7 +117,6 @@ void dma_transfer_done_handler(uint32_t channel_index) {
   lli_t* nxt_lli = (lli_t*)llp;
   block          = msg->block;
   data_list      = msg->data_list;
-
 #ifdef SIMULATE_QEMU
   set_channel_idle(channel_index);
   printf("DMA channel %d is free\n", channel_index);
@@ -141,23 +144,19 @@ void dma_transfer_done_handler(uint32_t channel_index) {
   /* judge whether code/data transfer OR result transfer */
   if ((block->flags & BLOCK_RESULT) == 0) {
     recycle_garbage();
+    // TODO: activate corresponding block
+    // block_activate();
 #ifdef DEBUG_SCHEDULER
     actor_t* actor       = block->actor;
     uint32_t block_index = ((uint32_t)block - block_start) / sizeof(block_t) + 1;
     uint32_t actor_index = ((uint32_t)actor - actor_start) / actor_space;
-    uint32_t left_num    = ((block->flags) >> 3) - 1;
-    if (left_num == 0) {
-      printf("DMA: Channel transfer done, activate block...\n");
-      printf("BLOCK %d: Computing task %c...\n", block_index, actor_index + 65);
-      // TODO: activate corresponding block
-      // block_activate();
-    } else {
-      set_dma_transmit_num(block, left_num);
-    }
+
+    printf("DMA: Channel transfer done, activate block...\n");
+    printf("BLOCK %d: Computing task %c...\n", block_index, actor_index + 65);
 #endif
   } else {
     // TODO: pass result to the successor
-    data = (data_t*)data_list->head->next->item;
+    // data = (data_t*)data_list->head->next->item;
     result_deliver();
 #ifdef DEBUG_SCHEDULER
     printf("DMA: Result transfer done...\n");
@@ -167,3 +166,4 @@ void dma_transfer_done_handler(uint32_t channel_index) {
     ready_search();
   }
 }
+

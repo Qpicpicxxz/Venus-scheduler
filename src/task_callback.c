@@ -1,6 +1,7 @@
+#include "hw/blockcsr.h"
 #include "task.h"
-#define SIM_RESULT_LEN 4
 
+#define SIM_RESULT_LEN 4
 /* dma.c */
 extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
 
@@ -8,17 +9,38 @@ extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t*
 static block_t* cur_block;
 
 static inline void alloc_result(void) {
-  // prpare return result's store space in advance
-  uint32_t alloc_addr = (uint32_t)malloc(SIM_RESULT_LEN);
-  actor_t* actor      = cur_block->actor;
+  actor_t* actor = cur_block->actor;
+  uint32_t alloc_addr;
+  block_t* pseudo_block = NULL;
+  data_t* data;
 
-  data_t* data = malloc(sizeof(data_t));
-  data->ptr    = alloc_addr;         // data pointer
-  data->len    = SIM_RESULT_LEN;  // data length
-  data->cnt    = actor->nxt_num;     // data lifecycle
+  // TODO: Decide what's in NumRetReg (this verison suppose just one batch of results)
+  // TODO: For now, VenusBlock_RetAddr and VenusBlock_RetLen is just an offset, should be modified later
+  for (int i = 0; actor->out[i][0] != NULL; i++) {
+#ifndef SIMULATE_QEMU
+    uint32_t RetAddr = read_burst(VenusBlock_CSR, VenusBlock_RetAddr(i));
+    uint32_t RetLen  = read_busrt(VenusBlock_CSR, VenusBlock_RetLen(i));
+#else
+    uint32_t RetAddr = VenusBlock_RetAddr(i);
+    uint32_t RetLen  = VenusBlock_RetLen(i);
+#endif
 
-  // inform DMA
-  dma_transfer_link(alloc_addr, DATA1_ADDR, SIM_RESULT_LEN, cur_block, data);
+    alloc_addr = (uint32_t)malloc(RetLen);
+    data       = (data_t*)malloc(sizeof(data));
+    data->ptr  = alloc_addr;
+    data->len  = RetLen;
+    data->cnt  = 0;
+    for (int j = 0; actor->out[i][j] != NULL; j++)
+      data->cnt++;
+    // if its the last data packet
+    if (actor->out[i + 1][0] == NULL)
+      // TODO: Under the pratical circumstance, should be
+      // RetAddr_i = read_burst(VenusBlock_CSR, VenusBlock_RetAddr(i));
+      // RetLen_i = read_busrt(VenusBlock_CSR, VenusBlock_RetLen(i));
+      dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, data);
+    else
+      dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, data);
+  }
 }
 
 void block_handler(block_t* n_block) {
