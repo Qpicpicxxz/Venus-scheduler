@@ -33,10 +33,10 @@ void mask_irq(uint32_t mask){
 
 
 /* In start.S: a0 --> *regs  a1 --> cause(q1) */
-void irq_handler(reg_t* regs, reg_t cause) {
+uint32_t *irq_handler(reg_t* regs, reg_t cause) {
 
-  irq_mask = irq_mask | cause;
-  mask_irq(irq_mask);
+  // irq_mask = irq_mask | cause;
+  // mask_irq(irq_mask);
   if ((cause & (1 << IRQ_BADINSTR)) || (cause & (1 << IRQ_MEMERROR))) {
     uint32_t pc    = (regs[0] & 1) ? regs[0] - 3 : regs[0] - 4;
     uint32_t instr = *(uint32_t*)pc;
@@ -74,8 +74,9 @@ void irq_handler(reg_t* regs, reg_t cause) {
     irq_callback[IRQ_BLOCK]();
   }
   
-  irq_mask = irq_mask & (~cause); // unmask the finished interrupt
-  mask_irq(irq_mask);
+  // irq_mask = irq_mask & (~cause); // unmask the finished interrupt
+  // mask_irq(irq_mask);
+  return regs;
 }
 
 void irq_init(void) {
