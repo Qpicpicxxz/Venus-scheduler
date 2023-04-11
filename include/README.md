@@ -80,8 +80,9 @@ list_t* result_1_list = (list_t*)fifo_out_list->head->next->item;  // 各个返�
 ```
 fifo_t* token_fifo = (fifo_t*)result_1_list->head->next->item;  // 即可定位到各个fifo (DAG图的各个edge)
 ```
-<p>好处：最灵活，根据此task的实际性质动态添加</p>
-<p>坏处：代码写着很麻烦，一直在寻址</p>
+优点：最灵活，根据此task的实际性质动态添加，内存利用率高
+
+缺点：一直在寻址，每一次`->`对应于cpu都是一次`lw`操作，查找速度相对于数组较慢
 </br>
 
 **2. 出度和不同的返回值都设置成定长的数组**
@@ -94,8 +95,12 @@ fifo_t* result_1 = fifo_out[0][MAXIO];
 ```
 fifo_t* token_fifo = result_1[0];
 ```
-<p>好处：查找快，代码书写方便</p>
-<p>坏处：<code>MAXRES</code>和<code>MAXIO</code>是固定的，内存利用率不高</p>
+优点：查找快，代码书写方便
+
+缺点：`MAXRES`和`MAXIO`是固定的，内存利用率不高
+
+然后因为在数组中，我是需要通过`array[n] == NULL`来判断当前数组的尾部的，而`malloc()`并不保证分配的内存是干净的
+也就是说我在初始化动态创建actor的时候需要清空数组，如果`MAXRES``MAXIN``MAXOUT`很大的话，这个开销也挺大
 </br>
 
   **3. 出度和不同的返回值都设置成不定长的数组**
@@ -115,8 +120,8 @@ fifo_t* result_1 = fifo_out[0][MAXIO];
 ```
 fifo_t* token_fifo = result_1[0];
 ```
-<p>好处：查找快，内存利用率高</p>
-<p>坏处：需要程序员在创建actor的时候就输入此actor的入度出度情况，不能根据后续的<code>edge_make</code>函数来自动判断</p>
+<p>优点：查找快，内存利用率高</p>
+<p>缺点：需要程序员在创建actor的时候就输入此actor的入度出度情况，不能根据后续的<code>edge_make</code>函数来自动判断</p>
 
 ***
 ### **👾Tips: 设计struct的时候可以考虑结构体的占用空间**
