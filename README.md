@@ -32,6 +32,8 @@
 │   │   └── phy.h
 │   ├── fifo.h          // define data && fifo && queue structure type
 │   ├── font.h          // font style for printf
+│   ├── hw              // venus block address map definitions
+│   │   └── blockcsr.h  // block's Control Register
 │   ├── linkedlist.h    // header file of linked list
 │   ├── platform.h      // define machine's physical property
 │   ├── README.md	// introduce all the struct descriptor

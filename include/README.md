@@ -1,23 +1,25 @@
 ### **🦆描述符结构**
-***
+---
 **fifo.h**
 ```
 typedef struct data {
-  uint32_t ptr
-  uint32_t len
-  uint32_t cnt
+  uint32_t ptr  // 数据地址指针
+  uint32_t len  // 数据长度
+  uint32_t cnt  // 数据生命周期(决定什么时候可以在DDR中释放这个数据内存)
 } data_t
 ```
 ```
 typedef struct fifo {
-  data_t* data[MAXFIFO]
-  uint32_t ptr
+  data_t* data[MAXFIFO]  // fifo里的一个data_t*代表一份数据依赖
+  uint8_t wptr
+  uint8_t rptr
 } fifo_t
 ```
 ```
 typedef struct queue {
-  uint32_t addr
-  uint32_t ptr
+  uint32_t addr  // 简陋的fifo，用来装block的，后面可能不要了
+  uint8_t wptr
+  uint8_t rptr
 } queue_t
 ```
 **linkedList.h**
@@ -26,7 +28,7 @@ typedef struct node {
   uint32_t item
   node_t* prev
   node_t* next
-} node_t
+} node_t   // 双向链表，拥有头、尾指针
 ```
 ```
 typedef struct list {
@@ -37,35 +39,32 @@ typedef struct list {
 **actor.h**
 ```
 typedef struct actor {
-  fifo_t* in[MAXIO]
-  uint32_t dep_num
-  fifo_t* out[MAXIO]
-  uint32_t nxt_num
-  uint32_t result_len
-  uint32_t task_addr
-  uint32_t task_len
-  list_t* fire_list
-  list_t* linger_list
-} actor_t
+  fifo_t* in[MAXIN]            // [依赖个数]
+  fifo_t* out[MAXRES][MAXOUT]  // [返回值个数][后继个数]
+  uint32_t task_addr           // 代码地址
+  uint32_t task_len            // 代码长度
+  list_t* fire_list            // 发射顺序
+  list_t* linger_list          // 返回顺序
+} actor_t;
 ```
 ```
 typedef struct ready {
-  uint32_t actor_addr
-  list_t* dep_list
+  uint32_t actor_addr          // 可以fire的actor的地址
+  list_t* dep_list             // 该actor的依赖们
 } ready_t
 ```
 **block.h**
 ```
 typedef struct block {
-  uint32_t flags
-  uint32_t spm_addr
-  actor_t* actor
+  uint32_t flags              // 该block的一些当前状态
+  uint32_t spm_addr           // 定位该block的基地址
+  actor_t* actor              // 该block正在执行的actor
 } block_t
 ```
 ```
 typedef struct linger {
-  block_t* block
-  data_t* data
+  block_t* block              // actor本批次执行的block
+  list_t* data_list           // actor本批次返回的数据(多返回值是用链表串起来的)
 } linger_t
 ```
 ---
