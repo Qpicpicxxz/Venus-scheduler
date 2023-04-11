@@ -1,8 +1,4 @@
-#include "common.h"
-
-/*
- * ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
- */
+#include "types.h"
 
 extern void uart_puts(char* s);
 
@@ -142,7 +138,7 @@ static int _vprintf(const char* s, va_list vl) {
   return res;
 }
 
-// support %p, %s, %d, %x, %lx only
+// support %p, %s, %d, %x only
 int printf(const char* s, ...) {
   int res = 0;
   va_list vl;

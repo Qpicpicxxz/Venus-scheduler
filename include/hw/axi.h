@@ -1,5 +1,5 @@
-#ifndef __DMA_AXI_H__
-#define __DMA_AXI_H__
+#ifndef __HW_AXI_H__
+#define __HW_AXI_H__
 
 /*
  * Destination / Source Transfer Width [P.156]
@@ -14,5 +14,5 @@
 #define AXI4_BURST_SIZE_32_BYTE 0b101
 #define AXI4_BURST_SIZE_64_BYTE 0b110
 
-#endif /* __DMA_AXI_H__ */
+#endif /* __HW_AXI_H__ */
 
