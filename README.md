@@ -8,6 +8,13 @@
 1.  `uart_puts`(一定要加\n)
 2.  `printf`(仅支持%p, %s, %d, %x)
 3.  `assert`(支持打印assert failed的文件以及行号)
-4.  暂停vcs仿真：`uart_puts("$stop\n")`
-5.  请求调试器：`asm volatile("ebreak");`
+   `assert`能正常打印，但是仿真器报了个错，但依旧能执行
+```
+Error at 500017.659000 ns: Violate rule (1) -   1MHz <= XIN/N <= 50MHz; XIN/N =600.240096MHz
+****************************************************
+Error at 500017.659000 ns: Violate rule (1) -   1MHz <= XIN/N <= 50MHz; XIN/N =266.524520MHz
+```
+4.  暂停vcs仿真：`uart_puts("$stop\n")` (暂停不了，用`ebreak`吧)
+5.  请求调试器：`asm volatile("ebreak")`
+
 
