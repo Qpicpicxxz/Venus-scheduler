@@ -12,34 +12,3 @@ OBJDUMP = ${CROSS_COMPILE}objdump
 NM = ${CROSS_COMPILE}nm
 MAKEFLAGS += --silent
 
-SRCS_ASM = \
-				 $(SOURCE)irq_vector.S \
-				 $(SOURCE)start.S \
-				 $(SOURCE)mem.S \
-				 $(SOURCE)hal.S
-
-
-SRCS_C = \
-				 $(SOURCE)kernel.c \
-				 $(SOURCE)ulib.c  \
-				 $(SOURCE)mem_block.c \
-				 $(SOURCE)mem_alloc.c \
-				 $(SOURCE)mem_free.c \
-				 $(SOURCE)linked_list.c \
-				 $(SOURCE)irq.c  \
-				 $(SOURCE)fifo.c \
-				 $(SOURCE)main.c \
-				 $(SOURCE)dma.c \
-				 $(SOURCE)task_callback.c \
-				 $(SOURCE)actor_init.c \
-				 $(SOURCE)fire_check.c	\
-				 $(SOURCE)actor_create.c 
-				 
-SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
-
-SRCS_TASKS :=\
-		task1.c \
-		task2.c \
-		task3.c 
-
-.DEFAULT_GOAL := all

@@ -1,5 +1,3 @@
-#include "platform.h"
-
 OUTPUT_ARCH( "riscv" )
 MEMORY
 {
@@ -48,13 +46,6 @@ SECTIONS
 		*(.task3)
 		PROVIDE(_task3_end = .);
 	} >ram
-
-/*	.[taskName] :{
-		PROVIDE(_[taskName]_start = .);
-		*(.[taskName])
-		PROVIDE(_[taskName]_end = .);
-	} >ram
-*/
 
 	.bss :{
 		PROVIDE(_bss_start = .);

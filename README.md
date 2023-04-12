@@ -2,7 +2,7 @@
 ###  This is a scheduler for VENUS: A Wireless Multi-core Processing Unit for 5G baseband
 
 ### PicoRV32分支
-1. pico测试只支持中断触发，此版本检测到irq=0x1000的中断即认为是block1发生的，未考虑DMA中断
+1. pico测试只支持中断触发，此版本检测到irq=0x1000的中断即认为是block1发生的，irq=0x0100中断认为是DMA发生的
 2. 服务器python会报错，按理来说是这个属性python3.2之后就支持了，因此服务器上跑不起来python脚本，此分支里预存了模拟的三个task_bin.c
 ```
 Traceback (most recent call last):
@@ -79,22 +79,22 @@ irq_vec:
 ```
   4. 触发中断方式
   ```
-  initial begin
-  irq = 32'h0;
-  repeat(300000) @(posedge clk);   // 至少得300,000个时钟周期，留给scheduler初始化软件代码
-  $display("[%t]: testbench: issuing an interrupt",$time);
-  $stop;
-  irq = 32'h16;                    // 拉高Block中断信号 0x1000
-  repeat(10) @(posedge clk);
-  $stop;
-  irq = 32'h0;                     // 清空外部中断
-  repeat(100000) @(posedge clk);
-  $finish;
+initial begin
+	irq = 32'h0;
+  repeat(10000) @(posedge clk);
+	$display("[%t]: testbench: issuing an interrupt",$time);
+	irq = 32'h10;     		   //拉高BLOCK中断信号
+	repeat(20) @(posedge clk);
+  irq = 32'h8;            //在BLOCK中断回调的时候产生的新的中断，PicoRV32不予理会且不会记录
+	repeat(20) @(posedge clk);
+	irq = 32'h0;
+  repeat(2000) @(posedge clk);
+	$finish;
 end
 ```
 5. 编译出vcs仿真需要的`os.bin`
 ```
-make code
+make irq
 ```
 6. 编译完成后会生成`objdump.txt`文件，可查看反汇编
 7. 中断端口定义
@@ -127,7 +127,7 @@ void enable_irq(uint32_t irq) {
 		and t0, t0, a0
 		picorv32_maskirq_insn(zero, t0) # write back new value
 		ret
-	
+
 	# '1' means to diable the interrupt
 	DIS_Interrupts:
 		not t0, zero
@@ -136,3 +136,24 @@ void enable_irq(uint32_t irq) {
 		picorv32_maskirq_insn(zero, t0)
 		ret
 ```
+9.上下文保存和恢复的寄存器(calling convention里需要caller保存的寄存器)
+
+| Register | ABI  | Use by convention                  |
+| :------- | :--- | :--------------------------------- |
+| x1       | ra   | Return address                     |
+| x2       | sp   | Stack pointer                      |
+| x5       | t0   | Temporary register0                |
+| x6       | t1   | Temporary register1                |
+| x7       | t2   | Temporary register2                |
+| x10      | a0   | Function arguments / Return values |
+| x11      | a1   | Function arguments                 |
+| x12      | a2   | Saved registers                    |
+| x13      | a3   | Saved registers                    |
+| x14      | a4   | Saved registers                    |
+| x15      | a5   | Saved registers                    |
+| x16      | a6   | Saved registers                    |
+| x17      | a7   | Saved registers                    |
+| x28      | ft8  | FP saved registers                 |
+| x29      | ft9  | FP saved registers                 |
+| x30      | ft10 | FP saved registers                 |
+| x31      | ft11 | FP saved registers                 |

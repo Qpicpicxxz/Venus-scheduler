@@ -1,11 +1,15 @@
-#include "common.h"
 #include "hal.h"
 
 /* task_callback.c */
 extern void block_handler(uint32_t block_index);
+extern void dma_handler(void);
 
 void IRQ_blockhandler(void) {
   block_handler(1);
+}
+
+void IRQ_dmahandler(void) {
+  dma_handler();
 }
 
 /* global variable to save irq mask values */
@@ -65,6 +69,7 @@ uint32_t *irq_handler(reg_t* regs, reg_t cause) {
   }
 
   if (cause & (1 << IRQ_DMA)) {
+    irq_callback[IRQ_DMA]();
     // DMA Interrupt
   }
 
@@ -81,7 +86,9 @@ uint32_t *irq_handler(reg_t* regs, reg_t cause) {
 
 void irq_init(void) {
   set_handler(IRQ_BLOCK, IRQ_blockhandler);
+  set_handler(IRQ_DMA, IRQ_dmahandler);
   enable_irq(IRQ_BLOCK);
+  enable_irq(IRQ_DMA);
   enable_irq(IRQ_MEMERROR);
   enable_irq(IRQ_BADINSTR);
 }
