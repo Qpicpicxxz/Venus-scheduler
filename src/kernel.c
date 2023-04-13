@@ -1,22 +1,37 @@
 #include "assert.h"
 #include "types.h"
 
+extern void devctrl_init(void);
+extern void venus_uart_init(void);
+extern void irq_init(void);
+
 extern int printf(const char* s, ...);
 extern void uart_init(void);
 extern void uart_putc(char ch);
 extern void uart_puts(char* s);
-extern void devctrl_init(void);
-void test(void);
+void test_uart(void);
+void test_irq(void);
 
 void start_kernel(void) {
   // 1. 解开 Venus DMA 以及所有的 Venus Block 的硬复位
   devctrl_init();
   // 2. Scheduler 初始化配置 Venus(self + blocks) 的 UART (actual sence only)
   // venus_uart_init();
-  test();
+  // 3. Scheduler 初始化interrupt (unmask开启需要Venus使用的中断位)
+  irq_init();
+  
+  
+  
+  
+  // test_uart();
+  test_irq();
 }
 
-void test(void) {
+void test_irq(void) {
+  asm volatile("ebreak");
+}
+
+void test_uart(void) {
   /* UART + printf + $stop + assert test */
   printf("Test printf $stop\n");
   uart_puts("Test uart transmit string $stop\n");

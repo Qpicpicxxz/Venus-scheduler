@@ -11,12 +11,15 @@ NM = ${CROSS_COMPILE}nm
 MAKEFLAGS += --silent
 
 SRCS_ASM = \
-		$(SOURCE)start.S 
+		$(SOURCE)irq_vector.S \
+		$(SOURCE)start.S \
+		$(SOURCE)hal.S
 
 SRCS_C = \
 		$(SOURCE)kernel.c \
 		$(SOURCE)uart.c \
 		$(SOURCE)devctrl.c \
 		$(SOURCE)printf.c \
-		$(SOURCE)ulib.c
+		$(SOURCE)ulib.c \
+		$(SOURCE)irq.c
 		

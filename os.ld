@@ -10,11 +10,15 @@ MEMORY
 SECTIONS
 {
 	.text : {
-		PROVIDE(_text_start = .);
+		. = 0x00000000;
+		*(.startup)
+		KEEP (*(.startup))
+		. = 0x00000020;
+		*(.startirq)
+		KEEP (*(.startirq))
 		*(.text .text.*)
-		PROVIDE(_text_end = .);
 	} >ram
-
+	
 	.rodata : {
 		PROVIDE(_rodata_start = .);
 		*(.rodata .rodata.*)
