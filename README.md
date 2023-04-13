@@ -14,7 +14,7 @@ Error at 500017.659000 ns: Violate rule (1) -   1MHz <= XIN/N <= 50MHz; XIN/N =6
 ****************************************************
 Error at 500017.659000 ns: Violate rule (1) -   1MHz <= XIN/N <= 50MHz; XIN/N =266.524520MHz
 ```
-4.  暂停vcs仿真：`uart_puts("$stop\n")` (暂停不了，用`ebreak`吧)
+4.  暂停vcs仿真：`uart_puts("$stop\n")` `printf("..... $stop\n");`
 5.  请求调试器：`asm volatile("ebreak")`
 
 
