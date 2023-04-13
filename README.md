@@ -18,7 +18,7 @@ picorv32 #(
       .ENABLE_DIV     (1),
       .ENABLE_IRQ     (1),
       .MASKED_IRQ     (32'h 0000_0000),                  // 中断永久禁用掩码
-      .LATCHED_IRQ    (32'h 0000_0000),                  // 核是否锁存中断掩码
+      .LATCHED_IRQ    (32'h 0000_0007),                  // 核是否锁存中断掩码
       .PROGADDR_RESET (PROGADDR_RESET),                  // 上电程序入口地址
       .PROGADDR_IRQ   (PROGADDR_RESET + 32'h 0000_0020), // 中断向量入口地址
       .STACKADDR      (32'h ffff_ffff)                   // 满递减堆栈
