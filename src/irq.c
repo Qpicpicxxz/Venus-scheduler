@@ -1,5 +1,6 @@
 #include "hal.h"
 extern int printf(const char* s, ...);
+extern void DMAC_interrupt_handler(void);
 
 void IRQ_CLUSTER0_handler(void) {
   printf("CLUATER 0 Interrupt! $stop\n");
@@ -27,7 +28,8 @@ void IRQ_CLUSTER7_handler(void) {
 }
 
 void IRQ_DMA_handler(void) {
-  printf("DMA Interrupt! $stop\n");
+  // printf("DMA Interrupt! $stop\n");
+  DMAC_interrupt_handler();
 }
 
 /* global variable to save irq mask values */
@@ -64,14 +66,14 @@ uint32_t* irq_handler(reg_t* regs, reg_t cause) {
 
     if (cause & (1 << PICO_IRQ_BADINSTR)) {
       if (instr == 0x00100073 || instr == 0x9002) {
-        printf("[SCHEDULER] EBREAK instruction at %p $stop\n", pc);
+        printf("EBREAK instruction at %p $stop\n", pc);
       } else {
-        printf("[SCHEDULER] Illegal instruction at %p $stop\n", pc);
+        printf("Illegal instruction at %p $stop\n", pc);
       }
     }
 
     if (cause & (1 << PICO_IRQ_MEMERROR)) {
-      printf("[SCHEDULER] Bus error in Instruction at %p $stop\n", pc);
+      printf("Bus error in Instruction at %p $stop\n", pc);
     }
   }
 

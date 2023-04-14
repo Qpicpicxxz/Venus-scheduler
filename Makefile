@@ -25,7 +25,7 @@ $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c
 .PHONY : venus
 venus: os.elf	
 	@${OBJCOPY} -O binary os.elf os.bin
-	@${OBJDUMP} --disassemble-all os.elf > objdump.txt
+	@${OBJDUMP} -d os.elf > objdump.txt
 	@hexdump os.bin > bin.txt
 	
 
@@ -33,6 +33,8 @@ venus: os.elf
 .PHONY : clean
 clean:
 	rm -rf *.o *.bin *.elf *.txt *.out *.map
+	@cd src && rm -rf *.o *.bin *.elf *.txt
+	@cd src/dma && rm -rf *.o *.bin *.elf *.txt
 
 
 

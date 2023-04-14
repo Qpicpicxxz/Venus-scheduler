@@ -1,9 +1,10 @@
-#include "assert.h"
-#include "types.h"
+#include "common.h"
 
 extern void devctrl_init(void);
 extern void venus_uart_init(void);
 extern void irq_init(void);
+extern void dma_init(void);
+extern void heap_init(void);
 
 extern int printf(const char* s, ...);
 extern void uart_init(void);
@@ -11,7 +12,9 @@ extern void uart_putc(char ch);
 extern void uart_puts(char* s);
 void test_uart(void);
 void test_irq(void);
+extern void dma_scheduler_test(void);
 
+/* venus/src/testbench/test_venus_scheduler_core.sv */
 void start_kernel(void) {
   // 1. 解开 Venus DMA 以及所有的 Venus Block 的硬复位
   devctrl_init();
@@ -19,13 +22,15 @@ void start_kernel(void) {
   // venus_uart_init();
   // 3. Scheduler 初始化interrupt (unmask开启需要Venus使用的中断位)
   irq_init();
-  
-  
-  
-  
+  dma_init();
+  heap_init();
+  // vcs_stop();
   // test_uart();
-  test_irq();
+  // test_irq();
+  dma_scheduler_test();
 }
+
+
 
 void test_irq(void) {
   asm volatile("ebreak");

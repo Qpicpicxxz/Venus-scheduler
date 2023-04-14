@@ -7,7 +7,9 @@
  * 才会将先前收到的字符一起打印到CONSOLE上，
  * 并自动换行，无需额外在软件中换行
  */
+/* uart.c */
 extern void uart_puts(char* s);
+extern void uart_putc(char ch);
 
 static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
   int format  = 0;
@@ -153,5 +155,17 @@ int printf(const char* s, ...) {
   res = _vprintf(s, vl);
   va_end(vl);
   return res;
+}
+
+void print_memory(void* ptr, size_t size) {
+  uint8_t* byte_ptr = (uint8_t*)ptr;
+  for (size_t i = 0; i < size; i++) {
+    for (int j = 7; j >= 0; j--) {
+      uint8_t bit = ((*byte_ptr) >> j) & 0x01;
+      uart_putc(bit ? '1' : '0');
+    }
+    uart_putc(10);
+    byte_ptr++;
+  }
 }
 

@@ -1,8 +1,8 @@
 
 .section .text
 	.equ KERNAL_STACK, 1024	# stack size for kernel start
+	
 	.global	_start
-
 _start:
 	# Initialize all registers with 0
 	addi	x1, zero, 0
@@ -44,8 +44,25 @@ _start:
 	add	sp, sp, t0
 
 	j	start_kernel		# hart 0 jump to c
-
-	.section .bss.stack
+	
+	.global vcs_stop
+vcs_stop:
+	li      x20,0x10011000
+	li      x12,0x24 #"$"
+	sw      x12,0x0(x20) #"$"
+	li      x12,0x73 #"s"
+	sw      x12,0x0(x20) #"s"
+	li      x12,0x74 #"t"
+	sw      x12,0x0(x20) #"t"
+	li      x12,0x6f #"o"
+	sw      x12,0x0(x20) #"o"
+	li      x12,0x70 #"p"
+	sw      x12,0x0(x20) #"p"
+	li      x12,0x0 #"\0"
+	sw      x12,0x0(x20) #"\0" 
+	ret
+	
+.section .bss.stack
 
 	.globl _stack_start
 _stack_start:

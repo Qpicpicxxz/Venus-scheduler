@@ -35,7 +35,7 @@ uint8_t uart_revc_sw(uint32_t uart_addr) {
   uint32_t receive_fifo_level = READ_BURST_32(uart_addr, UART_RFL_OFFSET);
   while (receive_fifo_level == 0) {
     delay(100000);
-    printf("[Hardware] VENUS_SOC_CPU: WARNING! uart_receive_byte timeout! uart_addr=%d", uart_addr);
+    printf("VENUS_SOC_CPU: Uart_receive_byte timeout! uart_addr = %d", uart_addr);
     return -1;
   }
   return (uint8_t)READ_BURST_32(uart_addr, UART_RBR_OFFSET);
@@ -45,22 +45,22 @@ void uart_irq_handler(uint32_t uart_addr) {
   uint8_t iid = (uint8_t)READ_BURST_32(uart_addr, UART_IIR_OFFSET);
   switch (iid) {
   case 0b0000:
-    printf("[Hardware] VENUS_SOC_CPU: modem status interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: modem status interrupt detected! $stop\n");
   case 0b0010:
-    printf("[Hardware] VENUS_SOC_CPU: THR empty interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: THR empty interrupt detected! $stop\n");
   case 0b0100: {
-    printf("[Hardware] VENUS_SOC_CPU: received data available interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: received data available interrupt detected! $stop\n");
     uint8_t receive_data_byte = uart_recvc(uart_addr);
-    printf("[Hardware] VENUS_SOC_UART0: recv char is: %s $stop\n", receive_data_byte);
+    printf("[VENUS_SOC_UART0: recv char is: %s $stop\n", receive_data_byte);
   }
   case 0b0110:
-    printf("[Hardware] VENUS_SOC_CPU: receiver line status interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: receiver line status interrupt detected! $stop\n");
   case 0b0111:
-    printf("[Hardware] VENUS_SOC_CPU: busy detect interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: busy detect interrupt detected! $stop\n");
   case 0b1100:
-    printf("[Hardware] VENUS_SOC_CPU: character timeout interrupt detected! $stop\n");
+    printf("VENUS_SOC_CPU: character timeout interrupt detected! $stop\n");
   default:
-    printf("[Hardware] VENUS_SOC_CPU: unknown uart interrupt type! $stop\n");
+    printf("VENUS_SOC_CPU: unknown uart interrupt type! $stop\n");
   }
 }
 

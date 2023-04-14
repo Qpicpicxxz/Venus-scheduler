@@ -53,9 +53,9 @@
 
 #define BLOCK_OFFSET(K) (K << 22)
 
-#define BLOCK_ISPM_OFFSET      0x00000000UL  // 1MB for each
-#define BLOCK_SDSPM_OFFSET     0x00100000UL  // 1MB for each
-#define BLOCK_VDSPM_OFFSET     0x00200000UL  // 1MB for each
+#define BLOCK_ISPM_OFFSET      0x00000000UL  // 1MB for each - Instruction
+#define BLOCK_SDSPM_OFFSET     0x00100000UL  // 1MB for each - Scalar
+#define BLOCK_VDSPM_OFFSET     0x00200000UL  // 1MB for each - Vector
 #define BLOCK_CTRLREGS_OFFSET  0x00300000UL
 #define BLOCK_DEBUGUART_OFFSET 0x00300200UL
 
@@ -72,3 +72,4 @@
 #define NUM_CLUSTERS 8
 
 #endif /* __HW_ADDRESSMAP_H__ */
+

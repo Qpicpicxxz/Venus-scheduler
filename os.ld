@@ -2,6 +2,7 @@ OUTPUT_ARCH( "riscv" )
 
 ENTRY( _start )
 
+# venus/src/rtl/venus/scheduler/scheduler_core_wrapper.sv
 MEMORY
 {
 	ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M
@@ -10,6 +11,7 @@ MEMORY
 SECTIONS
 {
 	.text : {
+		PROVIDE(_text_start = .);
 		. = 0x00000000;
 		*(.startup)
 		KEEP (*(.startup))
@@ -17,8 +19,9 @@ SECTIONS
 		*(.startirq)
 		KEEP (*(.startirq))
 		*(.text .text.*)
+		PROVIDE(_text_end = .);
 	} >ram
-	
+
 	.rodata : {
 		PROVIDE(_rodata_start = .);
 		*(.rodata .rodata.*)
@@ -33,7 +36,7 @@ SECTIONS
 		*(.data .data.*)
 		PROVIDE(_data_end = .);
 	} >ram
-	
+
 # python end jacklight
 
 	.bss :{
@@ -44,4 +47,11 @@ SECTIONS
 		*(COMMON)
 		PROVIDE(_bss_end = .);
 	} >ram
+		
+	PROVIDE(_memory_start = ORIGIN(ram));
+	PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
+
+	PROVIDE(_heap_start = _bss_end);
+	PROVIDE(_heap_size = _memory_end - _heap_start);
 }
+
