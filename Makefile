@@ -1,18 +1,13 @@
 include ./common.mk
+include ./scheduler.mk
 
-all: os.elf
-
-OBJS = $(SRCS_ASM:.S=.o)
-OBJS += $(SRCS_C:.c=.o)
+all: venus
 
 # start.o must be the first in dependency!
 os.elf: ${OBJS}
-	@echo "  *.o os.ld ---> os.elf"
-	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS} -lc
+	@${CC} ${CFLAGS} -T os.ld -Wl,--no-warn-rwx-segments -o os.elf ${OBJS}  $< -lc
 
-$(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c 
-	@${CC} ${CFLAGS} -c -o $@ $<
-	@echo "  $< ---> $@"
+${OBJS}: task-compile
 
 %.o : %.c 
 	@${CC} ${CFLAGS} -c -o $@ $<
@@ -22,19 +17,26 @@ $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c
 	@${CC} ${CFLAGS} -c -o $@ $<
 	@echo "  $< ---> $@"
 
+
+.PHNOY: task-compile
+task-compile:
+	@cd task && ${MAKE} all
+	@echo ""
+	@echo "  ========== COMPILE SCHEDULER ========="
+	@echo ""
+
 .PHONY : venus
 venus: os.elf	
 	@${OBJCOPY} -O binary os.elf os.bin
-	@${OBJDUMP} -d os.elf > objdump.txt
+	@${OBJDUMP} --disassemble-all os.elf > objdump.txt
 	@hexdump os.bin > bin.txt
 	
-
-
 .PHONY : clean
 clean:
-	rm -rf *.o *.bin *.elf *.txt *.out *.map
-	@cd src && rm -rf *.o *.bin *.elf *.txt
+	rm -rf *.o *.bin *.elf *.txt *.out *.map *.zip *_bin.c
+	@cd src && rm -rf *.o *.bin *.elf *.txt *_bin.c
 	@cd src/dma && rm -rf *.o *.bin *.elf *.txt
+	@cd task && ${MAKE} clean
 
 
 

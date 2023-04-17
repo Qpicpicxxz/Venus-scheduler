@@ -1,5 +1,5 @@
-#ifndef __BLOCKCSR_H_
-#define __BLOCKCSR_H_
+#ifndef __TASK_CTRLREGS_H_
+#define __TASK_CTRLREGS_H_
 
 /* Venus Block Control Register Map */
 #define VENUSBLOCK_CFGREG_OFFSET       0x00
@@ -21,5 +21,13 @@
 #define REG_RSTVAL_VENUSBLOCK_RETADDRREG   0x00000000
 #define REG_RSTVAL_VENUSBLOCK_RETLENREG    0x00000000
 
-#endif /* __BLOCKCSR_H_ */
+/* In VenusBlock_CfgReg */
+#define SOFT_RST_CTRL(i) (i << 0)
+#define WAIT_WB_FLAG(i)  (i << 1)
+
+/* In VenusBlock_IntStatusReg */
+#define EXEC_COMPLETE_IRQ(i) (i << 0)
+#define DEBUG_UART_IRQ(i)    (i << 7)
+
+#endif /* __TASK_CTRLREGS_H_ */
 

@@ -10,6 +10,7 @@ extern int printf(const char* s, ...);
 extern void uart_init(void);
 extern void uart_putc(char ch);
 extern void uart_puts(char* s);
+extern void vcs_stop();
 void test_uart(void);
 void test_irq(void);
 extern void dma_scheduler_test(void);
@@ -25,21 +26,24 @@ void start_kernel(void) {
   dma_init();
   heap_init();
   // vcs_stop();
+  // vcs_stop();
   // test_uart();
   // test_irq();
   dma_scheduler_test();
+  while(1){};
 }
-
-
 
 void test_irq(void) {
   asm volatile("ebreak");
+  while(1){};
 }
 
 void test_uart(void) {
+  // vcs_stop();
   /* UART + printf + $stop + assert test */
+  // printf("Test printf $stop\n");
+  uart_puts("$stop\n");
   printf("Test printf $stop\n");
-  uart_puts("Test uart transmit string $stop\n");
   uart_putc(0x24);
   uart_putc(0x73);
   uart_putc(0x74);

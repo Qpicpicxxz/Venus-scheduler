@@ -8,8 +8,8 @@
 
 /* Function: Transmit a byte */
 void uart_putc(char ch) {
-  // Option 1. 读取FIFO(缓冲区)中的字节数，并与FIFO深度比较，如果填充水平小于FIFO深度，则说明FIFO有可用空间，可以继续发送数据。
-  while (READ_BURST_32(VENUS_DEBUG_UART_ADDR, UART_TFL_OFFSET) < UART_FIFO_DEPTH)
+  // Option 1. 读取FIFO(缓冲区)中的字节数，并与FIFO深度比较，如果填充水平大于FIFO深度，则说明FIFO有可用空间，可以继续发送数据。
+  while (READ_BURST_32(VENUS_DEBUG_UART_ADDR, UART_TFL_OFFSET) > UART_FIFO_DEPTH)
     ;
   // Option 2. 读取LSR寄存器，并检查第五位(THRE)，该位可以指示FIFO缓冲区是否为空，如果THRE位为1，则说明FIFO有可用空间。因为LSR中含有缓冲区的其它信息，如果后续要用的话可以直接读这个。
   // uint32_t lsr = READ_BURST_32(VENUS_DEBUG_UART_ADDR, UART_LSR_OFFSET);
@@ -83,7 +83,7 @@ void uart_init(uint32_t uart_addr) {
 
 void venus_uart_init(void) {
   // Scheduler config itself debug uart
-  uart_init(SOC_UART0_ADDR);
+  uart_init(VENUS_DEBUG_UART_ADDR);
   // Scheduler config all the block's debug uart
   for (int i = 0; i < NUM_BLOCKS; i++) {
     for (int j = 0; j < NUM_CLUSTERS; j++) {

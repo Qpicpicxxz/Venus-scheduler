@@ -1,9 +1,17 @@
+#include "hw/addressmap.h"
+#include "hw/blockcsr.h"
 #include "hal.h"
+#include "ulib.h"
+
 extern int printf(const char* s, ...);
 extern void DMAC_interrupt_handler(void);
 
 void IRQ_CLUSTER0_handler(void) {
-  printf("CLUATER 0 Interrupt! $stop\n");
+  for (int i = 0; i < NUM_BLOCKS; i++) {
+    if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+      printf("[0,%d] b_irq $stop\n", i);
+    }
+  }
 }
 void IRQ_CLUSTER1_handler(void) {
   printf("CLUATER 1 Interrupt! $stop\n");
@@ -28,7 +36,7 @@ void IRQ_CLUSTER7_handler(void) {
 }
 
 void IRQ_DMA_handler(void) {
-  // printf("DMA Interrupt! $stop\n");
+  printf("DMA IRQ $stop!\n");
   DMAC_interrupt_handler();
 }
 
@@ -66,14 +74,14 @@ uint32_t* irq_handler(reg_t* regs, reg_t cause) {
 
     if (cause & (1 << PICO_IRQ_BADINSTR)) {
       if (instr == 0x00100073 || instr == 0x9002) {
-        printf("EBREAK instruction at %p $stop\n", pc);
+        printf("[SCHEDULER] EBREAK instruction at %p $stop\n", pc);
       } else {
-        printf("Illegal instruction at %p $stop\n", pc);
+        printf("[SCHEDULER] Illegal instruction at %p $stop\n", pc);
       }
     }
 
     if (cause & (1 << PICO_IRQ_MEMERROR)) {
-      printf("Bus error in Instruction at %p $stop\n", pc);
+      printf("[SCHEDULER] Bus error in Instruction at %p $stop\n", pc);
     }
   }
 

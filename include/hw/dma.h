@@ -35,6 +35,7 @@
 
 #define DMA_MAX_TRANSFER_LENGTH (2048 * 8)
 #define DMAC_NUMBER_OF_CHANNELS 8
+#define EN_SOFT_RST             0x1
 
 #endif /* __HW_DMA_H__ */
 

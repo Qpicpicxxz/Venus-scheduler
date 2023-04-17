@@ -1,13 +1,7 @@
 #include "types.h"
 
-/*
- * 在通过写UART将软件的printf打印到DVE CONSOLE时
- * UART将首先对输入的字符进行记录，
- * 在遇到NUL(0x00) | EOT（0x04）| CR(0x0D) | LF(0x0A)后
- * 才会将先前收到的字符一起打印到CONSOLE上，
- * 并自动换行，无需额外在软件中换行
- * Ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c
- */
+/* Ref: https://github.com/cccriscv/mini-riscv-os/blob/master/05-Preemptive/lib.c */
+
 /* uart.c */
 extern void uart_puts(char* s);
 extern void uart_putc(char ch);
