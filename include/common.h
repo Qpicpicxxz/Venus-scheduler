@@ -16,6 +16,10 @@ extern void print_memory(void* ptr, size_t size);  // print out memory data in b
 /* start.S */
 extern void vcs_stop(void);  // assemble codes for stop vcs simulation
 
+/* heap memory management */
+extern void* malloc(uint32_t size); // input the bit size
+extern void free(void* ptr);
+
 /* string tools */
 extern void delay(volatile int count);
 
