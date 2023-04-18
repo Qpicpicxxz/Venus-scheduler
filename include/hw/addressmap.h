@@ -63,13 +63,10 @@
 #define SOC_RESERVED_S7_ADDR 0x60000000UL
 #define SOC_DDR_ADDR         0x80000000UL
 
-/* From the SoC's perspective:
- *  Nth cluster, Kth block (0<=N<=7, 0<=K<=15)
- *  I-SPM = VENUS_CLUSTER_ADDR + CLUSTER_N_OFFSET + BLOCK_K_OFFSET + BLOCK_ISPM_OFFSET
+/* From the SoC's perspective:                                                         \
+ *  Nth cluster, Kth block (0<=N<=7, 0<=K<=15)                                         \
+ *  I-SPM = VENUS_CLUSTER_ADDR + CLUSTER_N_OFFSET + BLOCK_K_OFFSET + BLOCK_ISPM_OFFSET \
  */
-
-#define NUM_BLOCKS   16
-#define NUM_CLUSTERS 8
 
 #endif /* __HW_ADDRESSMAP_H__ */
 

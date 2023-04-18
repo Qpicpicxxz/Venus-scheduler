@@ -14,6 +14,7 @@ extern void vcs_stop();
 void test_uart(void);
 void test_irq(void);
 extern void dma_scheduler_test(void);
+extern void task_test(void);
 
 /* venus/src/testbench/test_venus_scheduler_core.sv */
 void start_kernel(void) {
@@ -29,13 +30,14 @@ void start_kernel(void) {
   // vcs_stop();
   // test_uart();
   // test_irq();
-  dma_scheduler_test();
-  while(1){};
+  // dma_scheduler_test();
+  task_test();
+  while (1) {};
 }
 
 void test_irq(void) {
   asm volatile("ebreak");
-  while(1){};
+  while (1) {};
 }
 
 void test_uart(void) {
@@ -55,3 +57,4 @@ void test_uart(void) {
   assert(a + 1 == 3);
   asm volatile("ebreak");
 }
+

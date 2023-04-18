@@ -4,19 +4,15 @@ PYTHON = python
 BUILD = build
 
 SRCS_ASM = \
-		${SOURCE}/start.S
+		${SOURCE}/start.S \
+		${SOURCE}/mem.S
 
 SRCS_C = \
 		${SOURCE}/printf.c \
-		${SOURCE}/uart.c 
+		${SOURCE}/uart.c \
+		${SOURCE}/block.c \
+		${SOURCE}/mem_alloc.c \
+		${SOURCE}/mem_block.c \
+		${SOURCE}/mem_free.c 
 
-SRCS_TASK = $(wildcard ${TASKCODE}/*.c)
-
-LIB_OBJS = $(SRCS_ASM:.S=.o)
-LIB_OBJS += $(SRCS_C:.c=.o)
-TASK_OBJS = $(SRCS_TASK:.c=.o)
-
-TASK_ELFS = $(addprefix $(BUILD)/,$(foreach src,$(SRCS_TASK),$(basename $(notdir ${src})).elf))
-TASK_DISASMS = $(addprefix $(BUILD)/,$(notdir $(TASK_ELFS:.elf=_objdump.txt)))
-TASK_BINS = $(addprefix $(BUILD)/,$(notdir $(TASK_ELFS:.elf=.bin)))
 

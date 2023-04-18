@@ -4,10 +4,17 @@ ENTRY( _start )
 
 # venus/src/rtl/venus/scheduler/scheduler_core_wrapper.sv
 # [PPT.65] Memory Map(Bi-directional AXI4) - Venus Block
+/* 	1. R --- read-only section
+	2. W --- read/write section
+	3. X --- executable section
+	4. A --- allocatable section
+	5. I/L - initialized section
+*/
 MEMORY
 {
-	ispm   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 2M
-  dspm   (wxa!ri) : ORIGIN = 0x80200000, LENGTH = 1M
+	ispm   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 1M
+	sdspm  (r!wxai) : ORIGIN = 0x80100000, LENGTH = 1M
+ 	dspm   (wxa!ri) : ORIGIN = 0x80200000, LENGTH = 1M
 }
 
 SECTIONS
@@ -26,7 +33,6 @@ SECTIONS
 	} >ispm
 
 	.data : {
-		. = ALIGN(4096);
 		PROVIDE(_data_start = .);
 		*(.sdata .sdata.*)
 		*(.data .data.*)
@@ -50,4 +56,5 @@ SECTIONS
 	PROVIDE(_heap_start = _bss_end);
 	PROVIDE(_heap_size = _memory_end - _heap_start);
 }
+
 

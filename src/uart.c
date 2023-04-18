@@ -1,8 +1,10 @@
 /* Corresponding to HW-BFM src/testbench/peripherals/uart_task_bfm.svh */
 #include "hw/uart.h"
 #include "hw/addressmap.h"
+#include "hw/config.h"
 #include "types.h"
 #include "ulib.h"
+
 
 // VENUS_DEBUG_UART_ADDR is VCS console log
 

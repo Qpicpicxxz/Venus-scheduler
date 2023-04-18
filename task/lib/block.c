@@ -1,13 +1,6 @@
 #include "common.h"
-#include "ctrlregs.h"
-#include "device.h"
 
-extern void uart_putc(char ch);
-extern void uart_puts(char* s);
-extern void vcs_stop(void);
-
-void block_start(void) {
-  printf("HELLO BLOCK! $stop\n");
+void job_done_callback(void) {
   // 向VenusBlock_IntStatusReg寄存器的bit[0]写入1，使能本block的"task执行完毕中断"
   WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_INTSTATUSREG_OFFSET, 1);
   // 向VenusBlock_CfgReg寄存器bit[1]写入1，使能本block的"Waiting for Write Back Flag"

@@ -21,19 +21,19 @@ SECTIONS
 		*(.text .text.*)
 		PROVIDE(_text_end = .);
 	} >ram
-		
-	.data : {
-		PROVIDE(_data_start = .);
-		*(.sdata .sdata.*)
-		*(.data .data.*)
-		PROVIDE(_data_end = .);
-	} >ram
-	
+
 	.rodata : {
 		PROVIDE(_rodata_start = .);
 		*(.rodata .rodata.*)
 		*(.srodata .srodata.*)
 		PROVIDE(_rodata_end = .);
+	} >ram
+
+	.data : {
+		PROVIDE(_data_start = .);
+		*(.sdata .sdata.*)
+		*(.data .data.*)
+		PROVIDE(_data_end = .);
 	} >ram
 
 # python end jacklight
@@ -46,12 +46,13 @@ SECTIONS
 		*(COMMON)
 		PROVIDE(_bss_end = .);
 	} >ram
-	
-		
+
+
 	PROVIDE(_memory_start = ORIGIN(ram));
 	PROVIDE(_memory_end = ORIGIN(ram) + LENGTH(ram));
 
 	PROVIDE(_heap_start = _bss_end);
 	PROVIDE(_heap_size = _memory_end - _heap_start);
 }
+
 

@@ -1,6 +1,8 @@
+#include "common.h"
+#include "hal.h"
 #include "hw/addressmap.h"
 #include "hw/blockcsr.h"
-#include "hal.h"
+#include "hw/config.h"
 #include "ulib.h"
 
 extern int printf(const char* s, ...);
@@ -8,35 +10,36 @@ extern void DMAC_interrupt_handler(void);
 
 void IRQ_CLUSTER0_handler(void) {
   for (int i = 0; i < NUM_BLOCKS; i++) {
+    // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
+    // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
-      printf("[0,%d] b_irq $stop\n", i);
+      WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
     }
   }
 }
 void IRQ_CLUSTER1_handler(void) {
-  printf("CLUATER 1 Interrupt! $stop\n");
+  printf("CLUSTER 1 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER2_handler(void) {
-  printf("CLUATER 2 Interrupt! $stop\n");
+  printf("CLUSTER 2 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER3_handler(void) {
-  printf("CLUATER 3 Interrupt! $stop\n");
+  printf("CLUSTER 3 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER4_handler(void) {
-  printf("CLUATER 4 Interrupt! $stop\n");
+  printf("CLUSTER 4 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER5_handler(void) {
-  printf("CLUATER 5 Interrupt! $stop\n");
+  printf("CLUSTER 5 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER6_handler(void) {
-  printf("CLUATER 6 Interrupt! $stop\n");
+  printf("CLUSTER 6 Interrupt! $stop\n");
 }
 void IRQ_CLUSTER7_handler(void) {
-  printf("CLUATER 7 Interrupt! $stop\n");
+  printf("CLUSTER 7 Interrupt! $stop\n");
 }
 
 void IRQ_DMA_handler(void) {
-  printf("DMA IRQ $stop!\n");
   DMAC_interrupt_handler();
 }
 
@@ -111,6 +114,7 @@ uint32_t* irq_handler(reg_t* regs, reg_t cause) {
   }
 
   if (cause & (1 << VENUS_IRQ_DMA)) {
+    uart_puts("DMA IRQ!\n");
     irq_callback[VENUS_IRQ_DMA]();
     // DMA Interrupt
   }

@@ -51,7 +51,7 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
   /* [P.186] CHx_INTSTATUSREG */
   // printf("DMAC Channel %d Interrupt occurred...\n", channel_index);
   /* CHx_INTSTATUSEREG[63:32] reserved as zero */
-  uint32_t CHx_INTSTATUSREG = READ_BURST_32(VENUS_DMAC_ADDR, DMAC_CH_INTR_STATUS_REG_OFFSET_CH(channel_index));
+  uint32_t CHx_INTSTATUSREG                      = READ_BURST_32(VENUS_DMAC_ADDR, DMAC_CH_INTR_STATUS_REG_OFFSET_CH(channel_index));
   uint8_t CH_ABORTED_IntStat                     = BIT_PICK(CHx_INTSTATUSREG, 31);
   uint8_t CH_DISABLED_IntStat                    = BIT_PICK(CHx_INTSTATUSREG, 30);
   uint8_t CH_SUSPENDED_IntStat                   = BIT_PICK(CHx_INTSTATUSREG, 29);
@@ -242,7 +242,7 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
                    Clear_SRC_TRANSCOMP_IntStat);
   } else if (DMA_TFR_DONE_IntStat) {
     // printf("[Hardware] SCHEDULER: DMAC Channel %d DMA Transfer Done Interrupt occurred... $stop\n", channel_index);
-    printf("DMAC Channel %d IRQ [1]\n", channel_index);
+    printf("DMAC Channel %d transfer done\n", channel_index);
     uint64_t Clear_DMA_TFR_DONE_IntStat = ((uint64_t)1 << 1);
     WRITE_BURST_64(VENUS_DMAC_ADDR,
                    DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
