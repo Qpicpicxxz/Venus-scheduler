@@ -100,7 +100,7 @@ fifo_t* token_fifo = result_1[0];
 缺点：`MAXRES`和`MAXIO`是固定的，内存利用率不高
 
 然后因为在数组中，我是需要通过`array[n] == NULL`来判断当前数组的尾部的，而`malloc()`并不保证分配的内存是干净的
-也就是说我在初始化动态创建actor的时候需要清空数组，如果`MAXRES``MAXIN``MAXOUT`很大的话，这个开销也挺大
+也就是说我在初始化动态创建actor的时候需要清空数组，如果`MAXRES` `MAXIN` `MAXOUT`很大的话，这个开销也挺大
 </br>
 
   **3. 出度和不同的返回值都设置成不定长的数组**

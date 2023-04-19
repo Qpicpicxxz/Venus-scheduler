@@ -5,10 +5,10 @@
 
 /* data descriptor */
 typedef struct data {
-  uint32_t ptr;  // where the data resides
-  uint32_t len;  // data length (byte)
-  uint32_t cnt;  // data lifecycle
-} data_t;        /* data template */
+  uint32_t ptr;   // where the data resides
+  uint32_t attr;  // If it's a scalar, then attr means array index. If it's a vector, then attr means vector register list address
+  uint32_t cnt;   // data lifecycle
+} data_t;         /* data template */
 
 /* token-fifo descriptor between actors */
 typedef struct fifo {
@@ -41,3 +41,4 @@ data_t* read_data(fifo_t* F);
 data_t* read_else_data(fifo_t* F, uint8_t dist);
 
 #endif /* __FIFO_H__ */
+

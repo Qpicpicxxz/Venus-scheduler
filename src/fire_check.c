@@ -1,3 +1,4 @@
+#include "hw/addressmap.h"
 #include "task.h"
 
 list_t* actor_l;       /* linked list for all actor   */
@@ -135,15 +136,27 @@ static inline void ready_free(node_t* ready_node) {
 static inline void inform_dma(void) {
   data_t* pseudo_data   = NULL;
   block_t* pseudo_block = NULL;
-  dma_transfer_link(block->spm_addr, actor->task_addr, actor->task_len, pseudo_block, pseudo_data);
+  dma_transfer_link(block->base_addr + BLOCK_ISPM_OFFSET, actor->task_addr, actor->task_len, pseudo_block, pseudo_data);
   list_t* dep_list = (list_t*)ready->dep_list;
   for (node_t* p = dep_list->tail->prev; p != dep_list->head; p = p->prev) {
     data_t* data = (data_t*)p->item;
     // inform data descriptor to DMA
     if (p == dep_list->head->next) {
-      dma_transfer_link(DATA1_ADDR, data->ptr, data->len, block, data);
+      if (IS_VECTOR(data->attr)) {
+        // TODO: look up the Vector Register table
+      } else {
+        // this data is a scalar
+        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + data->attr * SCALAR_LEN;
+        dma_transfer_link(scalar_offset, data->ptr, SCALAR_LEN, block, data);
+      }
     } else {
-      dma_transfer_link(DATA1_ADDR, data->ptr, data->len, pseudo_block, data);
+      if (IS_VECTOR(data->attr)) {
+        // TODO: look up the Vector Register table
+      } else {
+        // this data is a scalar
+        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + data->attr * SCALAR_LEN;
+        dma_transfer_link(scalar_offset, data->ptr, SCALAR_LEN, pseudo_block, data);
+      }
     }
   }
 }

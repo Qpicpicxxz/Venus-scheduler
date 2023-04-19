@@ -1,4 +1,5 @@
 #include "dma/phy.h"
+#include "ulib.h"
 
 #ifdef SIMULATE_QEMU
 /* 1--BUSY 0--IDLE */

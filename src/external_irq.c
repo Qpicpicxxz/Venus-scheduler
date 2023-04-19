@@ -1,6 +1,7 @@
 #include "block.h"
 #include "common.h"
-#include "saddr.h"
+#include "hw/addressmap.h"
+#include "hw/config.h"
 
 /* Function: remove keyboard interrupt in uart.c */
 extern int uart_getc(void);
@@ -16,25 +17,16 @@ extern void dma_transfer_done_handler(uint32_t channen_index);
 uint32_t block_start;
 
 /* define all the block's flag --- allocate their memory space */
-static block_t block1;
-static block_t block2;
-static block_t block3;
-static block_t block4;
-static block_t block5;
-static block_t block6;
-static block_t block7;
-static block_t block8;
+static block_t block[NUM_CLUSTERS][NUM_BLOCKS];
 
 void spm_init() {
-  block1.spm_addr = SPM1_ADDR;
-  block2.spm_addr = SPM2_ADDR;
-  block3.spm_addr = SPM3_ADDR;
-  block4.spm_addr = SPM4_ADDR;
-  block5.spm_addr = SPM5_ADDR;
-  block6.spm_addr = SPM6_ADDR;
-  block7.spm_addr = SPM7_ADDR;
-  block8.spm_addr = SPM8_ADDR;
-  block_start     = (uint32_t)&block1;
+  for (int i = 0; i < NUM_CLUSTERS; i++) {
+    for (int j = 0; j < NUM_BLOCKS; j++) {
+      block[i][j].base_addr = VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j);
+    }
+  }
+  // sim only
+  block_start          = (uint32_t)&block[0][0];
 }
 
 /* handle external interrupt */
@@ -65,35 +57,35 @@ void external_interrupt_handler() {
       switch ((int)c) {
       case 49:
         printf("\nBLOCK 1: Interrupt...\n");
-        block_handler(&block1);
+        block_handler(&block[0][0]);
         break;
       case 50:
         printf("\nBLOCK 2: Interrupt...\n");
-        block_handler(&block2);
+        block_handler(&block[0][1]);
         break;
       case 51:
         printf("\nBLOCK 3: Interrupt...\n");
-        block_handler(&block3);
+        block_handler(&block[0][2]);
         break;
       case 52:
         printf("\nBLOCK 4: Interrupt...\n");
-        block_handler(&block4);
+        block_handler(&block[0][3]);
         break;
       case 53:
         printf("\nBLOCK 5: Interrupt...\n");
-        block_handler(&block5);
+        block_handler(&block[1][0]);
         break;
       case 54:
         printf("\nBLOCK 6: Interrupt...\n");
-        block_handler(&block6);
+        block_handler(&block[1][1]);
         break;
       case 55:
         printf("\nBLOCK 7: Interrupt...\n");
-        block_handler(&block7);
+        block_handler(&block[1][2]);
         break;
       case 56:
         printf("\nBLOCK 8: Interrupt...\n");
-        block_handler(&block8);
+        block_handler(&block[1][3]);
         break;
       case 113:
         printf("\nDMA CH0: Interrupt...\n");

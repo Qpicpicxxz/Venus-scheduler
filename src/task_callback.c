@@ -28,7 +28,8 @@ static inline void alloc_result(void) {
     alloc_addr = (uint32_t)malloc(RetLen);
     data       = (data_t*)malloc(sizeof(data));
     data->ptr  = alloc_addr;
-    data->len  = RetLen;
+    // add a judge logic to distinguish if its a scalar(packet) or vector
+    data->attr  = RetLen;
     data->cnt  = 0;
     for (int j = 0; actor->out[i][j] != NULL; j++)
       data->cnt++;
@@ -60,4 +61,5 @@ void block_handler(block_t* n_block) {
     put_queue(&block_q, (uint32_t)n_block);
   }
 }
+
 

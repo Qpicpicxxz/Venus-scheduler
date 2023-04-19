@@ -31,7 +31,7 @@ void start_kernel(void) {
   trap_init();
   sched_init();
   spm_init();
-  dma_init();
+  dma_init(); 
   // malloc_test();
   // link_test();
   // memcpy_test();

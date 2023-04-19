@@ -1,3 +1,4 @@
+#ifndef TEST_VENUS_UART
 #include "common.h"
 #include "platform.h"
 /*
@@ -99,4 +100,66 @@ int uart_getc(void) {
     return -1;
   }
 }
+#else
+#include "common.h"
+#include "hw/addressmap.h"
+#include "hw/uart.h"
+#include "ulib.h"
+
+void uart_init() {
+  // Write to Modem Control Register (MCR) to program SIR mode, auto flow, loopback, modem control outputs
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_MCR_OFFSET, 0x0);
+  // LCR enable
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_LCR_OFFSET, 0x80);
+  // DLL set required boud rate (11520 Baud)
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_DLL_OFFSET, 0x1b);
+  // DLH set required baud rate
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_DLH_OFFSET, 0x00);
+  // LCR
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_LCR_OFFSET, 0x03);
+  // FCR enable FIFOs and set Receive FIFO threshold level
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_FCR_OFFSET, 0x01);
+  // Write to IER to enable required interrupts
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_IER_OFFSET, 0x81);
+}
+
+void uart_putc(char ch) {
+  while (1) {
+    if (READ_BURST_32(SOC_UART0_ADDR, UART_TFL_OFFSET) < UART_FIFO_DEPTH)
+      break;
+  }
+  WRITE_BURST_32(SOC_UART0_ADDR, UART_THR_OFFSET, (uint32_t)ch);
+}
+
+void uart_puts(char* s) {
+  while (*s) {
+    uart_putc(*s++);
+  }
+}
+
+uint8_t uart_recvc(void) {
+  return (uint8_t)READ_BURST_32(SOC_UART0_ADDR, UART_RBR_OFFSET);
+}
+
+// void uart_interrupt_handler() {
+//   uint32_t IIR = READ_BURST_32(SOC_UART0_ADDR, UART_IIR_OFFSET);
+//   uint8_t IID  = 0xf0 & (uint8_t)IIR;
+//   switch (IID) {
+//   case 0b0000:
+//     printf("[Hardware] VENUS_SOC_CPU: modem status interrupt detected!\n");
+//   case 0b0010:
+//     printf("[Hardware] VENUS_SOC_CPU: THR empty interrupt detected!\n");
+//   case 0b0100: {
+//     printf("[Hardware] VENUS_SOC_CPU: received data available interrupt detected!\n");
+//     printf("[Hardware] VENUS_SOC_UART0: recv char is: %s", uart_recvc());
+//   }
+//   case 0b0110:
+//     printf("[Hardware] VENUS_SOC_CPU: receiver line status interrupt detected!\n");
+//   case 0b0111:
+//     printf("[Hardware] VENUS_SOC_CPU: busy detect interrupt detected!\n");
+//   case 0b1100:
+//     printf("[Hardware] VENUS_SOC_CPU: character timeout interrupt detected!\n");
+//   }
+// }
+#endif  // TEST_VENUS_UART
 

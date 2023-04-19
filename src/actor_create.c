@@ -59,10 +59,10 @@ void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk) {
 }
 
 /* API for initial stimultor inject */
-void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len) {
+void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_attr) {
   data_t* data = malloc(sizeof(data_t));
   data->ptr    = data_addr;
-  data->len    = data_len;
+  data->attr   = data_attr;
   // by default, initial packet data will only be used by one actor
   data->cnt = 1;
   if (fifo_full(actor->in[0])) {

@@ -1,6 +1,5 @@
-#include "dma/axi.h"
 #include "dma/common.h"
-
+#include "hw/axi.h"
 
 /* chx_ctl.c */
 extern uint64_t CTL_config(uint64_t lli_last);

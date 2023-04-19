@@ -30,7 +30,7 @@
  */
 typedef struct block {
   uint32_t flags;
-  uint32_t spm_addr;
+  uint32_t base_addr;
   actor_t* actor;
 } block_t;
 

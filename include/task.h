@@ -13,6 +13,9 @@
 #define MAXOUT  MAX_NXT
 #define MAXRES  MAX_RESULT
 
+#define IS_VECTOR(x) ((x) & 0x80000000)
+#define SCALAR_LEN 4
+
 #include "actor.h"
 #include "block.h"
 #include "codeaddr.h"
