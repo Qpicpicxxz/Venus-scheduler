@@ -13,10 +13,6 @@ char* strchr(const char*, char c);
 int strcmp(const char*, const char*);
 uint32_t strlen(const char*);
 void* memset(void*, int, uint32_t);
-int atoi(const char*);
-int memcmp(const void*, const void*, uint32_t);
-void* memcpy(void*, const void*, uint32_t);
-void delay(volatile int count);
 
 /* Hardware physical write/read handler */
 

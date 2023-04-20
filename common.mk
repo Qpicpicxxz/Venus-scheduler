@@ -32,7 +32,6 @@ SRCS_C = \
 				 $(SOURCE)mem_alloc.c \
 				 $(SOURCE)mem_free.c \
 				 $(SOURCE)linked_list.c \
-				 $(SOURCE)switch_context.c \
 				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
 				 $(SOURCE)debug.c \

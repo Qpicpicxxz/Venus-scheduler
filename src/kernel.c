@@ -29,7 +29,7 @@ void start_kernel(void) {
 #endif
   heap_init();
   trap_init();
-  sched_init();
+  // sched_init();
   spm_init();
   dma_init(); 
   // malloc_test();
