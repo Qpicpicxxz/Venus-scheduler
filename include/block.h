@@ -36,7 +36,7 @@ typedef struct block {
 
 typedef struct linger {
   block_t* block;
-  list_t* data_list;
+  list_t* token_list;
 } linger_t;
 
 static inline void _set_block_flag(block_t* block, uint8_t flags) { block->flags |= flags; }

@@ -3,7 +3,7 @@
 
 #define SIM_RESULT_LEN 4
 /* dma.c */
-extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data);
+extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, token_t* token);
 
 /* internal variables */
 static block_t* cur_block;
@@ -13,6 +13,7 @@ static inline void alloc_result(void) {
   uint32_t alloc_addr;
   block_t* pseudo_block = NULL;
   data_t* data;
+  token_t* token;
 
   // TODO: Decide what's in NumRetReg (this verison suppose just one batch of results)
   // TODO: For now, VenusBlock_RetAddr and VenusBlock_RetLen is just an offset, should be modified later
@@ -28,16 +29,25 @@ static inline void alloc_result(void) {
     alloc_addr = (uint32_t)malloc(RetLen);
     data       = (data_t*)malloc(sizeof(data));
     data->ptr  = alloc_addr;
+    // initialize data lifecycle
+    data->cnt = 0;
+    // count data itself lifecycle
+    for (int j = 0; actor->out[i][j] != NULL; j++)
+      data->cnt++;
+
+    token       = (token_t*)malloc(sizeof(token));
+    token->data = data;
     // add a judge logic to distinguish if its a scalar(packet) or vector
-    data->attr = SCALAR_LABEL;
+    token->attr = SCALAR_LABEL;
+
     // if its the last data packet
     if (actor->out[i + 1][0] == NULL)
       // TODO: Under the pratical circumstance, should be
       // RetAddr_i = read_burst(VenusBlock_CSR, VenusBlock_RetAddr(i));
       // RetLen_i = read_busrt(VenusBlock_CSR, VenusBlock_RetLen(i));
-      dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, data);
+      dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, token);
     else
-      dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, data);
+      dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, token);
   }
 }
 

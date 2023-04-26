@@ -13,8 +13,7 @@ extern void set_channel_idle(uint32_t index);
 
 /* internal variables */
 static block_t* block;
-// static data_t* data;
-static list_t* data_list;
+static list_t* token_list;
 static uint32_t ideal_block;
 
 static void scheduler_pass_result() {
@@ -22,22 +21,22 @@ static void scheduler_pass_result() {
   printf("SCHEDULER: Pass result to the successor...\n");
 #endif
   actor_t* actor = block->actor;
-  node_t* p      = data_list->tail->prev;
+  node_t* p      = token_list->tail->prev;
 
   // pass the result to successors i -> different result |  j -> different fifo
   for (int i = 0; actor->out[i][0] != NULL; i++) {
-    assert(p != data_list->head);
+    assert(p != token_list->head);
     for (int j = 0; actor->out[i][j] != NULL; j++) {
-      data_t* original_data = (data_t*)p->item;
+      token_t* original_token = (token_t*)p->item;
       // if its the first fifo of this result
       if (j == 0) {
-        put_data(actor->out[i][j], original_data);
+        put_token(actor->out[i][j], original_token);
       } else {
         // create(duplicate) a new data structure (to ensure different fifo has different data structure)
-        data_t* dup_data = malloc(sizeof(data_t));
-        dup_data->ptr    = original_data->ptr;
-        dup_data->attr   = original_data->attr;
-        put_data(actor->out[i][j], dup_data);
+        token_t* dup_token = malloc(sizeof(token_t));
+        dup_token->data    = original_token->data;
+        dup_token->attr    = original_token->attr;
+        put_token(actor->out[i][j], dup_token);
       }
     }
     p = p->prev;
@@ -64,7 +63,7 @@ static inline void check_if_done(node_t* p) {
 #ifdef DEBUG_SCHEDULER
     printf("SCHEDULER: Linger result is found...\n");
 #endif
-    data_list = linger->data_list;
+    token_list = linger->token_list;
     scheduler_pass_result();
   }
   // if dismatch, visit next
@@ -74,9 +73,9 @@ static inline void linger_insert() {
   // bind interrupt block with current actor's linger list
   if (block->actor->linger_list == NULL)
     block->actor->linger_list = create_list();
-  linger_t* linger  = malloc(sizeof(linger_t));
-  linger->block     = block;
-  linger->data_list = data_list;
+  linger_t* linger   = malloc(sizeof(linger_t));
+  linger->block      = block;
+  linger->token_list = token_list;
   insert(block->actor->linger_list, create_node((uint32_t)linger));
 }
 
@@ -104,17 +103,24 @@ static void result_deliver() {
 }
 
 static inline void recycle_garbage(void) {
-  data_t* data;
+  token_t* token;
 
-  for (node_t* p = data_list->head->next; p != data_list->tail; p = p->next) {
+  for (node_t* p = token_list->head->next; p != token_list->tail; p = p->next) {
     // parse data struct
-    data = (data_t*)p->item;
-    // garbage collection
-    free((void*)data->ptr);
-    free((void*)data);  // free data flag space
+    token = (token_t*)p->item;
+    if (token->data->cnt == 1) {
+      // garbage collection
+      printf(YELLOW("last use...\n"));
+      free((void*)token->data->ptr);  // free real data
+      free((void*)token->data);       // free data flag space
+    } else {
+      // upate reference count (lifecycle)
+      token->data->cnt--;
+    }
+    free((void*)token);
   }
   // free the hole list
-  destroy_list(data_list);
+  destroy_list(token_list);
 }
 
 void dma_transfer_done_handler(uint32_t channel_index) {
@@ -124,7 +130,7 @@ void dma_transfer_done_handler(uint32_t channel_index) {
   uint32_t llp   = (uint32_t)msg->lli->CHx_LLP;
   lli_t* nxt_lli = (lli_t*)llp;
   block          = msg->block;
-  data_list      = msg->data_list;
+  token_list     = msg->token_list;
 #ifdef SIMULATE_QEMU
   set_channel_idle(channel_index);
   printf("DMA channel %d is free\n", channel_index);
@@ -164,7 +170,7 @@ void dma_transfer_done_handler(uint32_t channel_index) {
 #endif
   } else {
     // TODO: pass result to the successor
-    // data = (data_t*)data_list->head->next->item;
+    // data = (data_t*)token_list->head->next->item;
     result_deliver();
 #ifdef DEBUG_SCHEDULER
     printf("DMA: Result transfer done...\n");

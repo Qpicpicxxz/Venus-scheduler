@@ -50,16 +50,19 @@ void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk, uint8_t snk_index)
 }
 
 /* API for initial stimultor inject */
-void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_attr) {
-  data_t* data = malloc(sizeof(data_t));
-  data->ptr    = data_addr;
-  data->attr   = data_attr;
+void packet_input(actor_t* actor, uint32_t data_addr, uint32_t token_attr) {
+  data_t* data   = malloc(sizeof(data_t));
+  data->ptr      = data_addr;
+  data->cnt      = 1;
+  token_t* token = malloc(sizeof(token_t));
+  token->data    = data;
+  token->attr    = token_attr;
   if (fifo_full(actor->in[0])) {
     // if input buffer is full
-    printf("Input buffer overflowed, discard residual data... $stop\n");
+    printf(RED("Input buffer overflowed, discard residual token...\n"));
     return;
   }
-  put_data(actor->in[0], data);
+  put_token(actor->in[0], token);
 }
 
 /* API to assign root actor of DAG */

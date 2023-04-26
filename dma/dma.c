@@ -21,7 +21,7 @@ extern void DMAC_free_channel_init(void);
 
 static lli_t* head_lli;
 static lli_t* last_lli;
-static list_t* data_list;
+static list_t* token_list;
 static block_t* current_block;
 
 msg_t* msg_array[DMAC_NUMBER_OF_CHANNELS];
@@ -93,17 +93,17 @@ void dma_transfer_channel(void) {
   DMAC_CHx_enable_channel(free_channel_index);
 
   /* record relative DMA transfer information */
-  msg_t* msg     = msg_array[free_channel_index];
-  msg->lli       = head_lli;
-  msg->block     = current_block;
-  msg->data_list = data_list;
+  msg_t* msg      = msg_array[free_channel_index];
+  msg->lli        = head_lli;
+  msg->block      = current_block;
+  msg->token_list = token_list;
 
   /* reset head_lli */
-  head_lli  = NULL;
-  data_list = NULL;
+  head_lli   = NULL;
+  token_list = NULL;
 }
 
-void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, data_t* data) {
+void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, token_t* token) {
   /* create linked list for DMA transfer */
   lli_t* current_lli            = malloc_LLI();
   uint64_t destination_addr     = (uint64_t)dst;
@@ -119,13 +119,13 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
     uint32_t next_item_pointer = (uint32_t)current_lli;
     last_lli->CHx_LLP          = (uint64_t)next_item_pointer;
   } else {
-    head_lli  = current_lli;
-    data_list = create_list();
+    head_lli   = current_lli;
+    token_list = create_list();
   }
-  // put current transfer data into global data list
-  assert(data_list != NULL);
-  if (data != NULL)
-    insert(data_list, create_node((uint32_t)data));
+  // put current transfering token into global token list
+  assert(token_list != NULL);
+  if (token != NULL)
+    insert(token_list, create_node((uint32_t)token));
 
   // if not the last data chunk of this DMA channel transfer round
   if (block == NULL) {
@@ -182,10 +182,8 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
 }
 
 void dma_init(void) {
-#ifndef SIMULATE_QEMU
   DMAC_reset();
   DMAC_config();
-#endif
   msg_array_init();
 #ifdef SIMULATE_QEMU
   DMAC_free_channel_init();
@@ -199,3 +197,4 @@ void dma_test(void) {
   // dma_transfer(i_spm_addr, task_addr, task_len);
   // dma_transfer_done_handler(2);
 }
+

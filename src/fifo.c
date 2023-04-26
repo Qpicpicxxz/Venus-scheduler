@@ -27,13 +27,13 @@ uint8_t queue_size(queue_t* F) {
 }
 
 /* Push in a token */
-void put_data(fifo_t* F, data_t* data) {
+void put_token(fifo_t* F, token_t* token) {
   if (fifo_full(F)) {
     printf(REDSET "SCHEDULER: Fifo is full!" RESET);
-    printf(" pointer 0x%x write failed\n", data->ptr);
+    printf(" pointer 0x%x write failed\n", token->data->ptr);
   } else {
-    F->data[F->wptr] = data;
-    F->wptr = (F->wptr + 1) % MAXFIFO;
+    F->token[F->wptr] = token;
+    F->wptr           = (F->wptr + 1) % MAXFIFO;
   }
 }
 void put_queue(queue_t* F, uint32_t ptr) {
@@ -47,13 +47,13 @@ void put_queue(queue_t* F, uint32_t ptr) {
 }
 
 /* Get out a token */
-data_t* get_data(fifo_t* F) {
+token_t* get_token(fifo_t* F) {
   if (fifo_empty(F)) {
     return NULL;
   } else {
-    data_t* data = F->data[F->rptr];
-    F->rptr = (F->rptr + 1) % MAXFIFO;
-    return data;
+    token_t* token = F->token[F->rptr];
+    F->rptr        = (F->rptr + 1) % MAXFIFO;
+    return token;
   }
 }
 uint32_t get_queue(queue_t* F) {
@@ -61,23 +61,23 @@ uint32_t get_queue(queue_t* F) {
     return -1;
   } else {
     uint32_t r = F->addr;
-    F->rptr = (F->rptr + 1) % MAXFIFO;
+    F->rptr    = (F->rptr + 1) % MAXFIFO;
     return r;
   }
 }
 
 /* Read a token */
-data_t* read_data(fifo_t* F) {
+token_t* read_token(fifo_t* F) {
   if (F->rptr != F->wptr) {
-    data_t* data = F->data[F->rptr];
-    return data;
+    token_t* token = F->token[F->rptr];
+    return token;
   }
   printf(RED("FIFO WRONG[rptr==wptr]\n"));
   return NULL;
 }
-data_t* read_else_data(fifo_t* F, uint8_t dist) {
+token_t* read_else_token(fifo_t* F, uint8_t dist) {
   if (F->rptr != F->wptr) {
-    return F->data[(F->rptr + dist) % MAXFIFO];
+    return F->token[(F->rptr + dist) % MAXFIFO];
   }
   printf(RED("QUEUE WRONG[rptr==wptr]\n"));
   return NULL;
