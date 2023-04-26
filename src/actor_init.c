@@ -30,7 +30,7 @@ void DAG_depict() {
   /* means to input initial data packets */
   for (int i = 0; i < NUM_PACKET; i++) {
     // Note: It just create a void pointer to the actor input
-    packet_input((actor_t*)(actor_l->tail->prev)->item, (uint32_t)malloc(sizeof(int)), 4);
+    packet_input((actor_t*)(actor_l->tail->prev)->item, (uint32_t)malloc(sizeof(int)), SCALAR_LABEL);
   }
 }
 

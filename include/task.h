@@ -13,8 +13,10 @@
 #define MAXOUT  MAX_NXT
 #define MAXRES  MAX_RESULT
 
-#define IS_VECTOR(x) ((x) & 0x80000000)
-#define SCALAR_LEN 4
+#define SCALAR_LABEL              0
+#define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
+#define INFORM_DMA_IS_VECTOR(x)   ((x)&0x80000000)
+#define SCALAR_LEN                4
 
 #include "actor.h"
 #include "block.h"
@@ -34,7 +36,7 @@ extern uint32_t block_start;
 
 /* actor create */
 actor_t* actor_create(uint32_t taskStart, uint32_t taskLen);
-void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk);
+void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk, uint8_t snk_index);
 void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_len);
 void assign_root(actor_t* actor);
 void assign_sink(actor_t* actor);

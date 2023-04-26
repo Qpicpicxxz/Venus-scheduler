@@ -72,7 +72,8 @@ bin: all
 	@echo "==============================================="
 	@echo "  Objcopy .elf file to binary files .bin"
 	@echo "==============================================="
-	@${OBJCOPY} -O binary os.elf os.bin
+	@${OBJCOPY} -O binary os.elf original.bin
+	@${OBJCOPY} -I binary -O binary --pad-to=0x1000 original.bin padded.bin
 	@hexdump os.bin > bin.txt
 	@open bin.txt 
 

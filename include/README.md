@@ -3,9 +3,8 @@
 **fifo.h**
 ```
 typedef struct data {
-  uint32_t ptr  // 数据地址指针
-  uint32_t len  // 数据长度
-  uint32_t cnt  // 数据生命周期(决定什么时候可以在DDR中释放这个数据内存)
+  uint32_t ptr   // 数据地址指针
+  uint32_t attr  // 数据特性(vector / scalar )
 } data_t
 ```
 ```
@@ -164,4 +163,5 @@ struct ex_4{
 }
 sizeof(struct ex_3) == 12
 ```
+
 

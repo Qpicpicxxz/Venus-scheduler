@@ -182,8 +182,10 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
 }
 
 void dma_init(void) {
+#ifndef SIMULATE_QEMU
   DMAC_reset();
   DMAC_config();
+#endif
   msg_array_init();
 #ifdef SIMULATE_QEMU
   DMAC_free_channel_init();

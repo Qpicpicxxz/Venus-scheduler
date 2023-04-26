@@ -57,6 +57,13 @@ static inline ready_t* ready_create(void) {
   for (int i = 0; actor->in[i] != NULL; i++) {
     // 4.1 get the dependency out from fifo
     data_t* data = get_data(actor->in[i]);
+    // 4.2 judge whether it's a vector or scalar
+    // TODO: if its a scalar, then channel index represent the scalar array offset
+    if (READY_CREATE_IS_SCALAR(data->attr)) {
+      data->attr = i;
+    } else {
+      // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
+    }
     // 4.2 bind the dependency descriptor pointer
     insert(actor_r->dep_list, create_node((uint32_t)data));
   }
@@ -142,19 +149,21 @@ static inline void inform_dma(void) {
     data_t* data = (data_t*)p->item;
     // inform data descriptor to DMA
     if (p == dep_list->head->next) {
-      if (IS_VECTOR(data->attr)) {
+      if (INFORM_DMA_IS_VECTOR(data->attr)) {
         // TODO: look up the Vector Register table
       } else {
         // this data is a scalar
         uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + data->attr * SCALAR_LEN;
+        printf("actor: %c, offset: %d\n", actor_index + 65, data->attr * SCALAR_LEN);
         dma_transfer_link(scalar_offset, data->ptr, SCALAR_LEN, block, data);
       }
     } else {
-      if (IS_VECTOR(data->attr)) {
+      if (INFORM_DMA_IS_VECTOR(data->attr)) {
         // TODO: look up the Vector Register table
       } else {
         // this data is a scalar
         uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + data->attr * SCALAR_LEN;
+        printf("actor: %c, offset: %d\n", actor_index + 65, data->attr * SCALAR_LEN);
         dma_transfer_link(scalar_offset, data->ptr, SCALAR_LEN, pseudo_block, data);
       }
     }

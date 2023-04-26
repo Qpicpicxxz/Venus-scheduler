@@ -7,7 +7,6 @@
 typedef struct data {
   uint32_t ptr;   // where the data resides
   uint32_t attr;  // If it's a scalar, then attr means array index. If it's a vector, then attr means vector register list address
-  uint32_t cnt;   // data lifecycle
 } data_t;         /* data template */
 
 /* token-fifo descriptor between actors */

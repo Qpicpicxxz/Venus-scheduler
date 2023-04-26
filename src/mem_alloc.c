@@ -317,11 +317,40 @@ void malloc_64_test() {
   lli_t* q = malloc_LLI();
   void* x  = malloc(54);
   x        = malloc_LLI();
+  void * y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc(1);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc(1);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  y = malloc(1);
+  free(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc_LLI();
+  free_LLI(y);
+  y = malloc(1);
+  y = malloc(1);
+  x = malloc(1);
+  free(x);
+  free(x);
+  x = malloc_LLI();
   printf("64-byte aligned malloc q is %p\n", q);
+  printf("%p\n",y);
   printf("64-byte aligned malloc x is %p\n", x);
   free_LLI(p);
   free_LLI(q);
-  free_LLI(x);
 }
 
 void malloc_test() {

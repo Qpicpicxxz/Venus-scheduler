@@ -27,8 +27,19 @@ static void scheduler_pass_result() {
   // pass the result to successors i -> different result |  j -> different fifo
   for (int i = 0; actor->out[i][0] != NULL; i++) {
     assert(p != data_list->head);
-    for (int j = 0; actor->out[i][j] != NULL; j++)
-      put_data(actor->out[i][j], (data_t*)p->item);
+    for (int j = 0; actor->out[i][j] != NULL; j++) {
+      data_t* original_data = (data_t*)p->item;
+      // if its the first fifo of this result
+      if (j == 0) {
+        put_data(actor->out[i][j], original_data);
+      } else {
+        // create(duplicate) a new data structure (to ensure different fifo has different data structure)
+        data_t* dup_data = malloc(sizeof(data_t));
+        dup_data->ptr    = original_data->ptr;
+        dup_data->attr   = original_data->attr;
+        put_data(actor->out[i][j], dup_data);
+      }
+    }
     p = p->prev;
   }
 
@@ -94,18 +105,15 @@ static void result_deliver() {
 
 static inline void recycle_garbage(void) {
   data_t* data;
+
   for (node_t* p = data_list->head->next; p != data_list->tail; p = p->next) {
+    // parse data struct
     data = (data_t*)p->item;
-    if (data->cnt == 1) {
-      // garbage collection
-      printf(YELLOW("last use...\n"));
-      free((void*)data->ptr);
-      free((void*)data);  // free data flag space
-    } else {
-      // upate reference count (lifecycle)
-      data->cnt--;
-    }
+    // garbage collection
+    free((void*)data->ptr);
+    free((void*)data);  // free data flag space
   }
+  // free the hole list
   destroy_list(data_list);
 }
 

@@ -1,4 +1,5 @@
 /* API can provides productivity and facilitates rapid prototyping for developers */
+#include "assert.h"
 #include "task.h"
 
 /* API for actor create */
@@ -16,16 +17,9 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen) {
   return actor;
 }
 
-static uint32_t node_make_in(fifo_t** array, fifo_t* fifo) {
-  // loop through the array to find the first unused index
-  for (int i = 0; i < MAXIN; i++) {
-    if (array[i] == NULL) {
-      // assign new fifo_t pointer to the unused index
-      array[i] = fifo;
-      return 1;
-    }
-  }
-  return 0;
+static void node_make_in(fifo_t** array, fifo_t* fifo, uint8_t snk_index) {
+  assert(array[snk_index] == NULL);
+  array[snk_index] = fifo;
 }
 static uint32_t node_make_out(fifo_t** array, fifo_t* fifo) {
   // loop through the array to find the first unused index
@@ -43,19 +37,16 @@ static uint32_t node_make_out(fifo_t** array, fifo_t* fifo) {
  * API for DAG dipict
  *   dep_index = 0 ~ (MAX_RESULT - 1)
  */
-void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk) {
+void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk, uint8_t snk_index) {
   assert(dep_index < MAXRES);
   fifo_t* fifo = malloc(sizeof(fifo_t));
   int success;
   success = node_make_out(src->out[dep_index], fifo);
   if (!success) {
-    printf(RED("Dependency actor's fifo is full\n"));
-    printf("Actor: %p -> %p\n", src, snk);
+    printf("Dependency actor's fifo is full\n");
+    printf("Actor: %p -> %p $stop\n", src, snk);
   }
-  success = node_make_in(snk->in, fifo);
-  if (!success) {
-    printf(RED("Successor actor's fifo is full\n"));
-  }
+  node_make_in(snk->in, fifo, snk_index);
 }
 
 /* API for initial stimultor inject */
@@ -63,11 +54,9 @@ void packet_input(actor_t* actor, uint32_t data_addr, uint32_t data_attr) {
   data_t* data = malloc(sizeof(data_t));
   data->ptr    = data_addr;
   data->attr   = data_attr;
-  // by default, initial packet data will only be used by one actor
-  data->cnt = 1;
   if (fifo_full(actor->in[0])) {
     // if input buffer is full
-    printf(RED("Input buffer overflowed, discard residual data...\n"));
+    printf("Input buffer overflowed, discard residual data... $stop\n");
     return;
   }
   put_data(actor->in[0], data);
