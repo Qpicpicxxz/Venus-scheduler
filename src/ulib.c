@@ -7,4 +7,12 @@ void delay(volatile int count) {
     ;
 }
 
-
+/* Function: Memory initialization */
+void* memset(void* dst, int c, uint32_t n) {
+  char* cdst = (char*)dst;
+  int i;
+  for (i = 0; i < n; i++) {
+    cdst[i] = c;
+  }
+  return dst;
+}

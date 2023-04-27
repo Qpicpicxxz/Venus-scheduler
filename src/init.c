@@ -1,7 +1,46 @@
-#include "hw/devctrl.h"
+#include "block.h"
 #include "hw/addressmap.h"
+#include "hw/config.h"
+#include "hw/devctrl.h"
+#include "hw/dma.h"
+#include "msg.h"
 #include "types.h"
 #include "ulib.h"
+
+msg_t* msg_array[DMAC_NUMBER_OF_CHANNELS];
+static msg_t msg_0;
+static msg_t msg_1;
+static msg_t msg_2;
+static msg_t msg_3;
+static msg_t msg_4;
+static msg_t msg_5;
+static msg_t msg_6;
+static msg_t msg_7;
+
+void msg_array_init(void) {
+  msg_array[0] = &msg_0;
+  msg_array[1] = &msg_1;
+  msg_array[2] = &msg_2;
+  msg_array[3] = &msg_3;
+  msg_array[4] = &msg_4;
+  msg_array[5] = &msg_5;
+  msg_array[6] = &msg_6;
+  msg_array[7] = &msg_7;
+}
+
+block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
+
+void block_struct_init() {
+  for (int i = 0; i < MAX_NUM_CLUSTERS; i++) {
+    for (int j = 0; j < MAX_NUM_BLOCKS; j++) {
+      // initialize all the block's base address into block descriptor
+      block_stru[i][j].base_addr = VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j);
+      // initialize all block flag into zero
+      block_stru[i][j].flags = 0;
+      block_stru[i][j].actor = NULL;
+    }
+  }
+}
 
 /*
  * 解开venus dma、 部分或者全部的venus block的硬复位
@@ -27,4 +66,5 @@ void devctrl_init(void) {
   // WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(6), CLUSTER_AXI_BLOCK_ALL_EN);
   // WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(7), CLUSTER_AXI_BLOCK_ALL_EN);
 }
+
 

@@ -7,7 +7,7 @@
 #include "types.h"
 #include "ulib.h"
 
-// #define DELAY 500
+#define DELAY 500
 
 /* printf */
 extern void uart_putc(char ch);
@@ -17,14 +17,14 @@ extern void print_memory(void* ptr, size_t size);  // print out memory data in b
 
 /* tools */
 extern void vcs_stop(void);  // an assenble to pause vcs
-// extern void delay(volatile int count);
+extern void delay(volatile int count);
 
 /* heap memory management */
-extern void* malloc(uint32_t size); // input the bit size
+extern void* malloc(uint32_t size);  // input the bit size
 extern void free(void* ptr);
 
-/* block.c */
-extern void job_done_callback(void);
+/* block handlers */
+extern void job_done_invoke(void);
 
 #endif /* __TASK_COMMON_H__ */
 

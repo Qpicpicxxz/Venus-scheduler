@@ -1,6 +1,6 @@
 #include "dma.h"
 
-extern void dma_transmit_done_callback(uint32_t channel_index);
+extern void dma_transmit_done_handler(uint32_t channel_index);
 
 void DMAC_CommonReg_interrupt_handler(void) {
   /* [P.141] DMAC_CommonReg_IntStatusReg */
@@ -248,7 +248,7 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
                    DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
                    Clear_DMA_TFR_DONE_IntStat);
     // TODO: DMA done callback...
-    dma_transmit_done_callback(channel_index);
+    dma_transmit_done_handler(channel_index);
   } else if (BLOCK_TFR_DONE_IntStat) {
     // printf("[Hardware] SCHEDULER: DMAC Channel %d Block Transfer Done Interrupt occurred... $stop\n", channel_index);
     printf("DMAC Channel %d IRQ [0] $stop\n", channel_index);

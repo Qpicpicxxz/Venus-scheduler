@@ -45,6 +45,7 @@ all: compile
 
 .PHONY: clean
 clean:
+	@rm -rf dag.o
 	@cd lib && rm -rf *.o
 	@cd code && rm -rf *.o
 	@cd cbin && rm -rf *

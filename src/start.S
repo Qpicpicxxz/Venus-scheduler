@@ -37,6 +37,14 @@ _start:
 	addi	x30, zero, 0
 	addi	x31, zero, 0
 	
+	la	a0, _bss_start
+	la	a1, _bss_end
+	bgeu	a0, a1, 2f
+1:
+	sw	zero, (a0)
+	addi	a0, a0, 4
+	bltu	a0, a1, 1b
+2:
 	# Setup stacks, the stack grows from bottom to top, so we put the
 	# stack pointer to the very end of the stack range.
 	# Prologue
@@ -61,6 +69,7 @@ vcs_stop:
 	li      x12,0x0 #"\0"
 	sw      x12,0x0(x20) #"\0" 
 	ret
+	
 	
 .section .bss.stack
 

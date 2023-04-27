@@ -1,3 +1,5 @@
+# To make initialized zero global variables are compiled into .data section
+CFLAGS += -fno-zero-initialized-in-bss
 SOURCE = lib
 TASKCODE = code
 PYTHON = python
@@ -10,9 +12,11 @@ SRCS_ASM = \
 SRCS_C = \
 		${SOURCE}/printf.c \
 		${SOURCE}/uart.c \
-		${SOURCE}/block.c \
+		${SOURCE}/epilogue.c \
+		${SOURCE}/init.c \
 		${SOURCE}/mem_alloc.c \
 		${SOURCE}/mem_block.c \
-		${SOURCE}/mem_free.c 
+		${SOURCE}/mem_free.c
+
 
 

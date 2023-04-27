@@ -129,7 +129,7 @@ static int _vsnprintf(char* out, size_t n, const char* s, va_list vl) {
   return pos;
 }
 
-static char out_buf[1000];
+static char out_buf[1000] = {0};
 
 static int _vprintf(const char* s, va_list vl) {
   int res = _vsnprintf(NULL, -1, s, vl);

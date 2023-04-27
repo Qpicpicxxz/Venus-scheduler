@@ -37,7 +37,11 @@ SECTIONS
 	} >ram
 
 # python end jacklight
-
+	
+	.padding :{
+		*(.padding)
+	} >ram
+	
 	.bss :{
 		PROVIDE(_bss_start = .);
 		*(.bss.stack)

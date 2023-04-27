@@ -14,9 +14,11 @@ void init_sentinel(void) {
    *  ----+---------------+----------+----------+----------+---
    * alloc_start  prologue(+4)       +8        +12        +16
    */
+  WRITE_BURST_32(get_prologue(), 0, 0);
   uint32_t prologue_header = get_prologue();  // alloc_start + 4
   set_allocated(prologue_header, ALLOCATED);
   set_blocksize(prologue_header, 8);
+  WRITE_BURST_32(prologue_header, 4, 0);
   uint32_t prologue_footer = prologue_header + 4;
   set_allocated(prologue_footer, ALLOCATED);
   set_blocksize(prologue_footer, 8);
@@ -27,6 +29,7 @@ void init_sentinel(void) {
    *  ------+--------------------+
    *     epilogue(-4)       alloc_end
    */
+  WRITE_BURST_32(get_epilogue(), 0, 0);
   uint32_t epilogue_header = get_epilogue();  // alloc_end - 4
   set_allocated(epilogue_header, ALLOCATED);
   set_blocksize(epilogue_header, 0);
@@ -38,9 +41,11 @@ void init_sentinel(void) {
    * get_firstblock -> get_prologue() + 8 -> regularblock
    * get_lastblock  -> get_prevblock(get_epilogue()) -> regularblock
    */
+  WRITE_BURST_32(get_firstblock(), 0, 0);
   uint32_t first_header = get_firstblock();  // get_prologue() + 8
   set_allocated(first_header, FREE);
   set_blocksize(first_header, alloc_end - alloc_start - 4 - 8 - 4);
+  WRITE_BURST_32(get_footer(first_header), 0, 0);
   uint32_t first_footer = get_footer(first_header);
   set_allocated(first_footer, FREE);
   set_blocksize(first_footer, alloc_end - alloc_start - 4 - 8 - 4);
@@ -98,10 +103,12 @@ static uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request
       set_allocated(block_header, ALLOCATED);
       set_blocksize(block_header, request_blocksize);
 
+      WRITE_BURST_32(get_footer(block_header), 0, 0);
       uint32_t block_footer = get_footer(block_header);
       set_allocated(block_footer, ALLOCATED);
       set_blocksize(block_footer, request_blocksize);
 
+      WRITE_BURST_32(get_nextheader(block_header), 0, 0);
       uint32_t new_header = get_nextheader(block_header);
       set_allocated(new_header, FREE);
       set_blocksize(new_header, blocksize - request_blocksize);
@@ -155,13 +162,13 @@ void* malloc(uint32_t size) {
       block_header = get_nextfree(block_header);
     }
   }
-  printf("[BLOCK ERROR] There is not enough HEAP memory to allocate! $stop\n");
+  printf("[SCHEDULER ERROR] There is not enough HEAP memory to allocate! $stop\n");
   return NULL;
 }
 
 void free(void* ptr) {
   if (ptr == NULL) {
-    printf("[BLOCK ERROR] Free a NULL pointer... $stop\n");
+    printf("[SCHEDULER ERROR] Free a NULL pointer... $stop\n");
     return;
   }
   uint32_t payload_addr = (uint32_t)ptr;
@@ -232,7 +239,7 @@ void free(void* ptr) {
     free_list_insert(merged_header);
     assert(free_list_counter >= 1);
   } else {
-    printf("[BLOCK ERROR] Exception for free ptr $stop\n");
+    printf("[SCHEDULER ERROR] Exception for free ptr $stop\n");
   }
 }
 

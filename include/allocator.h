@@ -63,3 +63,4 @@ uint32_t merge_free_blocks(uint32_t low_header, uint32_t high_header);
 
 #endif /* __ALLOCATOR_H_ */
 
+

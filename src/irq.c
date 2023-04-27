@@ -1,3 +1,4 @@
+#include "block.h"
 #include "common.h"
 #include "hal.h"
 #include "hw/addressmap.h"
@@ -7,13 +8,17 @@
 
 extern int printf(const char* s, ...);
 extern void DMAC_interrupt_handler(void);
+extern block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
+extern void block_handler(block_t* n_block);
 
 void IRQ_CLUSTER0_handler(void) {
-  for (int i = 0; i < NUM_BLOCKS; i++) {
+  for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
     // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
     // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+      block_handler(&block_stru[0][i]);
+      return;
     }
   }
 }

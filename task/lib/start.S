@@ -62,7 +62,10 @@ vcs_stop:
 	sw      x12,0x0(x20) #"\0"
 	ret
 
-	.section .bss.stack
+  # because we would not initialize block's .bss section,
+	# so we have to compile stack space in bin (in this scenario I put it in data section)
+	# to ensure when programme started, it's stack space is all zero
+	.section .data.stack
 
 	.globl _stack_start
 _stack_start:
@@ -73,5 +76,6 @@ _stack_start:
 _stack_top:
 
 	.end              # End of file
+
 
 

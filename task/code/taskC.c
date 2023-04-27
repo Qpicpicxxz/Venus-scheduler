@@ -1,17 +1,17 @@
 #include "common.h"
 
-#define INPUT_SCALAR_NUM 1
+#define INPUT_SCALAR_NUM 2
+#define INPUT_VECTOR_NUM 3
 #define OUTPUT_NUM       2
 
 volatile uint32_t* input_data = (uint32_t*)BLOCK_SDSPM; // 定义一个指针指向起始地址
 
-
 void main(void) {
-  printf("HELLO TASKA!\n");
+  printf("HELLO TASKC!\n");
 
   // 根据约定取得相应的数据进行计算
-  uint32_t output_data_0 = input_data[0] + input_data[0];
-  uint32_t output_data_1 = input_data[0] * input_data[0];
+  uint32_t output_data_0 = input_data[0] + input_data[1];
+  uint32_t output_data_1 = input_data[1] - input_data[0];
   printf("%d, %d\n", output_data_0, output_data_1);
 
   // 产生返回值[0]
