@@ -17,11 +17,28 @@ extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t*
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
-  // visit all dependencies' fifo
-  for (int i = 0; actor->in[i] != NULL; i++) {
-    if (fifo_empty(actor->in[i]))
+  // judge if it is dynamic dependency
+  if (actor->dynamic) {
+    // if dynamic actor number do not prepared
+    if (fifo_empty(actor->in[0])) {
       return 0;
+    } else {
+      // catch the dynamic number
+      token_t* token          = read_token(actor->in[0]);
+      uint32_t dynamic_number = *(uint32_t*)(token->data->ptr);
+      for (int i = 1; i <= dynamic_number; i++) {
+        if (fifo_empty(actor->in[i]))
+          return 0;
+      }
+    }
+  } else {
+    // visit all dependencies' fifo
+    for (int i = 0; actor->in[i] != NULL; i++) {
+      if (fifo_empty(actor->in[i]))
+        return 0;
+    }
   }
+  // if all the dependencies prepared done
   return 1;
 }
 
@@ -54,20 +71,42 @@ static inline ready_t* ready_create(void) {
   // 3. initialize ready actor's dependencies list
   actor_r->dep_list = create_list();
   // 4. traverse actor's dependencies
-  for (int i = 0; actor->in[i] != NULL; i++) {
-    // 4.1 get the dependency out from fifo
-    token_t* token = get_token(actor->in[i]);
-    // 4.2 judge whether it's a vector or scalar
-    // TODO: if its a scalar, then channel index represent the scalar array offset
-    if (READY_CREATE_IS_SCALAR(token->attr)) {
-      token->attr = i;
-    } else {
-      // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
+  if (actor->dynamic) {
+    token_t* token          = get_token(actor->in[0]);
+    uint32_t dynamic_number = *(uint32_t*)(token->data->ptr);
+    for (int i = 1; i <= dynamic_number; i++) {
+      // 4.1 get the dependency out from fifo
+      token_t* token = get_token(actor->in[i]);
+      printf("\nfire_check token: %p\n", token);
+      // 4.2 judge whether it's a vector or scalar
+      // TODO: if its a scalar, then channel index represent the scalar array offset
+      if (READY_CREATE_IS_SCALAR(token->attr)) {
+        token->attr = i;
+      } else {
+        // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
+      }
+      // 4.2 bind the dependency descriptor pointer
+      // if its dynamic number which scheduler used, do not pass to successor
+      insert(actor_r->dep_list, create_node((uint32_t)token));
     }
-    // 4.2 bind the dependency descriptor pointer
-    insert(actor_r->dep_list, create_node((uint32_t)token));
+    return actor_r;
+  } else {
+    for (int i = 0; actor->in[i] != NULL; i++) {
+      // 4.1 get the dependency out from fifo
+      token_t* token = get_token(actor->in[i]);
+      // 4.2 judge whether it's a vector or scalar
+      // TODO: if its a scalar, then channel index represent the scalar array offset
+      if (READY_CREATE_IS_SCALAR(token->attr)) {
+        token->attr = i;
+      } else {
+        // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
+      }
+      // 4.2 bind the dependency descriptor pointer
+      // if its dynamic number which scheduler used, do not pass to successor
+      insert(actor_r->dep_list, create_node((uint32_t)token));
+    }
+    return actor_r;
   }
-  return actor_r;
 }
 
 /* Function: Schedule the new ready actor to the proper position */

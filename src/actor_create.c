@@ -10,8 +10,11 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen) {
   for (int i = 0; i < MAXRES; i++) {
     memset(actor->out[i], 0, MAXOUT * sizeof(fifo_t*));
   }
-  actor->task_addr = taskStart;
-  actor->task_len  = taskLen;
+  actor->task_addr   = taskStart;
+  actor->task_len    = taskLen;
+  actor->fire_list   = NULL;
+  actor->linger_list = NULL;
+  actor->dynamic     = 0;
   /* 2. Transforming function invocations into task linked constructs */
   insert(actor_l, create_node((uint32_t)actor));
   return actor;
@@ -76,5 +79,9 @@ void assign_sink(actor_t* actor) {
   fifo_t* out_fifo = malloc(sizeof(fifo_t));
   // this means sink actor has only one output result
   actor->out[0][0] = out_fifo;
+}
+
+void assign_dynamic(actor_t* actor) {
+  actor->dynamic = 1;
 }
 

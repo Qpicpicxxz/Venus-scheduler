@@ -24,8 +24,8 @@ static void scheduler_pass_result() {
   node_t* p      = token_list->tail->prev;
 
   // pass the result to successors i -> different result |  j -> different fifo
-  for (int i = 0; actor->out[i][0] != NULL; i++) {
-    assert(p != token_list->head);
+  for (int i = 0; p != token_list->head; i++) {
+    // assert(p != token_list->head);
     for (int j = 0; actor->out[i][j] != NULL; j++) {
       token_t* original_token = (token_t*)p->item;
       // if its the first fifo of this result

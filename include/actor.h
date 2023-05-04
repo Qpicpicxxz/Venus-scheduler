@@ -16,6 +16,7 @@ typedef struct actor {
   uint32_t task_len;
   list_t* fire_list;
   list_t* linger_list;
+  uint32_t dynamic;
 } actor_t; /* actor template */
 
 typedef struct ready {

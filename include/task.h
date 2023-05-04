@@ -2,11 +2,11 @@
 #define __TASK_H__
 
 #define NUM_BLOCKS 8
-#define NUM_PACKET 2
+#define NUM_PACKET 1
 #define MAX_BUFFER 8
-#define MAX_DEP    10
-#define MAX_NXT    10
-#define MAX_RESULT 10
+#define MAX_DEP    11
+#define MAX_NXT    11
+#define MAX_RESULT 11
 
 #define MAXFIFO (MAX_BUFFER + 1)  // to differentiate fifo-full and fifo-empty
 #define MAXIN   MAX_DEP
@@ -40,6 +40,6 @@ void edge_make(actor_t* src, uint8_t dep_index, actor_t* snk, uint8_t snk_index)
 void packet_input(actor_t* actor, uint32_t data_addr, uint32_t token_attr);
 void assign_root(actor_t* actor);
 void assign_sink(actor_t* actor);
-
+void assign_dynamic(actor_t* actor);
 #endif /* __TASK_H__ */
 
