@@ -242,7 +242,7 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
                    Clear_SRC_TRANSCOMP_IntStat);
   } else if (DMA_TFR_DONE_IntStat) {
     // printf("[Hardware] SCHEDULER: DMAC Channel %d DMA Transfer Done Interrupt occurred... $stop\n", channel_index);
-    printf("DMAC Channel %d transfer done\n", channel_index);
+    // printf("DMAC Channel %d transfer done\n", channel_index);
     uint64_t Clear_DMA_TFR_DONE_IntStat = ((uint64_t)1 << 1);
     WRITE_BURST_64(VENUS_DMAC_ADDR,
                    DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),

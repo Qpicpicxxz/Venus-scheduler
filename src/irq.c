@@ -23,7 +23,16 @@ void IRQ_CLUSTER0_handler(void) {
   }
 }
 void IRQ_CLUSTER1_handler(void) {
-  printf("CLUSTER 1 Interrupt! $stop\n");
+  // printf("CLUSTER 1 Interrupt! $stop\n");
+  for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+    // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
+    // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
+    if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+      WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+      block_handler(&block_stru[1][i]);
+      return;
+    }
+  }
 }
 void IRQ_CLUSTER2_handler(void) {
   printf("CLUSTER 2 Interrupt! $stop\n");
@@ -119,7 +128,7 @@ uint32_t* irq_handler(reg_t* regs, reg_t cause) {
   }
 
   if (cause & (1 << VENUS_IRQ_DMA)) {
-    uart_puts("DMA IRQ!\n");
+    // uart_puts("DMA IRQ!\n");
     irq_callback[VENUS_IRQ_DMA]();
     // DMA Interrupt
   }

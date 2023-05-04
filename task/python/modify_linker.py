@@ -8,8 +8,8 @@ for c_file in c_files:
     
     jacklight_string = f"# python start jacklight"
 
-    insert_string =  f"\n\t.{task_name} :{{\n"
-    insert_string += f"\t\tPROVIDE(_{task_name}_start = .);\n"
+    insert_string =  f"\n\t.{task_name} ALIGN(8):{{\n"
+    insert_string += f"\t\tPROVIDE(_{task_name}_start = ALIGN(8));\n"
     insert_string += f"\t\t*(.{task_name})\n"
     insert_string += f"\t\tPROVIDE(_{task_name}_end = .);\n"
     insert_string += f"\t}} >ram\n"

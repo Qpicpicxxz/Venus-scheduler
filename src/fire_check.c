@@ -99,7 +99,8 @@ static inline node_t* ready_select() {
   //   }
   // }
   // if there is no affinity actor, return the tail of the ready list
-  return ready_l->tail->prev;
+   return ready_l->tail->prev;
+  // return ready_l->head->next;
 }
 
 /* Function: Free the fired/deprected ready actor-copy */

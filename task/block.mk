@@ -16,7 +16,8 @@ SRCS_C = \
 		${SOURCE}/init.c \
 		${SOURCE}/mem_alloc.c \
 		${SOURCE}/mem_block.c \
-		${SOURCE}/mem_free.c
+		${SOURCE}/mem_free.c \
+		${SOURCE}/ulib.c
 
 
 
