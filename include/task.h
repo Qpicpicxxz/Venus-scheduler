@@ -17,6 +17,7 @@
 #define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
 #define INFORM_DMA_IS_VECTOR(x)   ((x)&0x80000000)
 #define SCALAR_LEN                4
+#define PSEUDO_TOKEN_LABEL        666
 
 #include "actor.h"
 #include "block.h"

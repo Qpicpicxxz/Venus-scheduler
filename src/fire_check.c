@@ -17,28 +17,11 @@ extern void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t*
 
 /* Predicate: Check whether the actor statify the fire rules */
 static inline uint32_t actor_ready(void) {
-  // judge if it is dynamic dependency
-  if (actor->dynamic) {
-    // if dynamic actor number do not prepared
-    if (fifo_empty(actor->in[0])) {
+  for (int i = 0; actor->in[i] != NULL; i++) {
+    if (fifo_empty(actor->in[i]))
       return 0;
-    } else {
-      // catch the dynamic number
-      token_t* token          = read_token(actor->in[0]);
-      uint32_t dynamic_number = *(uint32_t*)(token->data->ptr);
-      for (int i = 1; i <= dynamic_number; i++) {
-        if (fifo_empty(actor->in[i]))
-          return 0;
-      }
-    }
-  } else {
-    // visit all dependencies' fifo
-    for (int i = 0; actor->in[i] != NULL; i++) {
-      if (fifo_empty(actor->in[i]))
-        return 0;
-    }
   }
-  // if all the dependencies prepared done
+  // if all the dependencies prepared
   return 1;
 }
 
@@ -64,49 +47,39 @@ static inline void task_bind(void) {
 
 /* Function: Create a ready actor descriptor */
 static inline ready_t* ready_create(void) {
-  // 1. allocate this ready actor's descriptor space
-  ready_t* actor_r = malloc(sizeof(ready_t));
-  // 2. bind the actor's address
-  actor_r->actor_addr = (uint32_t)actor;
-  // 3. initialize ready actor's dependencies list
-  actor_r->dep_list = create_list();
-  // 4. traverse actor's dependencies
-  if (actor->dynamic) {
-    token_t* token          = get_token(actor->in[0]);
-    uint32_t dynamic_number = *(uint32_t*)(token->data->ptr);
-    for (int i = 1; i <= dynamic_number; i++) {
-      // 4.1 get the dependency out from fifo
-      token_t* token = get_token(actor->in[i]);
-      printf("\nfire_check token: %p\n", token);
-      // 4.2 judge whether it's a vector or scalar
-      // TODO: if its a scalar, then channel index represent the scalar array offset
-      if (READY_CREATE_IS_SCALAR(token->attr)) {
-        token->attr = i;
-      } else {
-        // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
-      }
-      // 4.2 bind the dependency descriptor pointer
-      // if its dynamic number which scheduler used, do not pass to successor
-      insert(actor_r->dep_list, create_node((uint32_t)token));
-    }
-    return actor_r;
-  } else {
+  // check if its a pseudo task
+  if (read_token(actor->in[0]) == (token_t*)PSEUDO_TOKEN_LABEL) {
+    // if it's a pseudo task, then get out all it's dependencies and do return a NULL ready_actor struct
     for (int i = 0; actor->in[i] != NULL; i++) {
-      // 4.1 get the dependency out from fifo
-      token_t* token = get_token(actor->in[i]);
-      // 4.2 judge whether it's a vector or scalar
+      get_token(actor->in[i]);
+    }
+    return NULL;
+  }
+  // allocate this ready actor's descriptor space
+  ready_t* actor_r = malloc(sizeof(ready_t));
+  // bind the actor's address
+  actor_r->actor_addr = (uint32_t)actor;
+  // initialize ready actor's dependencies list
+  actor_r->dep_list = create_list();
+  for (int i = 0; actor->in[i] != NULL; i++) {
+    // get the dependency out from fifo
+    token_t* token        = get_token(actor->in[i]);
+    token_t* pseudo_token = (token_t*)PSEUDO_TOKEN_LABEL;
+    // if its a real dependency
+    if (token != pseudo_token) {
+      // judge whether it's a vector or scalar
       // TODO: if its a scalar, then channel index represent the scalar array offset
       if (READY_CREATE_IS_SCALAR(token->attr)) {
+        // TODO: change attr into scalar offset (VENUS branch has done this job)
         token->attr = i;
       } else {
         // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
       }
-      // 4.2 bind the dependency descriptor pointer
-      // if its dynamic number which scheduler used, do not pass to successor
+      // bind the dependency descriptor pointer
       insert(actor_r->dep_list, create_node((uint32_t)token));
     }
-    return actor_r;
   }
+  return actor_r;
 }
 
 /* Function: Schedule the new ready actor to the proper position */
@@ -129,16 +102,28 @@ void ready_search(void) {
 #ifdef DEBUG_SCHEDULER
   printf(GREEN("\nChecking actor: "));
 #endif
-  // 1. search all the actors in DAG
+  // search all the actors in DAG
   for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
     actor_index = ((uint32_t)p->item - actor_start) / actor_space;
     actor       = (actor_t*)p->item;
     int cnt     = 0;
-    // 2. handle ready actors
+    // handle ready actors
     while (fire_check()) {
-      // 3. schedule ready list
-      ready_insert(ready_create());
-      cnt++;
+      // schedule ready list, ready_create() step will get out the token
+      ready_t* ready_actor = ready_create();
+      if (ready_actor) {
+        ready_insert(ready_actor);
+        cnt++;
+      } else {
+        // pass pseudo token to it's successor, skip block calculation step
+        for (int i = 0; actor->out[i][0] != NULL; i++) {
+          for (int j = 0; actor->out[i][j] != NULL; j++) {
+            // create a pseudo_token
+            token_t* pseudo_token = (token_t*)PSEUDO_TOKEN_LABEL;
+            put_token(actor->out[i][j], pseudo_token);
+          }
+        }
+      }
     }
 #ifdef DEBUG_SCHEDULER
     if (cnt) {

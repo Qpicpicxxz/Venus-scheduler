@@ -33,29 +33,27 @@ void random_DAG_dynamic_test(void) {
   actor_t* R9 = actor_create(TASK1_START, TASK1_LEN);
   actor_t* I  = actor_create(TASK1_START, TASK1_LEN);
   /* meas to specify dependencies */
-  edge_make(A, 0, I, 0);
-  edge_make(A, 1, R1, 0);
-  edge_make(A, 2, R2, 0);
-  edge_make(A, 3, R3, 0);
-  edge_make(A, 4, R4, 0);
-  edge_make(A, 5, R5, 0);
-  edge_make(A, 6, R6, 0);
-  edge_make(A, 7, R7, 0);
-  edge_make(A, 8, R8, 0);
-  edge_make(A, 9, R9, 0);
-  edge_make(R1, 0, I, 1);
-  edge_make(R2, 0, I, 2);
-  edge_make(R3, 0, I, 3);
-  edge_make(R4, 0, I, 4);
-  edge_make(R5, 0, I, 5);
-  edge_make(R6, 0, I, 6);
-  edge_make(R7, 0, I, 7);
-  edge_make(R8, 0, I, 8);
-  edge_make(R9, 0, I, 9);
+  // edge_make(A, 0, I, 0);
+  edge_make(A, 0, R1, 0);
+  edge_make(A, 1, R2, 0);
+  edge_make(A, 2, R3, 0);
+  edge_make(A, 3, R4, 0);
+  edge_make(A, 4, R5, 0);
+  edge_make(A, 5, R6, 0);
+  edge_make(A, 6, R7, 0);
+  edge_make(A, 7, R8, 0);
+  edge_make(A, 8, R9, 0);
+  edge_make(R1, 0, I, 0);
+  edge_make(R2, 0, I, 1);
+  edge_make(R3, 0, I, 2);
+  edge_make(R4, 0, I, 3);
+  edge_make(R5, 0, I, 4);
+  edge_make(R6, 0, I, 5);
+  edge_make(R7, 0, I, 6);
+  edge_make(R8, 0, I, 7);
+  edge_make(R9, 0, I, 8);
   /* means to specify root and sink node of DAG */
   assign_root(A);
   assign_sink(I);
-  /* means to specify dynamic dependencies actor */
-  assign_dynamic(I);
 }
 
