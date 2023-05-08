@@ -37,7 +37,7 @@ static inline void alloc_result(void) {
     // we may can judge the retLen to distinguish whether its a scalar or vector
     // TODO: if it's a scalar, then mark as a scalar data
     // TODO: if it's a vector, then record the result vector's length
-    token->attr = SCALAR_LABEL;
+    token->attr = RetLen;
 
     for (int j = 0; actor->out[i][j] != NULL; j++)
       data->cnt++;

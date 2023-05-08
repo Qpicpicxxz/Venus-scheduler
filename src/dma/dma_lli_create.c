@@ -87,7 +87,7 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
   lli_t* current_lli                = malloc_LLI();
   uint64_t destination_addr         = (uint64_t)dst;
   uint64_t source_addr              = (uint64_t)src;
-  uint32_t transfer_length_byte     = len;
+  uint32_t transfer_length_byte     = len - 8;
   uint32_t total_chunk              = (transfer_length_byte / DMA_MAX_TRANSFER_LENGTH) + 1;
   uint64_t current_source_addr      = source_addr;
   uint64_t current_destination_addr = destination_addr;

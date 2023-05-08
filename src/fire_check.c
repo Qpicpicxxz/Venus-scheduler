@@ -45,6 +45,8 @@ static inline void task_bind(void) {
 
 /* Function: Create a ready actor-copy descriptor */
 static inline ready_t* ready_create(void) {
+  // Start of the scalar spm address
+  // uint32_t offset = 0;
   // 1. allocate this ready actor's descriptor space
   ready_t* actor_r = malloc(sizeof(ready_t));
   // 2. bind the actor's address
@@ -55,19 +57,27 @@ static inline ready_t* ready_create(void) {
   for (int i = 0; actor->in[i] != NULL; i++) {
     // 4.1 get the dependency out from fifo
     token_t* token = get_token(actor->in[i]);
+
     // 1. JUDGE whether it's a vector or scalar
     // TODO: if its a scalar, then channel index represent the scalar array offset
-    if (READY_CREATE_IS_SCALAR(token->attr)) {
-      token->attr = i;
-    } else {
-      // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
-    }
+    // if (READY_CREATE_IS_SCALAR(token->attr)) {
+    //   token->attr = i;
+    // } else {
+    //   // TODO: if its a vector, then in line with the result length and bind information (which vreg), to assign proper vreg-lut address
+    // }
+    // for now, we treat every token as scalar data
+    // 1. compute next scalar data block's offset
+    // TODO: 有问题啊啊啊啊啊！！！这里把长度改成offset了，那真的长度怎么办...所以这里不能改...
+    // uint32_t nxt_offset = offset + token->attr;
+    // // 2. bind this scalar data block's offset
+    // token->attr = offset;
+    // // 3. update current offset
+    // offset = nxt_offset;
     // 4.2 bind the dependency descriptor pointer
     insert(actor_r->dep_list, create_node((uint32_t)token));
   }
   return actor_r;
 }
-
 /* Function: Schedule the new ready actor to the proper position */
 static inline void ready_insert(ready_t* r) {
   // for now, first ready first serve
@@ -99,7 +109,7 @@ static inline node_t* ready_select() {
   //   }
   // }
   // if there is no affinity actor, return the tail of the ready list
-   return ready_l->tail->prev;
+  return ready_l->tail->prev;
   // return ready_l->head->next;
 }
 
@@ -119,6 +129,8 @@ static inline void ready_free(node_t* ready_node) {
 static inline void inform_dma(void) {
   token_t* pseudo_token = NULL;
   block_t* pseudo_block = NULL;
+  // Start of the scalar spm address
+  uint32_t offset = 0;
   dma_transfer_link(block->base_addr + BLOCK_ISPM_OFFSET, actor->task_addr, actor->task_len, pseudo_block, pseudo_token);
   list_t* dep_list = (list_t*)ready->dep_list;
   for (node_t* p = dep_list->tail->prev; p != dep_list->head; p = p->prev) {
@@ -129,18 +141,20 @@ static inline void inform_dma(void) {
         // TODO: look up the Vector Register table
       } else {
         // this data is a scalar
-        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + token->attr * SCALAR_LEN;
-        dma_transfer_link(scalar_offset, token->data->ptr, SCALAR_LEN, block, token);
+        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + offset;
+        dma_transfer_link(scalar_offset, token->data->ptr, token->attr, block, token);
       }
     } else {
       if (INFORM_DMA_IS_VECTOR(token->attr)) {
         // TODO: look up the Vector Register table
       } else {
         // this data is a scalar
-        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + token->attr * SCALAR_LEN;
-        dma_transfer_link(scalar_offset, token->data->ptr, SCALAR_LEN, pseudo_block, token);
+        uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + offset;
+        dma_transfer_link(scalar_offset, token->data->ptr, token->attr, pseudo_block, token);
       }
     }
+    // update current offset
+    offset += token->attr;
   }
 }
 
