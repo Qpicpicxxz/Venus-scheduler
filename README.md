@@ -4,9 +4,7 @@
 
 ##### Task dependency depict example
 
-<div align="center">
-  <img src="https://github.com/Qpicpicxxz/Venus-scheduler/tree/main/image/DAG.png">
-</div>
+![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/DAG.png?msec=1685092519002 "Directed Acyclic Graph")
 
 ```
 void dag_create(void) {
