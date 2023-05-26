@@ -50,7 +50,7 @@ SRCS_C = \
 				 $(DMA)phy_interface.c \
 				 $(DMA)transfer_callback.c
 				 
-SRCS_BIN = $(patsubst %.c,%_bin.c,$(SRCS_TASKS))
+SRCS_BIN = $(patsubst %.c,task/%_bin.c,$(SRCS_TASKS))
 
 SRCS_TASKS :=\
 		task1.c \

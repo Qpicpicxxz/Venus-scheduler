@@ -9,6 +9,7 @@ extern void ready_search(void);
 /* phy_interface.c */
 #ifdef SIMULATE_QEMU
 extern void set_channel_idle(uint32_t index);
+extern uint32_t is_channel_free(uint32_t index);
 #endif
 
 /* internal variables */
@@ -88,7 +89,7 @@ static inline void linger_insert() {
   insert(block->actor->linger_list, create_node((uint32_t)linger));
 }
 
-static void result_deliver() {
+static uint32_t result_deliver() {
   actor_t* actor = block->actor;
 
   ideal_block = read_last((actor->fire_list))->item;
@@ -99,15 +100,17 @@ static void result_deliver() {
 #ifdef DEBUG_SCHEDULER
     printf(PINK("SCHEDULER: Oops! Wrong result arrival sequence...\n"));
 #endif
+    return 1;
   } else {
     // pass the result to the successor
     scheduler_pass_result();
     if (actor->linger_list == NULL)
-      return;
+      return 0;
     // check the rest of lingers
     while (!is_list_empty(actor->linger_list)) {
       traverse(actor->linger_list, check_if_done);
     }
+    return 0;
   }
 }
 
@@ -119,7 +122,7 @@ static inline void recycle_garbage(void) {
     token = (token_t*)p->item;
     if (token->data->cnt == 1) {
       // garbage collection
-      printf(YELLOW("last use...\n"));
+      printf("SCHEDULER: Free data %p...\n", token->data->ptr);
       free((void*)token->data->ptr);  // free real data
       free((void*)token->data);       // free data flag space
     } else {
@@ -133,6 +136,11 @@ static inline void recycle_garbage(void) {
 }
 
 void dma_transfer_done_handler(uint32_t channel_index) {
+  /* check if current interrupt channel is a busy channel */
+  if(is_channel_free(channel_index)){
+    printf(YELLOW("Wrong keyboard operation, channel %d is a free...\n"), channel_index);
+    return;
+  }
   /* catch current DMA's transfer information */
   msg_t* msg     = msg_array[channel_index];
   lli_t* lli     = msg->lli;
@@ -142,7 +150,7 @@ void dma_transfer_done_handler(uint32_t channel_index) {
   token_list     = msg->token_list;
 #ifdef SIMULATE_QEMU
   set_channel_idle(channel_index);
-  printf("DMA channel %d is free\n", channel_index);
+  printf(BLUE("DMA channel %d transmit done\n"), channel_index);
 #endif
   /* Note that by default, this interrupt is not triggered repeatedly.
    * Which means one transfer would not be triggered more than once,
@@ -174,19 +182,21 @@ void dma_transfer_done_handler(uint32_t channel_index) {
     uint32_t block_index = ((uint32_t)block - block_start) / sizeof(block_t) + 1;
     uint32_t actor_index = ((uint32_t)actor - actor_start) / actor_space;
 
-    printf("DMA: Channel transfer done, activate block...\n");
-    printf("BLOCK %d: Computing task %c...\n", block_index, actor_index + 65);
+    printf("SCHEDULER: Activate block %d computing task %c...\n", block_index, actor_index + 65);
 #endif
   } else {
     // TODO: pass result to the successor
     // data = (data_t*)token_list->head->next->item;
-    result_deliver();
-#ifdef DEBUG_SCHEDULER
-    printf("DMA: Result transfer done...\n");
-#endif
+    /* a flag to represent task return disorder */
+    uint32_t disorder = result_deliver();
     // reset the block's status flag
     _clear_block_flag(block);
-    ready_search();
+    if(!disorder){
+#ifdef DEBUG_SCHEDULER
+      printf("SCHEDULER: Searching new ready actor...\n");
+#endif
+      ready_search();
+    }
   }
 }
 

@@ -7,7 +7,7 @@ BINARY = $(patsubst %.c,%.bin,$(SRCS_TASKS))
 .PHONY: word
 word:
 	@echo ""
-	@echo "============ COMPILING ============="
+	@echo "\033[0;1m"=========== COMPILING TASK CODE ==========="\033[0m"
 	@echo ""
 
 elf: ${ELF}
@@ -16,41 +16,37 @@ elf: ${ELF}
 # tasks are compiled and linked directly inside the image of the OS
 %.elf : %.c
 	@${CC} ${CFLAGS} -T task.ld -o $@ $< 2>/dev/null
-	@echo "  $< ---> $@"
+	@echo "  task/$< ---> $@"
 
 %.bin : %.elf
 	@${OBJCOPY} -O binary $< $@
-	@echo "  $< ---> $@"
+	@echo "  task/$< ---> $@"
 	
 
 
 # execute each binary file with python script once and generate a c file respectively
 all: word ${BINARY}
 	@echo ""
-	@echo "============ CONVERTING ============"
+	@echo "\033[0;1m"=========== CONVERTING BIN TO C ==========="\033[0m"
 	@echo ""
 	@python read_bin.py ${BINARY}
 	@echo ""
-	@echo "============ MOVING CODE ==========="
-	@echo ""
-	@cp *_bin.c ../
-	@echo "  all the generated files have been"
-	@echo "  copied to the root directory"
-	@echo ""
-	@echo "========== MODIFYING LINKER ========"
+	@echo "\033[0;1m"============ MODIFYING os.ld =============="\033[0m"
 	@python modify_linker.py
 	@echo ""
-	@echo "  place every task codes' section"
+	@echo "  define every task codes' section"
+	@echo "  in scheduler's linker script"
 	@echo ""
-	@echo "========== MODIFYING mem.S ========="
+	@echo "\033[0;1m"============ MODIFYING mem.S =============="\033[0m"
 	@python modify_mem.py
 	@echo ""
-	@echo "  define every task codes' description"
+	@echo "  capture every task codes' information"
+	@echo "  in scheduler's memory mapping file"
 	@echo ""
-	@echo "======= MODIFYING codeaddr.h ======="
+	@echo "\033[0;1m"========== MODIFYING codeaddr.h ==========="\033[0m"
 	@python modify_header.py
 	@echo ""
-	@echo "  declare every task codes' description"
+	@echo "  declare every task codes' information"
 	# @echo ""
 	# @echo "========== CREATING dag.c =========="
 	# @python generate_dag.py
@@ -60,7 +56,7 @@ all: word ${BINARY}
 .PHONY: code
 code: all
 	@echo ""
-	@echo "=========== DISASSEMBLING ========="
+	@echo "\033[0;1m"============== DISASSEMBLING ============="\033[0m"
 	@echo ""
 	@${OBJDUMP} --disassemble-all task1.elf > objdump.txt
 	@open objdump.txt

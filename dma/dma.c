@@ -86,12 +86,12 @@ void dma_transfer_channel(void) {
     // there is no free channel, hang on checking...
     free_channel_index = DMAC_get_free_channel();
   }
-
+#ifndef SIMULATE_QEMU
   /* configure and activate DMA */
   cfg_config(free_channel_index);
   DMAC_CHx_specify_first_lli(head_lli, free_channel_index);
   DMAC_CHx_enable_channel(free_channel_index);
-
+#endif
   /* record relative DMA transfer information */
   msg_t* msg      = msg_array[free_channel_index];
   msg->lli        = head_lli;
@@ -182,12 +182,13 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
 }
 
 void dma_init(void) {
-  DMAC_reset();
-  DMAC_config();
-  msg_array_init();
 #ifdef SIMULATE_QEMU
   DMAC_free_channel_init();
+#else
+  DMAC_reset();
+  DMAC_config();
 #endif
+  msg_array_init();
 }
 
 void dma_test(void) {

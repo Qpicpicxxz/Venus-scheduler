@@ -25,7 +25,7 @@ $(patsubst %.c,%.o,$(SRCS_BIN)): %.o : %.c
 
 word:
 	@echo ""
-	@echo "============ COMPILING ============="
+	@echo "\033[0;1m"======== COMPILING SCHEDULER CODE ========="\033[0m"
 	@echo ""
 
 taskgenerate:
@@ -36,9 +36,9 @@ taskgenerate:
 run: all
 	@${QEMU} -M ? | grep virt >/dev/null || exit
 	@echo ""
-	@echo "========== QEMU LAUNCHED ==========="
-	@echo "Press Ctrl-A and then X to exit QEMU"
-	@echo "===================================="
+	@echo "============== QEMU LAUNCHED =============="
+	@echo "   Press Ctrl-A and then X to exit QEMU"
+	@echo "==========================================="
 	@echo ""
 	@${QEMU} ${QFLAGS} -kernel os.elf
 

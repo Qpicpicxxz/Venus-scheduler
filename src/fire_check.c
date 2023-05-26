@@ -178,7 +178,7 @@ static inline void inform_dma(void) {
       } else {
         // this data is a scalar
         uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + token->attr * SCALAR_LEN;
-        printf("actor: %c, offset: %d\n", actor_index + 65, token->attr * SCALAR_LEN);
+        // printf("actor: %c, offset: %d\n", actor_index + 65, token->attr * SCALAR_LEN);
         dma_transfer_link(scalar_offset, token->data->ptr, SCALAR_LEN, block, token);
       }
     } else {
@@ -204,9 +204,8 @@ static inline void add_firelist(void) {
 /* Function: Parse descriptor and inform DMA */
 static inline void actor_fire(void) {
 #ifdef DEBUG_SCHEDULER
-  printf("SCHEDULER: Actor ");
-  printf(GREEN("%c"), actor_index + 65);
-  printf(" Fired\n");
+  printf("SCHEDULER: Firing actor ");
+  printf(GREEN("%c\n"), actor_index + 65);
 #endif
   // 1. mark this block to be inflight status
   _set_block_flag(block, BLOCK_INFLIGHT);

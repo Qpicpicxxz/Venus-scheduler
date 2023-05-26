@@ -21,6 +21,13 @@ static uint32_t get_free_channel(void) {
   return DMAC_NUMBER_OF_CHANNELS;
 }
 
+uint32_t is_channel_free(uint32_t index){
+  if(((channel_status >> index) & 0x1) == 0) 
+    return 1;
+  else
+    return 0;
+}
+
 void simulate_channel_status_test(void) {
   DMAC_free_channel_init();
   printf("index = %d\n", get_free_channel());
@@ -66,8 +73,10 @@ uint32_t DMAC_get_free_channel(void) {
 #endif
 #else  // SIMULATE_QEMU
   uint32_t free_channel_index = get_free_channel();
-  if (free_channel_index != DMAC_NUMBER_OF_CHANNELS)
-    printf("DMA get free channel %d...\n", free_channel_index);
+  if (free_channel_index != DMAC_NUMBER_OF_CHANNELS){
+      printf("SCHEDULER: Get DMA free channel ");
+      printf(BLUE("%d\n"), free_channel_index);
+    }
 #endif
   return free_channel_index;
   // while (tb.dut.u_venus.venus_glob_intr == 1)

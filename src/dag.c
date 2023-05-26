@@ -1,6 +1,6 @@
 #include "task.h"
 
-void random_DAG(void) {
+void basic_DAG_test(void) {
   /* means to specify a actor (node) */
   actor_t* A = actor_create(TASK1_START, TASK1_LEN);
   actor_t* B = actor_create(TASK1_START, TASK1_LEN);
@@ -19,7 +19,7 @@ void random_DAG(void) {
   assign_sink(D);
 }
 
-void random_DAG_dynamic_test(void) {
+void dynamic_DAG_test(void) {
   /* means to specify a actor (node) */
   actor_t* A  = actor_create(TASK1_START, TASK1_LEN);
   actor_t* R1 = actor_create(TASK1_START, TASK1_LEN);
