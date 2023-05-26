@@ -63,7 +63,7 @@ code: all
 	
 .PHONY: clean
 clean:
-	rm -rf *.elf *.bin *_bin.c *.txt *.map
+	rm -rf *.elf *.bin *_bin.c *.txt *.map *.o
 	@python rollback_linker.py
 	@python rollback_mem.py
 	@python rollback_header.py
