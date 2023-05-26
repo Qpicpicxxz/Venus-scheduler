@@ -2,7 +2,7 @@
 
 ### This is a scheduler for VENUS: A Wireless Multi-core Processing Unit for 5G baseband
 
-##### Task dependency depict example
+#### Task dependency depict example
 
 ![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/DAG.png?msec=1685092519002 "Directed Acyclic Graph")
 
@@ -31,6 +31,9 @@ void dag_create(void) {
       packet_input(A, (uint32_t)data_packet_addr, data_packet_length)；
 }
 ```
+
+#### Project file structure
+
 
 ```
 .
