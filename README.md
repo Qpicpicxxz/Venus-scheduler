@@ -2,35 +2,34 @@
 
 ### This is a scheduler for VENUS: A Wireless Multi-core Processing Unit for 5G baseband
 
-#### Task dependency depict example
-
+#### Task dependency depict example
 
 ![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/DAG.png?msec=1685092519002 "Directed Acyclic Graph")
 
 ```
 void dag_create(void) {
-      /* Create every actor's description in dependency graph */
-      actor_t* A = actor_create(TASKA_START, TASKA_LEN);
-      actor_t* B = actor_create(TASKB_START, TASKB_LEN);
-      actor_t* C = actor_create(TASKC_START, TASKC_LEN);
-      actor_t* D = actor_create(TASKD_START, TASKD_LEN);
-      actor_t* E = actor_create(TASKE_START, TASKE_LEN);
-      /* Assign dependencies between actors  */
-      edge_make(A, 0, B, 0);
-      edge_make(A, 3, B, 1);
-      edge_make(A, 0, C, 0);
-      edge_make(A, 1, C, 1);
-      edge_make(A, 2, C, 2);
-      edge_make(A, 3, D, 0);
-      edge_make(B, 0, E, 0);
-      edge_make(C, 0, E, 1);
-      edge_make(D, 0, E, 2);
-      /* Specify root actor and tail actor */
-      assign_root(A);
-      assign_sink(E);
-      /* Input stimulate data packet in root actor */
-      packet_input(A, (uint32_t)data_packet_addr, data_packet_length)；
-}
+  /* Create every actor's description in dependency graph */
+  actor_t* A = actor_create(TASKA_START, TASKA_LEN);
+  actor_t* B = actor_create(TASKB_START, TASKB_LEN);
+  actor_t* C = actor_create(TASKC_START, TASKC_LEN);
+  actor_t* D = actor_create(TASKD_START, TASKD_LEN);
+  actor_t* E = actor_create(TASKE_START, TASKE_LEN);
+  /* Assign dependencies between actors  */
+  edge_make(A, 0, B, 0);
+  edge_make(A, 3, B, 1);
+  edge_make(A, 0, C, 0);
+  edge_make(A, 1, C, 1);
+  edge_make(A, 2, C, 2);
+  edge_make(A, 3, D, 0);
+  edge_make(B, 0, E, 0);
+  edge_make(C, 0, E, 1);
+  edge_make(D, 0, E, 2);
+  /* Specify root actor and tail actor */
+  assign_root(A);
+  assign_sink(E);
+  /* Input stimulate data packet in root actor */
+  packet_input(A, (uint32_t)data_packet_addr, data_packet_length)
+};
 ```
 #### Project file structure
 
