@@ -31,8 +31,19 @@ void dag_create(void) {
   packet_input(A, (uint32_t)data_packet_addr, data_packet_length)
 };
 ```
-#### Project file structure
+#### Task and scheduler's code compiling process 
 
+![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/Compile-flow.png?msec=1685092519002 "Compiling Process")
+
+Compile task and scheduler's code separately, to run on different target cores
+
+#### QEMU keyboard function mapping
+
+![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/Keyboard-function.png?msec=1685092519002 "Keyboard Function Mapping")
+
+Use QEMU external keyboard interrupt to simulate different peripheral's interrupt
+
+#### Project file structure
 
 ```
 .
