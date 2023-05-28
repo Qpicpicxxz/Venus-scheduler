@@ -1,7 +1,8 @@
 #include "ratematch/ratematch.h"
-#include "ratematch/ratematch_dataset_block_0.h"
 #include "ulib.h"
 
+//=====================output data======================
+struct Matrix_uint8_codeAfterRM codeAfterRM;
 
 uint32_t venus_div_ceil(uint32_t dividend, uint32_t divisor) {
   uint8_t remainder_flag = (dividend % divisor) ? 1 : 0;
@@ -131,7 +132,6 @@ volatile uint32_t* data_start = (uint32_t*)BLOCK_SDSPM;  // 定义一个指针�
 // input_block_len:18444 output_block_len:8640 exec time on picorv32@300MHz:14.210ms num_instr:601610
 void main(void) {
   uint32_t verifcation_result;
-  printf("running task%d_simplified_rate_match\n", codeBlockID);
 
   // 1. parse all the input data
   uint32_t pssch_G      = data_start[0];  // 0x80100000
@@ -139,15 +139,25 @@ void main(void) {
   uint32_t codeBlockID  = data_start[2];  // 0x80100008
   uint32_t codeBlockNum = data_start[3];  // 0x8010000c
 
-  PSSCH_Para* psschPara           = (PSSCH_Para*)(data_start + 4); // data_start + 4 means BLOCK_SDSPM + 4 * sizeof(uint32_t)
-  Matrix_uint8_codeWord* codeWord = (Matrix_uint8_codeWord*)(psschPara + 1);
-  
+  printf("running task%d_simplified_rate_match\n", codeBlockID);
+  printf("%d, %d, %d, %d\n", pssch_G, rvIdx, codeBlockID, codeBlockNum);
+
+  PSSCH_Para* psschPara                     = (PSSCH_Para*)(data_start + 4);  // data_start + 4 means BLOCK_SDSPM + 4 * sizeof(uint32_t)
+  Matrix_uint8_codeWord* codeWord           = (Matrix_uint8_codeWord*)(psschPara + 1);
+  Matrix_uint8_codeAfterRM* codeVerifcation = (Matrix_uint8_codeAfterRM*)(codeWord + 1);
+
+  printf("&psschPara: %p, size: %d\n", psschPara, sizeof(PSSCH_Para));
+  printf("&codeWord: %p, size: %d\n", codeWord, sizeof(Matrix_uint8_codeWord));
+  printf("&codeVerifcation: %p, size: %d\n", codeVerifcation, sizeof(Matrix_uint8_codeAfterRM));  // 0x801000030
+
   // 2. do computation
   RateMatch(&codeAfterRM, codeBlockID, codeBlockNum, codeWord, psschPara, pssch_G, rvIdx);
 
-  verifcation_result = uint8_t_verify(codeAfterRM.n, codeAfterRM.data[0], codeVerifcation.data[0]);
+  verifcation_result = uint8_t_verify(codeAfterRM.n, codeAfterRM.data[0], codeVerifcation->data[0]);
   printf("verify = %d\n", verifcation_result);
-  printf("codeAfterRM.n = %d ,$stop\n", codeAfterRM.n);
+  printf("codeAfterRM.n = %d\n", codeAfterRM.n);
+  if (codeBlockID == 2)
+    printf("$stop\n");
 
   // store ratematch result
   WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_RETADDRREG_OFFSET(0), (uint32_t)(&verifcation_result));

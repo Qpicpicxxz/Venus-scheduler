@@ -73,7 +73,7 @@ static inline void linger_insert() {
   insert(block->actor->linger_list, create_node((uint32_t)linger));
 }
 
-static void result_deliver() {
+static uint32_t result_deliver() {
   actor_t* actor = block->actor;
 
   ideal_block = read_last((actor->fire_list))->item;
@@ -84,11 +84,14 @@ static void result_deliver() {
     // pass the result to the successor
     scheduler_pass_result();
     if (actor->linger_list == NULL)
-      return;
+      return 0;
     // check the rest of lingers
     while (!is_list_empty(actor->linger_list)) {
       traverse(actor->linger_list, check_if_done);
     }
+    return 0;
+  } else {
+    return 1;
   }
 }
 
@@ -136,16 +139,17 @@ void dma_transmit_done_handler(uint32_t channel_index) {
 
   /* judge whether code/data transfer OR result transfer */
   if ((block->flags & BLOCK_RESULT) == 0) {
-    recycle_garbage();
-    // TODO: activate corresponding block
-    // block_activate();
+    // activate corresponding block
     WRITE_BURST_32(block->base_addr, BLOCK_CTRLREGS_OFFSET, EN_SOFT_RST);
+    recycle_garbage();
   } else {
-    // TODO: pass result to the successor
-    result_deliver();
+    // pass result to the successor
+    uint32_t disorder = result_deliver();
     // reset the block's status flag
     _clear_block_flag(block);
-    ready_search();
+    // if arrival disorder then skip ready search step
+    if (!disorder)
+      ready_search();
   }
 }
 
