@@ -1,51 +1,34 @@
 #include "codeaddr.h"
 #include "task.h"
 
-// void ratematch_interleaving_dag_create(void) {
-//   /* means to specify a actor (node) */
-//   actor_t* A  = actor_create(TASKA_START, TASKA_LEN);
+// void forerrunner_ratematching_dag_create(void) {
+//   actor_t* F  = actor_create(FORERUNNER_START, FORERUNNER_LEN);
+//   actor_t* R0 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
 //   actor_t* R1 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
 //   actor_t* R2 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
-//   // actor_t* R3 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R4 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R5 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R6 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R7 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R8 = actor_create(TASK1_START, TASK1_LEN);
-//   // actor_t* R9 = actor_create(TASK1_START, TASK1_LEN);
-//   actor_t* I = actor_create(INTERLEAVING_START, INTERLEAVING_LEN);
-//   /* meas to specify dependencies */
-//   edge_make(A, 0, I, 0);
-//   edge_make(A, 1, R1, 0);
-//   edge_make(A, 2, R2, 0);
-//   // edge_make(A, 3, R3, 0);
-//   // edge_make(A, 4, R4, 0);
-//   // edge_make(A, 5, R5, 0);
-//   // edge_make(A, 6, R6, 0);
-//   // edge_make(A, 7, R7, 0);
-//   // edge_make(A, 8, R8, 0);
-//   // edge_make(A, 9, R9, 0);
-//   edge_make(R1, 0, I, 1);
-//   edge_make(R2, 0, I, 2);
-//   // edge_make(R3, 0, I, 3);
-//   // edge_make(R4, 0, I, 4);
-//   // edge_make(R5, 0, I, 5);
-//   // edge_make(R6, 0, I, 6);
-//   // edge_make(R7, 0, I, 7);
-//   // edge_make(R8, 0, I, 8);
-//   // edge_make(R9, 0, I, 9);
-//   /* means to specify root and sink node of DAG */
-//   assign_root(A);
-//   assign_sink(I);
-//   /* means to specify dynamic dependencies actor */
-//   assign_dynamic(I);
+//   // 4 scalars: pssch_G rvIdx codeBlockID codeBlockNum
+//   edge_make(F, 0, R0, 0);
+//   // 2 structs: PSSCH_Para Matrix_uint8_codeWord
+//   edge_make(F, 1, R0, 1);
+//   edge_make(F, 2, R1, 0);
+//   edge_make(F, 3, R1, 1);
+//   edge_make(F, 4, R2, 0);
+//   edge_make(F, 5, R2, 1);
+//   assign_root(F);
+//   assign_sink(R0);
+//   assign_sink(R1);
+//   assign_sink(R2);
 // }
 
-void forerrunner_ratematching_dag_create(void) {
+/* 测试场景：实际发射R0 R1 R2, 最多支持5个R */
+void forerrunner_dag_dynamic(void) {
   actor_t* F  = actor_create(FORERUNNER_START, FORERUNNER_LEN);
   actor_t* R0 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
   actor_t* R1 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
   actor_t* R2 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
+  actor_t* R3 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
+  actor_t* R4 = actor_create(RATEMATCH_START, RATEMATCH_LEN);
+  actor_t* I  = actor_create(INTERLEAVE_START, INTERLEAVE_LEN);
   // 4 scalars: pssch_G rvIdx codeBlockID codeBlockNum
   edge_make(F, 0, R0, 0);
   // 2 structs: PSSCH_Para Matrix_uint8_codeWord
@@ -54,10 +37,17 @@ void forerrunner_ratematching_dag_create(void) {
   edge_make(F, 3, R1, 1);
   edge_make(F, 4, R2, 0);
   edge_make(F, 5, R2, 1);
+  edge_make(F, 6, R3, 0);
+  edge_make(F, 7, R3, 1);
+  edge_make(F, 8, R4, 0);
+  edge_make(F, 9, R4, 1);
+  edge_make(R0, 0, I, 0);
+  edge_make(R1, 0, I, 1);
+  edge_make(R2, 0, I, 2);
+  edge_make(R3, 0, I, 3);
+  edge_make(R4, 0, I, 4);
   assign_root(F);
-  assign_sink(R0);
-  assign_sink(R1);
-  assign_sink(R2);
+  assign_sink(I);
 }
 
 typedef struct {
@@ -81,7 +71,7 @@ typedef struct {
 void DAG_depict() {
   // create a dag
   // ratematch_interleaving_dag_create();
-  forerrunner_ratematching_dag_create();
+  forerrunner_dag_dynamic();
 
   /* means to input initial data packets */
   Inputdata_packet* data_packet = malloc(sizeof(Inputdata_packet));

@@ -3,9 +3,9 @@
 
 #define NUM_PACKET 2
 #define MAX_BUFFER 8
-#define MAX_DEP    3
-#define MAX_NXT    2
-#define MAX_RESULT 8
+#define MAX_DEP    6
+#define MAX_NXT    3
+#define MAX_RESULT 12
 
 // in actor_t, fifo_t* out[MAXRES][MAXOUT]
 // MAXRES -> MAX_RESULT

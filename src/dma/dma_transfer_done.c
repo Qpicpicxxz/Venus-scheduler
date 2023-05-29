@@ -22,21 +22,30 @@ static void scheduler_pass_result() {
 
   // pass the result to successors i -> different result |  j -> different fifo
   for (int i = 0; actor->out[i][0] != NULL; i++) {
-    assert(p != token_list->head);
-    for (int j = 0; actor->out[i][j] != NULL; j++) {
-      token_t* original_token = (token_t*)p->item;
-      // if its the first fifo of this result
-      if (j == 0) {
-        put_token(actor->out[i][j], original_token);
-      } else {
-        // create(duplicate) a new data structure (to ensure different fifo has different data structure)
-        token_t* dup_token = malloc(sizeof(token_t));
-        dup_token->data    = original_token->data;
-        dup_token->attr    = original_token->attr;
-        put_token(actor->out[i][j], dup_token);
+    // real token
+    if (p != token_list->head) {
+      for (int j = 0; actor->out[i][j] != NULL; j++) {
+        token_t* original_token = (token_t*)p->item;
+        // if its the first fifo of this result
+        if (j == 0) {
+          put_token(actor->out[i][j], original_token);
+        } else {
+          // create(duplicate) a new data structure (to ensure different fifo has different data structure)
+          token_t* dup_token = malloc(sizeof(token_t));
+          dup_token->data    = original_token->data;
+          dup_token->attr    = original_token->attr;
+          put_token(actor->out[i][j], dup_token);
+        }
+      }
+      p = p->prev;
+    } else {
+      // pseudo token (dynamic dependencies)
+      for (int j = 0; actor->out[i][j] != NULL; j++) {
+        // create a pseudo_token and inject it into pseudo task's fifo
+        token_t* pseudo_token = (token_t*)PSEUDO_TOKEN_LABEL;
+        put_token(actor->out[i][j], pseudo_token);
       }
     }
-    p = p->prev;
   }
 
   // release expired data

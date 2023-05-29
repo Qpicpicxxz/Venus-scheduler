@@ -16,6 +16,7 @@
 #define SCALAR_LABEL              0
 #define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
 #define SCALAR_LEN                4
+#define PSEUDO_TOKEN_LABEL        666
 
 #include "actor.h"
 #include "block.h"

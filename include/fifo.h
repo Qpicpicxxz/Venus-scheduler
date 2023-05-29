@@ -28,6 +28,7 @@ uint8_t fifo_empty(fifo_t* F);
 uint8_t fifo_size(fifo_t* F);
 void put_token(fifo_t* F, token_t* token);
 token_t* get_token(fifo_t* F);
+token_t* read_token(fifo_t* F);
 
 #endif /* __FIFO_H__ */
 

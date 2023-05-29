@@ -2,6 +2,10 @@
 #include "ulib.h"
 
 //=====================output data======================
+/* 这个编译后会被放到.bss段中，不占用binary文件大小且block上电也不会对其初始化，这样提前声明在文件中不会产生额外负荷 */
+/* 要想打包在一起传递，可以直接声明的时候放在一起，后继对应解析即可 */
+uint32_t codeBlockNum;
+PSSCH_Para* psschPara;
 struct Matrix_uint8_codeAfterRM codeAfterRM;
 
 uint32_t venus_div_ceil(uint32_t dividend, uint32_t divisor) {
@@ -134,15 +138,15 @@ void main(void) {
   uint32_t verifcation_result;
 
   // 1. parse all the input data
-  uint32_t pssch_G      = data_start[0];  // 0x80100000
-  uint32_t rvIdx        = data_start[1];  // 0x80100004
-  uint32_t codeBlockID  = data_start[2];  // 0x80100008
-  uint32_t codeBlockNum = data_start[3];  // 0x8010000c
+  uint32_t pssch_G     = data_start[0];  // 0x80100000
+  uint32_t rvIdx       = data_start[1];  // 0x80100004
+  uint32_t codeBlockID = data_start[2];  // 0x80100008
+  codeBlockNum         = data_start[3];  // 0x8010000c
 
   printf("running task%d_simplified_rate_match\n", codeBlockID);
   printf("%d, %d, %d, %d\n", pssch_G, rvIdx, codeBlockID, codeBlockNum);
 
-  PSSCH_Para* psschPara                     = (PSSCH_Para*)(data_start + 4);  // data_start + 4 means BLOCK_SDSPM + 4 * sizeof(uint32_t)
+  psschPara                                 = (PSSCH_Para*)(data_start + 4);  // data_start + 4 means BLOCK_SDSPM + 4 * sizeof(uint32_t)
   Matrix_uint8_codeWord* codeWord           = (Matrix_uint8_codeWord*)(psschPara + 1);
   Matrix_uint8_codeAfterRM* codeVerifcation = (Matrix_uint8_codeAfterRM*)(codeWord + 1);
 
@@ -156,14 +160,14 @@ void main(void) {
   verifcation_result = uint8_t_verify(codeAfterRM.n, codeAfterRM.data[0], codeVerifcation->data[0]);
   printf("verify = %d\n", verifcation_result);
   printf("codeAfterRM.n = %d\n", codeAfterRM.n);
-  if (codeBlockID == 2)
-    printf("$stop\n");
 
   // store ratematch result
-  WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_RETADDRREG_OFFSET(0), (uint32_t)(&verifcation_result));
-  WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_RETLENREG_OFFSET(0), sizeof(verifcation_result));
+  uint32_t packet_size = sizeof(uint32_t) + sizeof(PSSCH_Para) + sizeof(Matrix_uint8_codeAfterRM);
+  WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_RETADDRREG_OFFSET(0), (uint32_t)(&codeBlockNum));
+  WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_RETLENREG_OFFSET(0), packet_size);
   WRITE_BURST_32(BLOCK_CTRLREGS, VENUSBLOCK_NUMRETREG_OFFSET, OUTPUT_NUM);
 
   // pull block's interrupt, stop task computation
   job_done_invoke();
 }
+

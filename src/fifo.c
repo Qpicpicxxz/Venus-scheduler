@@ -37,3 +37,13 @@ token_t* get_token(fifo_t* F) {
   }
 }
 
+/* Read a token */
+token_t* read_token(fifo_t* F) {
+  if (F->rptr != F->wptr) {
+    token_t* token = F->token[F->rptr];
+    return token;
+  }
+  printf("FIFO WRONG[rptr==wptr]\n");
+  return NULL;
+}
+
