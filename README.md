@@ -133,3 +133,7 @@ Use QEMU external keyboard interrupt to simulate different peripheral's interrup
     └── task.ld          // linker script to control task's
 5 directories, 75 files
 ```
+
+#### QEMU running example
+
+![](https://github.com/Qpicpicxxz/Venus-scheduler/blob/main/image/QEMU-example.png?msec=1685092519002 "QEMU example")
