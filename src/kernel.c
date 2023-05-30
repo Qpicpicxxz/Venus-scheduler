@@ -11,10 +11,9 @@ extern void spm_init(void);
 extern void dma_init(void);
 extern void os_main(void);
 
-uint32_t test_num = 0;
-uint32_t test_haha;
 /* test function */
 extern void malloc_test(void);
+extern void heap_test(void);
 extern void link_test(void);
 extern void memcpy_test(void);
 extern void malloc_64_test(void);
@@ -27,10 +26,10 @@ void start_kernel(void) {
   uart_init();
 #ifdef DEBUG_SCHEDULER
   printf(GREEN("Hello, VENUS!\n"));
-  test_num = test_num + 1;
   mem_info();
 #endif
   heap_init();
+  // heap_test();
   trap_init();
   // sched_init();
   spm_init();

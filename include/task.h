@@ -2,7 +2,7 @@
 #define __TASK_H__
 
 #define NUM_BLOCKS 8
-#define NUM_PACKET 5
+#define NUM_PACKET 1
 #define MAX_BUFFER 8
 #define MAX_DEP    11
 #define MAX_NXT    11

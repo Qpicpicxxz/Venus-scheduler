@@ -28,9 +28,6 @@ SRCS_C = \
 			 	 $(SOURCE)uart.c \
 				 $(SOURCE)printf.c \
 				 $(SOURCE)ulib.c  \
-				 $(SOURCE)mem_block.c \
-				 $(SOURCE)mem_alloc.c \
-				 $(SOURCE)mem_free.c \
 				 $(SOURCE)linked_list.c \
 				 $(SOURCE)trap.c \
 				 $(SOURCE)fifo.c \
@@ -48,7 +45,11 @@ SRCS_C = \
 				 $(DMA)chx_ctl.c \
 				 $(DMA)chx_cfg.c \
 				 $(DMA)phy_interface.c \
-				 $(DMA)transfer_callback.c
+				 $(DMA)transfer_callback.c \
+				 $(SOURCE)mem_block.c \
+				 $(SOURCE)mem_alloc.c \
+				 $(SOURCE)mem_free.c \
+				 #$(SOURCE)falloc.c \
 				 
 SRCS_BIN = $(patsubst %.c,task/%_bin.c,$(SRCS_TASKS))
 
