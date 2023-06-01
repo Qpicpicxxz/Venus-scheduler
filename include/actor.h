@@ -16,8 +16,6 @@ typedef struct actor {
   fifo_t* out[MAXRES][MAXOUT];
   uint32_t task_addr;
   uint32_t task_len;
-  list_t* fire_list;
-  list_t* linger_list;
 } actor_t; /* actor template */
 
 typedef struct ready {

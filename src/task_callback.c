@@ -39,8 +39,6 @@ static inline void alloc_result(void) {
     // TODO: if it's a vector, then record the result vector's length
     token->attr = RetLen;
 
-    for (int j = 0; actor->out[i][j] != NULL; j++)
-      data->cnt++;
     // if its the last data packet
     if (actor->out[i + 1][0] == NULL)
       dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, token);

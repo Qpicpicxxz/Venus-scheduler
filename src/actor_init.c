@@ -14,15 +14,9 @@ void list_init(void) {
   ready_l = create_list();
 }
 
-/* Function: Catch initial satified actors */
-void schedule_init(void) {
-  ready_search();
-}
-
 void actor_launch(void) {
   list_init();
   DAG_depict();
-  schedule_init();
   actor_check();
 }
 

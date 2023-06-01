@@ -12,8 +12,6 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen) {
   }
   actor->task_addr   = taskStart;
   actor->task_len    = taskLen;
-  actor->fire_list   = NULL;
-  actor->linger_list = NULL;
   /* 2. Transforming function invocations into task linked constructs */
   insert(actor_l, create_node((uint32_t)actor));
   return actor;

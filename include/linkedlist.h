@@ -18,6 +18,7 @@ typedef struct list {
 } list_t;
 
 list_t* create_list(void);
+void reset_list(list_t* list);
 node_t* create_node(uint32_t item);
 void free_node(node_t* p);
 void free_list(list_t* l);

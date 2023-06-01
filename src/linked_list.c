@@ -18,6 +18,12 @@ list_t* create_list(void) {
   return list;
 }
 
+/* Function: Reset a list */
+void reset_list(list_t* list){
+  list->head->next = list->tail;
+  list->tail->prev = list->head;
+}
+
 /* Function: Create a new node for linked list */
 node_t* create_node(uint32_t item) {
   node_t* p = malloc(sizeof(node_t));

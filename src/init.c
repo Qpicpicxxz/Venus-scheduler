@@ -18,6 +18,7 @@ static msg_t msg_6;
 static msg_t msg_7;
 
 void msg_array_init(void) {
+  /* Bind msg with DMA channel */
   msg_array[0] = &msg_0;
   msg_array[1] = &msg_1;
   msg_array[2] = &msg_2;
@@ -26,6 +27,15 @@ void msg_array_init(void) {
   msg_array[5] = &msg_5;
   msg_array[6] = &msg_6;
   msg_array[7] = &msg_7;
+  /* Allocate msg's token list space */
+  msg_0.token_list = create_list();
+  msg_1.token_list = create_list();
+  msg_2.token_list = create_list();
+  msg_3.token_list = create_list();
+  msg_4.token_list = create_list();
+  msg_5.token_list = create_list();
+  msg_6.token_list = create_list();
+  msg_7.token_list = create_list();
 }
 
 block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
@@ -66,5 +76,4 @@ void devctrl_init(void) {
   // WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(6), CLUSTER_AXI_BLOCK_ALL_EN);
   // WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(7), CLUSTER_AXI_BLOCK_ALL_EN);
 }
-
 
