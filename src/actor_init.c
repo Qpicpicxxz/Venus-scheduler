@@ -11,8 +11,9 @@ extern void actor_check(void);
 extern uint8_t fire_check(actor_t* g);
 
 /* DAG.c */
-extern void basic_DAG_test(void);
-extern void dynamic_DAG_test(void);
+extern void basic_DAG_demo_1(void);
+extern void basic_DAG_demo_2(void);
+extern void dynamic_DAG_demo(void);
 
 /* Function: Initialize all actor's list and ready actor's list */
 void list_init(void) {
@@ -26,7 +27,7 @@ void DAG_depict() {
   printf(GREEN("\nSCHEDULER: Creating task...\n"));
 #endif
   // DAG with random dependencies
-  basic_DAG_test();
+  basic_DAG_demo_2();
   // dynamic_DAG_test();
   /* means to input initial data packets */
   for (int i = 0; i < NUM_PACKET; i++) {

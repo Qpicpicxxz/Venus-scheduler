@@ -1,6 +1,6 @@
 #include "task.h"
 
-void basic_DAG_test(void) {
+void basic_DAG_demo_1(void) {
   /* means to specify a actor (node) */
   actor_t* A = actor_create(TASK1_START, TASK1_LEN);
   actor_t* B = actor_create(TASK1_START, TASK1_LEN);
@@ -19,7 +19,29 @@ void basic_DAG_test(void) {
   assign_sink(D);
 }
 
-void dynamic_DAG_test(void) {
+void basic_DAG_demo_2(void){
+  /* Create every actor's description in dependency graph */
+  actor_t* A = actor_create(TASK1_START, TASK1_LEN);
+  actor_t* B = actor_create(TASK1_START, TASK1_LEN);
+  actor_t* C = actor_create(TASK1_START, TASK1_LEN);
+  actor_t* D = actor_create(TASK1_START, TASK1_LEN);
+  actor_t* E = actor_create(TASK1_START, TASK1_LEN);
+  /* Assign dependencies between actors  */
+  edge_make(A, 0, B, 0);
+  edge_make(A, 3, B, 1);
+  edge_make(A, 0, C, 0);
+  edge_make(A, 1, C, 1);
+  edge_make(A, 2, C, 2);
+  edge_make(A, 3, D, 0);
+  edge_make(B, 0, E, 0);
+  edge_make(C, 0, E, 1);
+  edge_make(D, 0, E, 2);
+  /* Specify root actor and tail actor */
+  assign_root(A);
+  assign_sink(E);
+}
+
+void dynamic_DAG_demo(void) {
   /* means to specify a actor (node) */
   actor_t* A  = actor_create(TASK1_START, TASK1_LEN);
   actor_t* R1 = actor_create(TASK1_START, TASK1_LEN);
