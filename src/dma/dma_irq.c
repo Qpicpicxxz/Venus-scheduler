@@ -79,7 +79,16 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
   uint8_t BLOCK_TFR_DONE_IntStat                 = BIT_PICK(CHx_INTSTATUSREG, 0);
 
   /* [P.195] CHx_INTCLEARREG */
-  if (CH_ABORTED_IntStat) {
+  if (DMA_TFR_DONE_IntStat) {
+    // printf("[Hardware] SCHEDULER: DMAC Channel %d DMA Transfer Done Interrupt occurred... $stop\n", channel_index);
+    // printf("DMAC Channel %d transfer done\n", channel_index);
+    uint64_t Clear_DMA_TFR_DONE_IntStat = ((uint64_t)1 << 1);
+    WRITE_BURST_64(VENUS_DMAC_ADDR,
+                   DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
+                   Clear_DMA_TFR_DONE_IntStat);
+    // TODO: DMA done callback...
+    dma_transmit_done_handler(channel_index);
+  } else if (CH_ABORTED_IntStat) {
     // printf("[Hardware] SCHEDULER: DMAC Channel %d Channel Aborted Interrupt occurred... $stop\n", channel_index);
     printf("DMAC Channel %d IRQ [31] $stop\n", channel_index);
     uint64_t Clear_CH_ABORTED_IntStat = ((uint64_t)1 << 31);
@@ -240,15 +249,6 @@ void DMAC_CHx_interrupt_handler(uint32_t channel_index) {
     WRITE_BURST_64(VENUS_DMAC_ADDR,
                    DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
                    Clear_SRC_TRANSCOMP_IntStat);
-  } else if (DMA_TFR_DONE_IntStat) {
-    // printf("[Hardware] SCHEDULER: DMAC Channel %d DMA Transfer Done Interrupt occurred... $stop\n", channel_index);
-    // printf("DMAC Channel %d transfer done\n", channel_index);
-    uint64_t Clear_DMA_TFR_DONE_IntStat = ((uint64_t)1 << 1);
-    WRITE_BURST_64(VENUS_DMAC_ADDR,
-                   DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(channel_index),
-                   Clear_DMA_TFR_DONE_IntStat);
-    // TODO: DMA done callback...
-    dma_transmit_done_handler(channel_index);
   } else if (BLOCK_TFR_DONE_IntStat) {
     // printf("[Hardware] SCHEDULER: DMAC Channel %d Block Transfer Done Interrupt occurred... $stop\n", channel_index);
     printf("DMAC Channel %d IRQ [0] $stop\n", channel_index);
@@ -297,7 +297,7 @@ void DMAC_interrupt_handler(void) {
 
 uint32_t DMAC_get_free_channel(void) {
   uint64_t ch_en_reg = READ_BURST_64(VENUS_DMAC_ADDR, DMAC_CH_EN_REG_OFFSET);
-  uint32_t free_channel_index;
+  // uint32_t free_channel_index;
   // while(READDATA64[(DMAC_NUMBER_OF_CHANNELS-1):0]=={(DMAC_NUMBER_OF_CHANNELS){1'b1}})
   while ((ch_en_reg & CHANNEL_MASK) == CHANNEL_MASK) {
     ch_en_reg = READ_BURST_64(VENUS_DMAC_ADDR, DMAC_CH_EN_REG_OFFSET);
@@ -305,11 +305,13 @@ uint32_t DMAC_get_free_channel(void) {
   for (int i = 0; i < DMAC_NUMBER_OF_CHANNELS; i = i + 1) {
     // READDATA64[i]==1'b0
     if (BIT_PICK(ch_en_reg, i) == 0) {
-      free_channel_index = i;
-      break;
+      // free_channel_index = i;
+      // break;
+      return i;
     }
   }
-  return free_channel_index;
+  // return free_channel_index;
+  return FREE_CHANNEL_WRONG_LABEL;
 }
 
 /* [P.136]

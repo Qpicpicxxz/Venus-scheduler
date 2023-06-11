@@ -41,26 +41,31 @@ void dma_init(void) {
   DMAC_config();
 }
 
-void lli_setup(uint64_t destination_addr, uint64_t source_addr, uint32_t transfer_length_byte, lli_t* current_lli, lli_t* next_lli, uint32_t lli_last) {
+inline void lli_setup(uint64_t destination_addr, uint64_t source_addr, uint32_t transfer_length_byte, lli_t* current_lli, lli_t* next_lli, uint32_t lli_last) {
   lli_t* lli                 = current_lli;
   uint32_t next_item_pointer = (uint32_t)next_lli;
   lli->Reserved0             = 0;
   lli->CHx_LLP_STATUS        = 0;
   lli->WB_CHx_DSTAT          = 0;
   lli->WB_CHx_SSTAT          = 0;
-  lli->CHx_CTL               = CTL_config(lli_last);
-  lli->CHx_LLP               = (uint64_t)next_item_pointer;
-  lli->CHx_BLOCK_TS          = transfer_length_byte / 8;  // the [source_transfer_width]th power of 2
-  lli->CHx_DAR               = destination_addr;
-  lli->CHx_SAR               = source_addr;
+  if (lli_last) {
+    lli->CHx_CTL = 0xc0ffffc040089b00;
+  } else {
+    lli->CHx_CTL = 0x80ffffc040089b00;
+  }
+  lli->CHx_LLP      = (uint64_t)next_item_pointer;
+  lli->CHx_BLOCK_TS = transfer_length_byte / 8;  // the [source_transfer_width]th power of 2
+  lli->CHx_DAR      = destination_addr;
+  lli->CHx_SAR      = source_addr;
 }
 
 void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, token_t* token) {
+  // printf("dst: %p, src: %p, len: %p, block: %p, token: %p\n", dst, src, len, block, token);
   /* create linked list for DMA transfer */
   lli_t* current_lli                = malloc_LLI();                                          // -36
   uint64_t destination_addr         = (uint64_t)dst;                                         // -80 -76
   uint64_t source_addr              = (uint64_t)src;                                         // -88 -84
-  uint32_t transfer_length_byte     = len;                                                   // -92
+  uint32_t transfer_length_byte     = len - 8;                                               // -92
   uint32_t total_chunk              = (transfer_length_byte / DMA_MAX_TRANSFER_LENGTH) + 1;  // -96
   uint64_t current_source_addr      = source_addr;
   uint64_t current_destination_addr = destination_addr;
@@ -74,9 +79,11 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
   } else {
     // the first transfer task, get a free DMA channel
     free_channel_index = DMAC_get_free_channel();
-    head_lli           = current_lli;
-    msg                = msg_array[free_channel_index];
-    msg->lli           = head_lli;
+    if (free_channel_index == FREE_CHANNEL_WRONG_LABEL)
+      printf("get free channel wrong!!! $stop\n");
+    head_lli = current_lli;
+    msg      = msg_array[free_channel_index];
+    msg->lli = head_lli;
   }
   // put current transfering token into global token list
   if (token != NULL)

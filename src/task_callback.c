@@ -16,34 +16,67 @@ static inline void alloc_result(void) {
   block_t* pseudo_block = NULL;
   data_t* data;
   token_t* token;
+  uint32_t task_ret_num  = actor->task_nxt;
+  uint32_t block_ret_num = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_NUMRETREG_OFFSET);
 
-  // 1. tranverse every return value
-  for (int i = 0; actor->out[i][0] != NULL; i++) {
-    uint32_t RetAddr = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETADDRREG_OFFSET(i));
-    uint32_t RetLen  = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETLENREG_OFFSET(i));
+  // three situations: multiple batches of result, normal situation and dynamic dependencies
+  if (block_ret_num > task_ret_num) {
+    printf("Not support multiple batch sence yet $stop\n");
+  } else if (block_ret_num == task_ret_num) {
+    // normal situation
+    for (int i = 0; actor->out[i][0] != NULL; i++) {
+      uint32_t RetAddr = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETADDRREG_OFFSET(i));
+      uint32_t RetLen  = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETLENREG_OFFSET(i));
 
-    alloc_addr = (uint32_t)malloc(RetLen);
-    data       = (data_t*)malloc(sizeof(data));
-    data->ptr  = alloc_addr;
-    // initialize data lifecycle
-    data->cnt = 0;
-    // count data itself lifecycle
-    for (int j = 0; actor->out[i][j] != NULL; j++)
-      data->cnt++;
+      alloc_addr = (uint32_t)malloc(RetLen);
+      data       = (data_t*)malloc(sizeof(data));
+      data->ptr  = alloc_addr;
+      // initialize data lifecycle
+      data->cnt = 0;
+      // count data itself lifecycle
+      for (int j = 0; actor->out[i][j] != NULL; j++)
+        data->cnt++;
 
-    token       = (token_t*)malloc(sizeof(token));
-    token->data = data;
-    // add a judge logic to distinguish if its a scalar(packet) or vector
-    // we may can judge the retLen to distinguish whether its a scalar or vector
-    // TODO: if it's a scalar, then mark as a scalar data
-    // TODO: if it's a vector, then record the result vector's length
-    token->attr = RetLen;
+      token       = (token_t*)malloc(sizeof(token));
+      token->data = data;
+      // add a judge logic to distinguish if its a scalar(packet) or vector
+      token->attr = RetLen;
 
-    // if its the last data packet
-    if (actor->out[i + 1][0] == NULL)
-      dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, token);
-    else
-      dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, token);
+      // inform DMA
+      // if its the last data packet
+      if (actor->out[i + 1][0] == NULL)
+        dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, token);
+      else
+        dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, token);
+    }
+  } else {
+    // dynamic dependencies
+    printf("Dynamic dependecies detected\n");
+    for (int i = 0; i < block_ret_num; i++) {
+      uint32_t RetAddr = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETADDRREG_OFFSET(i));
+      uint32_t RetLen  = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETLENREG_OFFSET(i));
+
+      alloc_addr = (uint32_t)malloc(RetLen);
+      data       = (data_t*)malloc(sizeof(data));
+      data->ptr  = alloc_addr;
+      // initialize data lifecycle
+      data->cnt = 0;
+      // count data itself lifecycle
+      for (int j = 0; actor->out[i][j] != NULL; j++)
+        data->cnt++;
+
+      token       = (token_t*)malloc(sizeof(token));
+      token->data = data;
+      // add a judge logic to distinguish if its a scalar(packet) or vector
+      token->attr = RetLen;
+
+      // inform DMA
+      // if its the last data packet
+      if (i == block_ret_num - 1)
+        dma_transfer_link(alloc_addr, RetAddr, RetLen, cur_block, token);
+      else
+        dma_transfer_link(alloc_addr, RetAddr, RetLen, pseudo_block, token);
+    }
   }
 }
 

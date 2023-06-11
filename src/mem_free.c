@@ -1,27 +1,6 @@
 /* ref: https://github.com/yangminz/bcst_csapp/blob/bcb8ddbcf542b9f196868aa35661223a2f40eb25/src/mains/mem_alloc.c */
 #include "allocator.h"
 
-uint32_t get_prevfree(uint32_t block_header) {
-  if (!block_header) {
-    return 0;
-  }
-  return *(uint32_t*)(block_header + 4);
-}
-
-uint32_t get_nextfree(uint32_t block_header) {
-  if (!block_header) {
-    return 0;
-  }
-  return *(uint32_t*)(block_header + 8);
-}
-
-void set_prevfree(uint32_t block_header, uint32_t prev_header) {
-  *(uint32_t*)(block_header + 4) = (uint32_t)prev_header;
-}
-
-void set_nextfree(uint32_t block_header, uint32_t prev_header) {
-  *(uint32_t*)(block_header + 8) = (uint32_t)prev_header;
-}
 
 void free_list_insert(uint32_t block_header) {
   // if list is empty

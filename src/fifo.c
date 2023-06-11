@@ -17,7 +17,7 @@ uint8_t fifo_size(fifo_t* F) {
 }
 
 /* Push in a token */
-void put_token(fifo_t* F, token_t* token) {
+inline void put_token(fifo_t* F, token_t* token) {
   if (fifo_full(F)) {
     printf("SCHEDULER: Fifo is full! pointer 0x%x write failed $stop\n", token->data->ptr);
   } else {
@@ -27,7 +27,7 @@ void put_token(fifo_t* F, token_t* token) {
 }
 
 /* Get out a token */
-token_t* get_token(fifo_t* F) {
+inline token_t* get_token(fifo_t* F) {
   if (fifo_empty(F)) {
     return NULL;
   } else {
@@ -35,5 +35,15 @@ token_t* get_token(fifo_t* F) {
     F->rptr        = (F->rptr + 1) % MAXFIFO;
     return token;
   }
+}
+
+/* Read a token */
+inline token_t* read_token(fifo_t* F) {
+  if (F->rptr != F->wptr) {
+    token_t* token = F->token[F->rptr];
+    return token;
+  }
+  printf("FIFO WRONG[rptr==wptr]\n");
+  return NULL;
 }
 

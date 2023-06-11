@@ -10,8 +10,9 @@ actor_t* actor_create(uint32_t taskStart, uint32_t taskLen) {
   for (int i = 0; i < MAXRES; i++) {
     memset(actor->out[i], 0, MAXOUT * sizeof(fifo_t*));
   }
-  actor->task_addr   = taskStart;
-  actor->task_len    = taskLen;
+  actor->task_addr = taskStart;
+  actor->task_len  = taskLen;
+  actor->task_nxt  = 0;
   /* 2. Transforming function invocations into task linked constructs */
   insert(actor_l, create_node((uint32_t)actor));
   return actor;

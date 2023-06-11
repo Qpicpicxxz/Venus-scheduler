@@ -14,10 +14,10 @@ SRCS_C = \
 		${SOURCE}/uart.c \
 		${SOURCE}/epilogue.c \
 		${SOURCE}/init.c \
+		${SOURCE}/ulib.c \
 		${SOURCE}/mem_alloc.c \
 		${SOURCE}/mem_block.c \
 		${SOURCE}/mem_free.c \
-		${SOURCE}/ulib.c
 
 
 

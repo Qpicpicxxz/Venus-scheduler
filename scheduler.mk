@@ -3,6 +3,7 @@ DMA = src/dma
 TASK = task
 TASKCODE = task/code
 TASKBIN = task/cbin
+CFLAGS += -O2
 
 SRCS_ASM = \
 		$(SOURCE)/irq_vector.S \
@@ -18,7 +19,6 @@ SRCS_C = \
 		$(SOURCE)/ulib.c \
 		$(SOURCE)/irq.c \
 		$(SOURCE)/mem_alloc.c \
-		$(SOURCE)/mem_block.c \
 		$(SOURCE)/mem_free.c \
 		$(SOURCE)/linked_list.c \
 		$(SOURCE)/fire_check.c \

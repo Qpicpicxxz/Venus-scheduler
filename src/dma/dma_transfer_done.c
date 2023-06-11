@@ -16,28 +16,38 @@ static block_t* block;
 static list_t* token_list;
 
 static void scheduler_pass_result() {
-  actor_t* actor = block->actor;  // -32(s0)
-  // token_list: 0x8000103a0
-  node_t* p = token_list->tail->prev;  // -20(s0)
-  // 0x80010f48 0x80010fc8
+  actor_t* actor = block->actor;
+  node_t* p      = token_list->tail->prev;
 
   // pass the result to successors i -> different result |  j -> different fifo
   for (int i = 0; actor->out[i][0] != NULL; i++) {
-    for (int j = 0; actor->out[i][j] != NULL; j++) {
-      token_t* original_token = (token_t*)p->item;  // -36(s0)
-      // if its the first fifo of this result
-      if (j == 0) {
-        put_token(actor->out[i][j], original_token);
-      } else {
-        // create(duplicate) a new data structure (to ensure different fifo has different data structure)
-        token_t* dup_token = malloc(sizeof(token_t));
-        dup_token->data    = original_token->data;
-        dup_token->attr    = original_token->attr;
-        put_token(actor->out[i][j], dup_token);
+    // real token
+    if (p != token_list->head) {
+      for (int j = 0; actor->out[i][j] != NULL; j++) {
+        token_t* original_token = (token_t*)p->item;
+        // if its the first fifo of this result
+        if (j == 0) {
+          put_token(actor->out[i][j], original_token);
+        } else {
+          // create(duplicate) a new data structure (to ensure different fifo has different data structure)
+          token_t* dup_token = malloc(sizeof(token_t));
+          dup_token->data    = original_token->data;
+          dup_token->attr    = original_token->attr;
+          put_token(actor->out[i][j], dup_token);
+        }
+      }
+      p = p->prev;
+    } else {
+      // pseudo token (dynamic dependencies)
+      for (int j = 0; actor->out[i][j] != NULL; j++) {
+        // create a pseudo_token and inject it into pseudo task's fifo
+        token_t* pseudo_token = (token_t*)PSEUDO_TOKEN_LABEL;
+        put_token(actor->out[i][j], pseudo_token);
       }
     }
-    p = p->prev;
   }
+
+  // TODO: arrival disorder check...
 }
 
 static inline void recycle_garbage(void) {

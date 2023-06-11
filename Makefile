@@ -20,7 +20,7 @@ ${OBJS}: task-compile
 
 .PHNOY: task-compile
 task-compile:
-	@cd task && ${MAKE} all
+	@cd ${TASK} && ${MAKE} all
 	@echo ""
 	@echo "  ========== COMPILE SCHEDULER ========="
 	@echo ""
@@ -36,7 +36,7 @@ clean:
 	rm -rf *.o *.bin *.elf *.txt *.out *.map *.zip *_bin.c
 	@cd src && rm -rf *.o *.bin *.elf *.txt *_bin.c
 	@cd src/dma && rm -rf *.o *.bin *.elf *.txt
-	@cd task && ${MAKE} clean
+	@cd ${TASK} && ${MAKE} clean
 
 
 

@@ -11,6 +11,7 @@
 #define CHANNEL_MASK   ((1 << DMAC_NUMBER_OF_CHANNELS) - 1)
 #define BIT_PICK(N, i) ((N >> i) & 1)
 #define ALL_1_RESET    0xffffffffffffffff
+#define FREE_CHANNEL_WRONG_LABEL 999
 
 /* dma tools */
 extern lli_t* malloc_LLI(void);

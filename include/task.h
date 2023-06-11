@@ -2,9 +2,9 @@
 #define __TASK_H__
 
 #define MAXFIFO (MAX_BUFFER + 1)  // to differentiate fifo-full and fifo-empty
-#define MAXIN   MAX_DEP
-#define MAXOUT  MAX_NXT
-#define MAXRES  MAX_RESULT
+#define MAXIN   (MAX_DEP + 1)
+#define MAXOUT  (MAX_NXT + 1)
+#define MAXRES  (MAX_RESULT + 1)
 
 // if is a vector, then it represents a vreg table address, then the highest bit is always 1
 // so we can use this attribute to judge whether it should be moved into sdspm or vdspm
@@ -16,6 +16,7 @@
 #define SCALAR_LABEL              0
 #define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
 #define SCALAR_LEN                4
+#define PSEUDO_TOKEN_LABEL        666
 
 #include "actor.h"
 #include "block.h"
