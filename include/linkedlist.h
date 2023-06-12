@@ -17,22 +17,39 @@ typedef struct list {
   node_t* tail;
 } list_t;
 
+/* Function: Initialize a list */
 list_t* create_list(void);
-void reset_list(list_t* list);
-node_t* create_node(uint32_t item);
-void free_node(node_t* p);
-void free_list(list_t* l);
-node_t* search(list_t* list, uint32_t key);
-void insert(list_t* list, node_t* p);
-void delete_node(node_t* p);
-void traverse(list_t* list, void (*visit)(node_t*));
-void destroy_list(list_t* list);
-void destroy_node(node_t* node);
-node_t* read_first(list_t* list);
-node_t* read_last(list_t* list);
-void insert_before(list_t* list, node_t* node, uint32_t item);
-uint8_t is_list_empty(list_t* list);
+
+/* Function: Reset a list */
+inline void reset_list(list_t* list) {
+  list->head->next = list->tail;
+  list->tail->prev = list->head;
+}
+
+/* Function: Create a new node for linked list */
+inline node_t* create_node(uint32_t item) {
+  node_t* p = malloc(sizeof(node_t));
+  p->item   = item;
+  p->prev = p->next = NULL;
+  return p;
+}
+
+/* Function: Insert a node follow the head */
+inline void insert(list_t* list, node_t* p) {
+  p->next                = list->head->next;
+  list->head->next->prev = p;
+  list->head->next       = p;
+  p->prev                = list->head;
+}
+
+/* Function: Check if it's an empty list */
+inline uint8_t is_list_empty(list_t* list) {
+  if (list->tail->prev == list->head) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
 
 #endif /* __LINKEDLIST_H__ */
-
 

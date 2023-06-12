@@ -273,74 +273,25 @@ void DMAC_interrupt_handler(void) {
   uint8_t CH3_IntStat        = BIT_PICK(DMAC_IntStatusReg, 2);
   uint8_t CH2_IntStat        = BIT_PICK(DMAC_IntStatusReg, 1);
   uint8_t CH1_IntStat        = BIT_PICK(DMAC_IntStatusReg, 0);
-  if (CommonReg_IntStat)
-    DMAC_CommonReg_interrupt_handler();
-  else if (CH8_IntStat)
-    DMAC_CHx_interrupt_handler(7);
-  else if (CH7_IntStat)
-    DMAC_CHx_interrupt_handler(6);
-  else if (CH6_IntStat)
-    DMAC_CHx_interrupt_handler(5);
-  else if (CH5_IntStat)
-    DMAC_CHx_interrupt_handler(4);
-  else if (CH4_IntStat)
-    DMAC_CHx_interrupt_handler(3);
-  else if (CH3_IntStat)
-    DMAC_CHx_interrupt_handler(2);
+  if (CH1_IntStat)
+    DMAC_CHx_interrupt_handler(0);
   else if (CH2_IntStat)
     DMAC_CHx_interrupt_handler(1);
-  else if (CH1_IntStat)
-    DMAC_CHx_interrupt_handler(0);
+  else if (CH3_IntStat)
+    DMAC_CHx_interrupt_handler(2);
+  else if (CH4_IntStat)
+    DMAC_CHx_interrupt_handler(3);
+  else if (CH5_IntStat)
+    DMAC_CHx_interrupt_handler(4);
+  else if (CH6_IntStat)
+    DMAC_CHx_interrupt_handler(5);
+  else if (CH7_IntStat)
+    DMAC_CHx_interrupt_handler(6);
+  else if (CH8_IntStat)
+    DMAC_CHx_interrupt_handler(7);
+  else if (CommonReg_IntStat)
+    DMAC_CommonReg_interrupt_handler();
   else
     printf("[Hardware] SCHEDULER: Fatal Error, An Unexpected DMAC interrupt occurred, please check... $stop\n");
-}
-
-uint32_t DMAC_get_free_channel(void) {
-  uint64_t ch_en_reg = READ_BURST_64(VENUS_DMAC_ADDR, DMAC_CH_EN_REG_OFFSET);
-  // uint32_t free_channel_index;
-  // while(READDATA64[(DMAC_NUMBER_OF_CHANNELS-1):0]=={(DMAC_NUMBER_OF_CHANNELS){1'b1}})
-  while ((ch_en_reg & CHANNEL_MASK) == CHANNEL_MASK) {
-    ch_en_reg = READ_BURST_64(VENUS_DMAC_ADDR, DMAC_CH_EN_REG_OFFSET);
-  }
-  for (int i = 0; i < DMAC_NUMBER_OF_CHANNELS; i = i + 1) {
-    // READDATA64[i]==1'b0
-    if (BIT_PICK(ch_en_reg, i) == 0) {
-      // free_channel_index = i;
-      // break;
-      return i;
-    }
-  }
-  // return free_channel_index;
-  return FREE_CHANNEL_WRONG_LABEL;
-}
-
-/* [P.136]
- * DMAC_ChEnReg [15:8] -> CH_EN_WE  [7:0] -> CH_EN
- * 0: DW_axi_dmac Channel is disabled.
- * 1: DW_axi_dmac Channel is enabled.
- */
-void DMAC_CHx_enable_channel(uint32_t free_channel_index) {
-  uint32_t CH_EN_WE          = 1 << (free_channel_index + 8);  // [(7:NC):8]
-  uint32_t CH_EN             = 1 << free_channel_index;        // [(NC-1):0]
-  uint32_t DMAC_CHEnReg_15_0 = CH_EN_WE | CH_EN;
-  WRITE_BURST_32(VENUS_DMAC_ADDR,
-                 DMAC_CH_EN_REG_OFFSET,
-                 DMAC_CHEnReg_15_0);
-}
-
-/* [P.164] CHx_LLP */
-void DMAC_CHx_specify_first_lli(lli_t* head_lli, uint32_t free_channel_index) {
-  assert((uint32_t)head_lli % 64 == 0);
-  uint32_t first_lli    = (uint32_t)head_lli;
-  uint64_t LOC          = (uint64_t)first_lli & 0xffffffffffffffc0;
-  uint64_t LMS          = ((uint64_t)0 << 0);
-  uint64_t RESERVED_5_1 = ((uint64_t)0 << 1);
-  uint64_t CHx_LLP =
-      LOC |           // [LOC][63:6] Starting Address in memory of next LLI
-      RESERVED_5_1 |  // [5:1] Reserved and read as zero
-      LMS;            // [LMS][0] LLI master Select (does not exist in this design)
-  WRITE_BURST_64(VENUS_DMAC_ADDR,
-                 DMAC_CH_LLP_REG_OFFSET_CH(free_channel_index),
-                 CHx_LLP);
 }
 

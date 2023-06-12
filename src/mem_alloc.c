@@ -74,64 +74,6 @@ void heap_init(void) {
   free_list_insert(first_block);
 }
 
-static uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request_blocksize) {
-  if (request_blocksize < MIN_BLOCKSIZE) {
-    return 0;
-  }
-
-  uint32_t blocksize = get_blocksize(block_header);
-  uint32_t allocated = get_allocated(block_header);
-
-  if (allocated == FREE && blocksize >= request_blocksize) {
-    // allocate this block
-    if (blocksize - request_blocksize >= MIN_BLOCKSIZE) {
-      /*
-       * Before split:
-       *       |<------------------------------------------ blocksize ----------------------------------------------->|
-       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
-       *       | header(F) | prevfree | nextfree |                          FREE                          | footer(F) |
-       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
-       *  block_header                                                                               block_footer
-       *
-       * After split:
-       *       |<---------- request_blocksize ------------>|<------------blocksize - request_blocksize -------------->|
-       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
-       *       | header(A) |      payload      | footer(A) | header(F) | prevfree | nextfree |    FREE    | footer(F) |
-       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
-       *  block_header                     block_footer  new_header                                    new_footer
-       */
-      uint32_t new_footer = get_footer(block_header);
-      set_blocksize(new_footer, blocksize - request_blocksize);
-
-      set_allocated(block_header, ALLOCATED);
-      set_blocksize(block_header, request_blocksize);
-
-      WRITE_BURST_32(get_footer(block_header), 0, 0);
-      uint32_t block_footer = get_footer(block_header);
-      set_allocated(block_footer, ALLOCATED);
-      set_blocksize(block_footer, request_blocksize);
-
-      WRITE_BURST_32(get_nextheader(block_header), 0, 0);
-      uint32_t new_header = get_nextheader(block_header);
-      set_allocated(new_header, FREE);
-      set_blocksize(new_header, blocksize - request_blocksize);
-
-      return get_payload(block_header);
-
-    } else if (blocksize - request_blocksize < MIN_BLOCKSIZE) {
-      // if splitted, it could't contain header + prevfree + nextfree + footer descriptor
-
-      // set_allocated(block_header, ALLOCATED);
-      // uint32_t block_footer = get_footer(block_header);
-      // set_allocated(block_footer, ALLOCATED);
-
-      // return get_payload(block_header);
-      return 0;
-    }
-  }
-  return 0;
-}
-
 void* malloc(uint32_t size) {
   // make sure it's a legal size
   assert(0 < size && size < alloc_end - alloc_start - 4 - 8 - 4);

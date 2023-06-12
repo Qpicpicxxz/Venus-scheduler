@@ -10,17 +10,6 @@
 #define NOT_LAST_SHADOW_REGISTER 0
 #define LAST_SHADOW_REGISTER     1
 
-extern void vcs_stop(void);
-
-/* dma_config.c */
-extern void DMAC_config(void);
-extern void DMAC_reset(void);
-extern uint64_t CTL_config(uint64_t lli_last);
-extern void CFG_config(uint32_t free_channel_index);
-/* dma_irq.c */
-extern uint32_t DMAC_get_free_channel(void);
-extern void DMAC_CHx_specify_first_lli(lli_t* head_lli, uint32_t free_channel_index);
-extern void DMAC_CHx_enable_channel(uint32_t free_channel_index);
 /* start.S */
 extern void vcs_stop(void);
 
@@ -31,10 +20,6 @@ static lli_t* last_lli;
 static msg_t* msg;
 static uint32_t free_channel_index;
 
-uint64_t destination_max_burst_length = 256;
-uint64_t source_max_burst_length      = 256;
-uint32_t destination_transfer_width   = AXI4_BURST_SIZE_8_BYTE;
-uint32_t source_transfer_width        = AXI4_BURST_SIZE_8_BYTE; /* SRC_TR_WIDTH */
 
 void dma_init(void) {
   DMAC_reset();

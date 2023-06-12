@@ -19,15 +19,12 @@ SRCS_C = \
 		$(SOURCE)/ulib.c \
 		$(SOURCE)/irq.c \
 		$(SOURCE)/mem_alloc.c \
-		$(SOURCE)/mem_free.c \
 		$(SOURCE)/linked_list.c \
 		$(SOURCE)/fire_check.c \
-		$(SOURCE)/fifo.c \
 		$(SOURCE)/actor_init.c \
 		$(SOURCE)/actor_create.c \
 		$(SOURCE)/task_callback.c \
 		$(SOURCE)/padding.c \
-		$(DMA)/dma_config.c \
 		$(DMA)/dma_irq.c \
 		$(DMA)/dma_lli_create.c \
 		$(DMA)/dma_transfer_done.c \

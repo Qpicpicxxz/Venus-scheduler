@@ -147,9 +147,150 @@ inline uint32_t get_firstblock() { return get_prologue() + 8; }
 inline uint32_t get_lastblock() { return get_prevheader(get_epilogue()); }
 
 /* Free list operations */
-void free_list_insert(uint32_t block_header);
-void free_list_delete(uint32_t block_header);
-uint32_t merge_free_blocks(uint32_t low_header, uint32_t high_header);
+inline void free_list_insert(uint32_t block_header) {
+  // if list is empty
+  if (free_list_head == 0 || free_list_counter == 0) {
+    set_prevfree(block_header, block_header);
+    set_nextfree(block_header, block_header);
+    free_list_head    = block_header;
+    free_list_counter = 1;
+    return;
+  }
+  /*
+   * Next free list:
+   *                +--------------------------------------+
+   *     Before:    |                                      |
+   *                +-->old_head--->node--->node--->tail---+
+   *
+   *
+   *                +------------------------------------------------------+
+   *     After:     |                                                      |
+   *                +-->block_header--->old_head--->node--->node--->tail---+
+   *                     (new_head)
+   */
+  uint32_t tail = get_prevfree(free_list_head);
+
+  set_nextfree(block_header, free_list_head);
+  set_prevfree(free_list_head, block_header);
+  set_nextfree(tail, block_header);
+  set_prevfree(block_header, tail);
+
+  free_list_head = block_header;
+  free_list_counter += 1;
+}
+
+inline void free_list_delete(uint32_t block_header) {
+  if (free_list_head == 0 || free_list_counter == 0) {
+    return;
+  }
+  if (free_list_counter == 1) {
+    free_list_head    = 0;
+    free_list_counter = 0;
+    return;
+  }
+
+  uint32_t prev_header = get_prevfree(block_header);
+  uint32_t next_header = get_nextfree(block_header);
+
+  // if want to delete list header, assign header next block as the new header
+  if (block_header == free_list_head) {
+    free_list_head = next_header;
+  }
+  /*
+   * prev_header <---> block_header <---> next_header
+   * prev_header <---> next_header
+   */
+  set_prevfree(next_header, prev_header);
+  set_nextfree(prev_header, next_header);
+  free_list_counter -= 1;
+}
+
+inline uint32_t merge_free_blocks(uint32_t low_header, uint32_t high_header) {
+  /*
+   *
+   * Before merge:
+   *       |<------------- low_blocksize ------------->|<------------- high_blocksize ------------>|
+   *     --+-----------+-------------------+-----------+-----------+-------------------+-----------+
+   *       | header(?) |                   | footer(?) | header(?) |                   | footer(?) |
+   *     --+-----------+-------------------+-----------+-----------+-------------------+-----------+
+   *    low_header                                                                             high_footer
+   *
+   * After merge:
+   *       |<--------------------------- low_blocksize + high_blocksize -------------------------->|
+   *     --+-----------+---------------------------------------------------------------+-----------+
+   *       | header(F) |                                                               | footer(F) |
+   *     --+-----------+---------------------------------------------------------------+-----------+
+   */
+  uint32_t blocksize = get_blocksize(low_header) + get_blocksize(high_header);
+  set_blocksize(low_header, blocksize);
+  set_allocated(low_header, FREE);
+
+  // set merged block's footer
+  uint32_t high_footer = get_footer(high_header);
+  set_blocksize(high_footer, blocksize);
+  set_allocated(high_footer, FREE);
+
+  return low_header;
+}
+
+/* Split block */
+inline uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request_blocksize) {
+  if (request_blocksize < MIN_BLOCKSIZE) {
+    return 0;
+  }
+
+  uint32_t blocksize = get_blocksize(block_header);
+  uint32_t allocated = get_allocated(block_header);
+
+  if (allocated == FREE && blocksize >= request_blocksize) {
+    // allocate this block
+    if (blocksize - request_blocksize >= MIN_BLOCKSIZE) {
+      /*
+       * Before split:
+       *       |<------------------------------------------ blocksize ----------------------------------------------->|
+       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
+       *       | header(F) | prevfree | nextfree |                          FREE                          | footer(F) |
+       *     --+-----------+----------+----------+--------------------------------------------------------+-----------+--
+       *  block_header                                                                               block_footer
+       *
+       * After split:
+       *       |<---------- request_blocksize ------------>|<------------blocksize - request_blocksize -------------->|
+       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
+       *       | header(A) |      payload      | footer(A) | header(F) | prevfree | nextfree |    FREE    | footer(F) |
+       *     --+-----------+-------------------+-----------+-----------+----------+----------+------------+-----------+--
+       *  block_header                     block_footer  new_header                                    new_footer
+       */
+      uint32_t new_footer = get_footer(block_header);
+      set_blocksize(new_footer, blocksize - request_blocksize);
+
+      set_allocated(block_header, ALLOCATED);
+      set_blocksize(block_header, request_blocksize);
+
+      WRITE_BURST_32(get_footer(block_header), 0, 0);
+      uint32_t block_footer = get_footer(block_header);
+      set_allocated(block_footer, ALLOCATED);
+      set_blocksize(block_footer, request_blocksize);
+
+      WRITE_BURST_32(get_nextheader(block_header), 0, 0);
+      uint32_t new_header = get_nextheader(block_header);
+      set_allocated(new_header, FREE);
+      set_blocksize(new_header, blocksize - request_blocksize);
+
+      return get_payload(block_header);
+
+    } else if (blocksize - request_blocksize < MIN_BLOCKSIZE) {
+      // if splitted, it could't contain header + prevfree + nextfree + footer descriptor
+
+      // set_allocated(block_header, ALLOCATED);
+      // uint32_t block_footer = get_footer(block_header);
+      // set_allocated(block_footer, ALLOCATED);
+
+      // return get_payload(block_header);
+      return 0;
+    }
+  }
+  return 0;
+}
 
 #endif /* __ALLOCATOR_H_ */
 
