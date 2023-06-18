@@ -17,9 +17,9 @@ extern msg_t* msg_array[DMAC_NUMBER_OF_CHANNELS];
 
 static lli_t* head_lli;
 static lli_t* last_lli;
+static uint32_t token_index;
 static msg_t* msg;
 static uint32_t free_channel_index;
-
 
 void dma_init(void) {
   DMAC_reset();
@@ -66,13 +66,17 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
     free_channel_index = DMAC_get_free_channel();
     if (free_channel_index == FREE_CHANNEL_WRONG_LABEL)
       printf("get free channel wrong!!! $stop\n");
-    head_lli = current_lli;
-    msg      = msg_array[free_channel_index];
-    msg->lli = head_lli;
+    head_lli    = current_lli;
+    msg         = msg_array[free_channel_index];
+    msg->lli    = head_lli;
+    token_index = 0;
   }
   // put current transfering token into global token list
-  if (token != NULL)
-    insert(msg->token_list, create_node((uint32_t)token));
+  if (token != NULL) {
+    msg->token_array[token_index] = (uint32_t)token;
+    token_index++;
+  }
+  // insert(msg->token_list, create_node((uint32_t)token));
 
   // if not the last data chunk of this DMA channel transfer round
   if (block == NULL) {
@@ -126,7 +130,8 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
       }
     }
     // last data to transfer, enable DMA channel...
-    msg->block = block;
+    msg->block                    = block;
+    msg->token_array[token_index] = LAST_TOKEN;
     CFG_config(free_channel_index);
     DMAC_CHx_specify_first_lli(head_lli, free_channel_index);
     DMAC_CHx_enable_channel(free_channel_index);

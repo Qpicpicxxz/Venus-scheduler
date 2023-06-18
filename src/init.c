@@ -28,14 +28,14 @@ void msg_array_init(void) {
   msg_array[6] = &msg_6;
   msg_array[7] = &msg_7;
   /* Allocate msg's token list space */
-  msg_0.token_list = create_list();
-  msg_1.token_list = create_list();
-  msg_2.token_list = create_list();
-  msg_3.token_list = create_list();
-  msg_4.token_list = create_list();
-  msg_5.token_list = create_list();
-  msg_6.token_list = create_list();
-  msg_7.token_list = create_list();
+  memset(msg_0.token_array, 0, sizeof(msg_0.token_array));
+  memset(msg_1.token_array, 0, sizeof(msg_1.token_array));
+  memset(msg_2.token_array, 0, sizeof(msg_2.token_array));
+  memset(msg_3.token_array, 0, sizeof(msg_3.token_array));
+  memset(msg_4.token_array, 0, sizeof(msg_4.token_array));
+  memset(msg_5.token_array, 0, sizeof(msg_5.token_array));
+  memset(msg_6.token_array, 0, sizeof(msg_6.token_array));
+  memset(msg_7.token_array, 0, sizeof(msg_7.token_array));
 }
 
 block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];

@@ -3,7 +3,7 @@ DMA = src/dma
 TASK = task
 TASKCODE = task/code
 TASKBIN = task/cbin
-CFLAGS += -O2
+CFLAGS += -O3
 
 SRCS_ASM = \
 		$(SOURCE)/irq_vector.S \

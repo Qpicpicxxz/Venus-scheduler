@@ -40,7 +40,7 @@ inline uint8_t fifo_empty(fifo_t* F) { return (F->wptr == F->rptr); }
 /* Push in a token */
 inline void put_token(fifo_t* F, token_t* token) {
   if (fifo_full(F)) {
-    printf("SCHEDULER: Fifo is full! pointer 0x%x write failed $stop\n", token->data->ptr);
+    printf("SCHEDULER: Fifo is full!\n");
   } else {
     F->token[F->wptr] = token;
     F->wptr           = (F->wptr + 1) % MAXFIFO;

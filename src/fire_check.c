@@ -44,56 +44,6 @@ static inline block_t* block_idle(void) {
   return NULL;
 }
 
-// /* Funcition: Fire ready actors when VENUS has idle blocks */
-// void actor_check(void) {
-//   while (1) {
-//     // search all the actors in DAG
-//     for (node_t* p = actor_l->tail->prev; p != actor_l->head; p = p->prev) {
-//       actor = (actor_t*)p->item;
-//       // find a prepared actor
-//       if (actor_ready() && !successor_full() && block_idle()) {
-
-//         _set_block_flag(block, BLOCK_INFLIGHT);
-//         // add_firelist();  // disable judge disorder function for now
-//         // task bind
-//         block->actor = actor;
-//         // a real task, inform dma
-//         uint32_t offset = 0;
-//         // task code
-//         uint32_t mask_irq = Mask_irq(0xffffffff);  // disable all interrupts
-//         dma_transfer_link(block->base_addr + BLOCK_ISPM_OFFSET, actor->task_addr, actor->task_len, NULL, NULL);
-//         // task data
-//         for (int i = 0; actor->in[i] != NULL; i++) {
-//           // get the dependency out from fifo
-//           token_t* token        = get_token(actor->in[i]);
-//           block_t* pseudo_block = NULL;
-//           if (actor->in[i + 1] == 0) {
-//             if (INFORM_DMA_IS_VECTOR(token->attr)) {
-//               // TODO: look up the Vector Register table
-//             } else {
-//               // this data is a scalar
-//               uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + offset;
-//               dma_transfer_link(scalar_offset, token->data->ptr, token->attr, block, token);
-//             }
-//           } else {
-//             if (INFORM_DMA_IS_VECTOR(token->attr)) {
-//               // TODO: look up the Vector Register table
-//             } else {
-//               // this data is a scalar
-//               uint32_t scalar_offset = block->base_addr + BLOCK_SDSPM_OFFSET + offset;
-//               dma_transfer_link(scalar_offset, token->data->ptr, token->attr, pseudo_block, token);
-//             }
-//           }
-//           offset += token->attr;
-//         }
-//         Mask_irq(mask_irq);
-//       }
-//       if (p == actor_l->head->next)
-//         p = actor_l->tail;
-//     }
-//   }
-// }
-
 /* Funcition: Fire ready actors when VENUS has idle blocks */
 void actor_check(void) {
   while (1) {
