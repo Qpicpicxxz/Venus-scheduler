@@ -18,7 +18,6 @@ extern uint32_t free_list_counter;
 #define ALLOCATED     (1)
 #define MIN_BLOCKSIZE (16)
 #define BOUNDART_SIZE 8
-#define LLI_SIZE      64
 
 /* Tools: Round to multiple of n */
 inline uint32_t _align_up(uint32_t x, uint32_t n) { return n * ((x + n - 1) / n); }
@@ -93,6 +92,7 @@ inline uint32_t get_blocksize(uint32_t boundary_addr) { return *(uint32_t*)bound
 inline void set_blocksize(uint32_t boundary_addr, uint32_t blocksize) { *(uint32_t*)boundary_addr = (*(uint32_t*)boundary_addr & 0x7) | blocksize; }
 inline uint32_t get_allocated(uint32_t boundary_addr) { return *(uint32_t*)boundary_addr & 0x1; }
 inline void set_allocated(uint32_t boundary_addr, uint32_t allocated) { *(uint32_t*)boundary_addr = (*(uint32_t*)boundary_addr & 0xFFFFFFFE) | (allocated & 0x1); }
+inline void set_new_allocated(uint32_t boundary_addr, uint32_t allocated) { *(uint32_t*)boundary_addr = (allocated & 0x1); }
 inline uint32_t get_payload(uint32_t hp_addr) { return _align_up(hp_addr, 8); }
 inline uint32_t get_header(uint32_t hp_addr) { return _align_up(hp_addr, 8) - 4; }
 inline uint32_t get_footer(uint32_t hp_addr) {
@@ -266,14 +266,14 @@ inline uint32_t try_alloc_with_splitting(uint32_t block_header, uint32_t request
       set_allocated(block_header, ALLOCATED);
       set_blocksize(block_header, request_blocksize);
 
-      WRITE_BURST_32(get_footer(block_header), 0, 0);
+      // WRITE_BURST_32(get_footer(block_header), 0, 0);
       uint32_t block_footer = get_footer(block_header);
-      set_allocated(block_footer, ALLOCATED);
+      set_new_allocated(block_footer, ALLOCATED);
       set_blocksize(block_footer, request_blocksize);
 
-      WRITE_BURST_32(get_nextheader(block_header), 0, 0);
+      // WRITE_BURST_32(get_nextheader(block_header), 0, 0);
       uint32_t new_header = get_nextheader(block_header);
-      set_allocated(new_header, FREE);
+      set_new_allocated(new_header, FREE);
       set_blocksize(new_header, blocksize - request_blocksize);
 
       return get_payload(block_header);

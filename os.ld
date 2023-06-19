@@ -5,7 +5,7 @@ ENTRY( _start )
 # venus/src/rtl/venus/scheduler/scheduler_core_wrapper.sv
 MEMORY
 {
-	ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 128M
+	ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 1024M
 }
 
 SECTIONS

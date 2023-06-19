@@ -8,14 +8,10 @@
 #include "types.h"
 #include "ulib.h"
 
-#define CHANNEL_MASK   ((1 << DMAC_NUMBER_OF_CHANNELS) - 1)
-#define BIT_PICK(N, i) ((N >> i) & 1)
-#define ALL_1_RESET    0xffffffffffffffff
+#define CHANNEL_MASK             ((1 << DMAC_NUMBER_OF_CHANNELS) - 1)
+#define BIT_PICK(N, i)           ((N >> i) & 1)
+#define ALL_1_RESET              0xffffffffffffffff
 #define FREE_CHANNEL_WRONG_LABEL 999
-
-/* dma tools */
-extern lli_t* malloc_LLI(void);
-extern void free_LLI(lli_t* ptr);
 
 extern uint64_t destination_max_burst_length;
 extern uint64_t source_max_burst_length;
@@ -61,7 +57,6 @@ inline void DMAC_CHx_enable_channel(uint32_t free_channel_index) {
 
 /* [P.164] CHx_LLP */
 inline void DMAC_CHx_specify_first_lli(lli_t* head_lli, uint32_t free_channel_index) {
-  assert((uint32_t)head_lli % 64 == 0);
   uint32_t first_lli    = (uint32_t)head_lli;
   uint64_t LOC          = (uint64_t)first_lli & 0xffffffffffffffc0;
   uint64_t LMS          = ((uint64_t)0 << 0);
@@ -234,6 +229,5 @@ inline void CFG_config(uint32_t free_channel_index) {
                  DMAC_CH_CFG_REG_OFFSET_CH(free_channel_index),
                  CHx_CFG);
 }
-
 
 #endif /* __DMA_H_ */

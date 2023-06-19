@@ -11,59 +11,83 @@ extern void DMAC_interrupt_handler(void);
 extern block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
 extern void block_handler(block_t* n_block);
 
-void IRQ_CLUSTER0_handler(void) {
-  for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
-    // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
-    // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
-    if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
-      WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
-      block_handler(&block_stru[0][i]);
-      return;
-    }
-  }
-}
-void IRQ_CLUSTER1_handler(void) {
-  // printf("CLUSTER 1 Interrupt! $stop\n");
-  for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
-    // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
-    // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
-    if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
-      WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
-      block_handler(&block_stru[1][i]);
-      return;
-    }
-  }
-}
-void IRQ_CLUSTER2_handler(void) {
-  printf("CLUSTER 2 Interrupt! $stop\n");
-}
-void IRQ_CLUSTER3_handler(void) {
-  printf("CLUSTER 3 Interrupt! $stop\n");
-}
-void IRQ_CLUSTER4_handler(void) {
-  printf("CLUSTER 4 Interrupt! $stop\n");
-}
-void IRQ_CLUSTER5_handler(void) {
-  printf("CLUSTER 5 Interrupt! $stop\n");
-}
-void IRQ_CLUSTER6_handler(void) {
-  printf("CLUSTER 6 Interrupt! $stop\n");
-}
-void IRQ_CLUSTER7_handler(void) {
-  printf("CLUSTER 7 Interrupt! $stop\n");
-}
-
-void IRQ_DMA_handler(void) {
-  DMAC_interrupt_handler();
-}
+// inline void IRQ_CLUSTER0_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
+//     // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[0][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER1_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[1][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER2_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(2) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(2) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[2][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER3_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(3) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(3) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[3][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER4_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(4) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(4) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[4][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER5_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(5) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(5) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[5][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER6_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(6) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(6) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[6][i]);
+//       return;
+//     }
+//   }
+// }
+// void IRQ_CLUSTER7_handler(void) {
+//   for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+//     if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(7) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+//       WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(7) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+//       block_handler(&block_stru[7][i]);
+//       return;
+//     }
+//   }
+// }
 
 /* global variable to save irq mask values */
 uint32_t irq_mask;
-static VoidFunc irq_callback[32];
-
-void set_handler(uint32_t irq, VoidFunc callback) {
-  irq_callback[irq] = callback;
-}
 
 void enable_irq(uint32_t irq) {
   irq_mask = EN_Interrupts(1 << irq);
@@ -83,8 +107,93 @@ void mask_irq(uint32_t mask) {
 /* In start.S: a0 --> *regs  a1 --> cause(q1) */
 uint32_t* irq_handler(reg_t* regs, reg_t cause) {
 
-  // irq_mask = irq_mask | cause;
-  // mask_irq(irq_mask);
+  if (cause & (1 << VENUS_IRQ_DMA)) {
+    DMAC_interrupt_handler();
+  }
+
+  if (cause & (1 << VENUS_IRQ_CLUSTER_0)) {
+    // IRQ_CLUSTER0_handler();
+    for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      // 向产生task运行完毕中断的block的 Control Registers 中的 VenusBlock_IntClearReg寄存器中的bit[0]写清除VENUS BLOCK中断
+      // 当CLUSTER中所有BLOCK的中断全部清除时，venus_cluster中断自动清除
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(0) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[0][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_1)) {
+    // IRQ_CLUSTER1_handler();
+    for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(1) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[1][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_2)) {
+    // IRQ_CLUSTER2_handler();
+    for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(2) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(2) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[2][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_3)) {
+    // IRQ_CLUSTER3_handler();
+        for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(3) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(3) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[3][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_4)) {
+    // IRQ_CLUSTER4_handler();
+        for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(4) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(4) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[4][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_5)) {
+    // IRQ_CLUSTER5_handler();
+        for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(5) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(5) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[5][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_6)) {
+    // IRQ_CLUSTER6_handler();
+        for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(6) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(6) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[6][i]);
+        break;
+      }
+    }
+  }
+  if (cause & (1 << VENUS_IRQ_CLUSTER_7)) {
+    // IRQ_CLUSTER7_handler();
+        for (int i = 0; i < MAX_NUM_BLOCKS; i++) {
+      if (READ_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(7) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTSTATUSREG_OFFSET)) {
+        WRITE_BURST_32(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(7) + BLOCK_OFFSET(i) + BLOCK_CTRLREGS_OFFSET, VENUSBLOCK_INTCLEARREG_OFFSET, 1);
+        block_handler(&block_stru[7][i]);
+        break;
+      }
+    }
+  }
+
   if ((cause & (1 << PICO_IRQ_BADINSTR)) || (cause & (1 << PICO_IRQ_MEMERROR))) {
     uint32_t pc    = (regs[0] & 1) ? regs[0] - 3 : regs[0] - 4;
     uint32_t instr = *(uint32_t*)pc;
@@ -102,52 +211,10 @@ uint32_t* irq_handler(reg_t* regs, reg_t cause) {
     }
   }
 
-  if (cause & (1 << VENUS_IRQ_CLUSTER_0)) {
-    irq_callback[VENUS_IRQ_CLUSTER_0]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_1)) {
-    irq_callback[VENUS_IRQ_CLUSTER_1]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_2)) {
-    irq_callback[VENUS_IRQ_CLUSTER_2]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_3)) {
-    irq_callback[VENUS_IRQ_CLUSTER_3]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_4)) {
-    irq_callback[VENUS_IRQ_CLUSTER_4]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_5)) {
-    irq_callback[VENUS_IRQ_CLUSTER_5]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_6)) {
-    irq_callback[VENUS_IRQ_CLUSTER_6]();
-  }
-  if (cause & (1 << VENUS_IRQ_CLUSTER_7)) {
-    irq_callback[VENUS_IRQ_CLUSTER_7]();
-  }
-
-  if (cause & (1 << VENUS_IRQ_DMA)) {
-    // uart_puts("DMA IRQ!\n");
-    irq_callback[VENUS_IRQ_DMA]();
-    // DMA Interrupt
-  }
-
-  // irq_mask = irq_mask & (~cause); // unmask the finished interrupt
-  // mask_irq(irq_mask);
   return regs;
 }
 
 void irq_init(void) {
-  set_handler(VENUS_IRQ_CLUSTER_0, IRQ_CLUSTER0_handler);
-  set_handler(VENUS_IRQ_CLUSTER_1, IRQ_CLUSTER1_handler);
-  set_handler(VENUS_IRQ_CLUSTER_2, IRQ_CLUSTER2_handler);
-  set_handler(VENUS_IRQ_CLUSTER_3, IRQ_CLUSTER3_handler);
-  set_handler(VENUS_IRQ_CLUSTER_4, IRQ_CLUSTER4_handler);
-  set_handler(VENUS_IRQ_CLUSTER_5, IRQ_CLUSTER5_handler);
-  set_handler(VENUS_IRQ_CLUSTER_6, IRQ_CLUSTER6_handler);
-  set_handler(VENUS_IRQ_CLUSTER_7, IRQ_CLUSTER7_handler);
-  set_handler(VENUS_IRQ_DMA, IRQ_DMA_handler);
   enable_irq(PICO_IRQ_BADINSTR);
   enable_irq(PICO_IRQ_MEMERROR);
   enable_irq(VENUS_IRQ_CLUSTER_0);

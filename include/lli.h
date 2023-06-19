@@ -3,7 +3,11 @@
 
 #include "types.h"
 
-/* 
+#define CHx_LLI_SIZE 0x400                              // support up to 16 LLI in each transmission
+#define LLI_CH(n)    (0xc0000000 + (n * CHx_LLI_SIZE))  // each channel's LLI addressmap
+#define LLI_SIZE     0x40                               // LLI occupy 64-byte memory space
+
+/*
  * RISC-V defalut little-endian
  *   0x00 ------------------------- 0x08
  * 0th byte .................... 63th byte
@@ -43,3 +47,4 @@ typedef struct lli {
  */
 
 #endif /* __LLI_H__ */
+

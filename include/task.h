@@ -1,10 +1,11 @@
 #ifndef __TASK_H__
 #define __TASK_H__
 
-#define MAXFIFO (MAX_BUFFER + 1)  // to differentiate fifo-full and fifo-empty
-#define MAXIN   (MAX_DEP + 1)
-#define MAXOUT  (MAX_NXT + 1)
-#define MAXRES  (MAX_RESULT + 1)
+#define MAXFIFO                (MAX_BUFFER + 1)  // to differentiate fifo-full and fifo-empty
+#define MAXIN                  (MAX_DEP + 1)
+#define MAXOUT                 (MAX_NXT + 1)
+#define MAXRES                 (MAX_RESULT + 1)
+#define MAX_DMA_TRANSMIT_BLOCK (MAX_DMA_LLI_BLOCK + 2)
 
 // if is a vector, then it represents a vreg table address, then the highest bit is always 1
 // so we can use this attribute to judge whether it should be moved into sdspm or vdspm

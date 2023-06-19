@@ -7,7 +7,6 @@
 #include "types.h"
 
 typedef struct message {
-  lli_t* lli;
   block_t* block;
   uint32_t token_array[MAX_DMA_TRANSMIT_BLOCK];
 } msg_t;

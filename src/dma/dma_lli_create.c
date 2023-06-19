@@ -10,16 +10,14 @@
 #define NOT_LAST_SHADOW_REGISTER 0
 #define LAST_SHADOW_REGISTER     1
 
-/* start.S */
-extern void vcs_stop(void);
-
 extern msg_t* msg_array[DMAC_NUMBER_OF_CHANNELS];
 
-static lli_t* head_lli;
+static lli_t* current_lli;
 static lli_t* last_lli;
-static uint32_t token_index;
-static msg_t* msg;
 static uint32_t free_channel_index;
+static uint32_t token_index;
+static uint32_t lli_index;
+static msg_t* msg;
 
 void dma_init(void) {
   DMAC_reset();
@@ -44,39 +42,41 @@ inline void lli_setup(uint64_t destination_addr, uint64_t source_addr, uint32_t 
   lli->CHx_SAR      = source_addr;
 }
 
+inline static lli_t* create_LLI() {
+  lli_index++;
+  return (lli_t*)(LLI_CH(free_channel_index) + LLI_SIZE * lli_index);
+}
+
 void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, token_t* token) {
   // printf("dst: %p, src: %p, len: %p, block: %p, token: %p\n", dst, src, len, block, token);
   /* create linked list for DMA transfer */
-  lli_t* current_lli                = malloc_LLI();                                          // -36
-  uint64_t destination_addr         = (uint64_t)dst;                                         // -80 -76
-  uint64_t source_addr              = (uint64_t)src;                                         // -88 -84
-  uint32_t transfer_length_byte     = len - 8;                                               // -92
-  uint32_t total_chunk              = (transfer_length_byte / DMA_MAX_TRANSFER_LENGTH) + 1;  // -96
+  uint64_t destination_addr         = (uint64_t)dst;
+  uint64_t source_addr              = (uint64_t)src;
+  uint32_t transfer_length_byte     = len - 8;
+  uint32_t total_chunk              = (transfer_length_byte / DMA_MAX_TRANSFER_LENGTH) + 1;
   uint64_t current_source_addr      = source_addr;
   uint64_t current_destination_addr = destination_addr;
   uint64_t left_transfer_length     = transfer_length_byte;
 
-  // if it's not the first data chunk of this DMA channel transfer round
-  if (head_lli != NULL) {
-    // then link last lli with current first lli
-    uint32_t next_item_pointer = (uint32_t)current_lli;
-    last_lli->CHx_LLP          = (uint64_t)next_item_pointer;
-  } else {
+  if (current_lli == NULL) {
     // the first transfer task, get a free DMA channel
     free_channel_index = DMAC_get_free_channel();
-    if (free_channel_index == FREE_CHANNEL_WRONG_LABEL)
-      printf("get free channel wrong!!! $stop\n");
-    head_lli    = current_lli;
-    msg         = msg_array[free_channel_index];
-    msg->lli    = head_lli;
-    token_index = 0;
+    current_lli        = (lli_t*)LLI_CH(free_channel_index);
+    msg                = msg_array[free_channel_index];
+    token_index        = 0;
+    lli_index          = 0;
+  } else {
+    // if it's not the first data chunk of this DMA channel transfer round, then link last lli with current first lli
+    current_lli                = create_LLI();
+    uint32_t next_item_pointer = (uint32_t)current_lli;
+    last_lli->CHx_LLP          = (uint64_t)next_item_pointer;
   }
+
   // put current transfering token into global token list
   if (token != NULL) {
     msg->token_array[token_index] = (uint32_t)token;
     token_index++;
   }
-  // insert(msg->token_list, create_node((uint32_t)token));
 
   // if not the last data chunk of this DMA channel transfer round
   if (block == NULL) {
@@ -92,7 +92,7 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
                   NOT_LAST_SHADOW_REGISTER);
         last_lli = current_lli;
       } else {
-        lli_t* next_lli = malloc_LLI();
+        lli_t* next_lli = create_LLI();
         lli_setup(current_destination_addr,
                   current_source_addr,
                   DMA_MAX_TRANSFER_LENGTH,
@@ -116,7 +116,7 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
                   current_lli,
                   LAST_SHADOW_REGISTER);
       } else {
-        lli_t* next_lli = malloc_LLI();
+        lli_t* next_lli = create_LLI();
         lli_setup(current_destination_addr,
                   current_source_addr,
                   DMA_MAX_TRANSFER_LENGTH,
@@ -129,14 +129,14 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
         current_lli              = next_lli;
       }
     }
-    // last data to transfer, enable DMA channel...
+    // last data to transfer, bind relative descripotr and enable DMA channel...
     msg->block                    = block;
     msg->token_array[token_index] = LAST_TOKEN;
     CFG_config(free_channel_index);
-    DMAC_CHx_specify_first_lli(head_lli, free_channel_index);
+    DMAC_CHx_specify_first_lli((lli_t*)LLI_CH(free_channel_index), free_channel_index);
     DMAC_CHx_enable_channel(free_channel_index);
     // reset
-    head_lli = NULL;
+    current_lli = NULL;
   }
 }
 

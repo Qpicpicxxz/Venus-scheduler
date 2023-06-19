@@ -76,7 +76,7 @@ void heap_init(void) {
 
 void* malloc(uint32_t size) {
   // make sure it's a legal size
-  assert(0 < size && size < alloc_end - alloc_start - 4 - 8 - 4);
+  // assert(0 < size && size < alloc_end - alloc_start - 4 - 8 - 4);
   // payload size + header size + footer size
   uint32_t request_blocksize = _align_up(size, 8) + BOUNDART_SIZE;
   // make it to minimum allocatable space
@@ -123,12 +123,12 @@ void free(void* ptr) {
   uint32_t mask_irq     = Mask_irq(0xffffffff);  // disable all interrupts
   uint32_t payload_addr = (uint32_t)ptr;
 
-  uint32_t req_header    = get_header(payload_addr);
-  uint32_t req_footer    = get_footer(req_header);
-  uint32_t req_allocated = get_allocated(req_header);
-  uint32_t req_blocksize = get_blocksize(req_header);
-  assert(req_allocated == ALLOCATED);
-  assert(req_blocksize >= MIN_BLOCKSIZE);
+  uint32_t req_header = get_header(payload_addr);
+  uint32_t req_footer = get_footer(req_header);
+  // uint32_t req_allocated = get_allocated(req_header);
+  // uint32_t req_blocksize = get_blocksize(req_header);
+  // assert(req_allocated == ALLOCATED);
+  // assert(req_blocksize >= MIN_BLOCKSIZE);
 
   uint32_t next_header    = get_nextheader(req_header);
   uint32_t prev_header    = get_prevheader(req_header);
@@ -187,65 +187,10 @@ void free(void* ptr) {
     free_list_delete(prev_header);
     uint32_t merged_header = merge_free_blocks(merge_free_blocks(prev_header, req_header), next_header);
     free_list_insert(merged_header);
-    assert(free_list_counter >= 1);
+    // assert(free_list_counter >= 1);
   } else {
     printf("Exception for free ptr $stop\n");
   }
   Mask_irq(mask_irq);  // enable all interrupts
 }
-
-lli_t* malloc_LLI(void) {
-  uint32_t mask_irq = Mask_irq(0xffffffff);  // disable all interrupts
-  uint32_t request_blocksize;
-  uint32_t block_header  = free_list_head;
-  uint32_t counter       = free_list_counter;
-  uint32_t block_payload = 0;
-  for (int i = 0; i < counter; ++i) {
-    uint32_t old_blocksize = get_blocksize(block_header);
-    // check if this payload is 64-byte aligned
-    uint32_t unaligned_size = get_payload(block_header) % LLI_SIZE;
-    // if not aligned, extend request block size
-    if (unaligned_size)
-      request_blocksize = LLI_SIZE * 2 - unaligned_size + BOUNDART_SIZE;
-    else
-      request_blocksize = LLI_SIZE + BOUNDART_SIZE;
-    block_payload = try_alloc_with_splitting(block_header, request_blocksize);
-    if (block_payload) {
-      uint32_t cur_blocksize = get_blocksize(block_header);
-      free_list_delete(block_header);
-      if (old_blocksize > cur_blocksize)
-        free_list_insert(get_nextheader(block_header));
-      // if the original allocated payload is 64-byte aligned, return back
-      if (!unaligned_size) {
-        Mask_irq(mask_irq);  // enable all interrupts
-        return (lli_t*)block_payload;
-      } else {
-        uint32_t aligned_block_payload = block_payload + 64 - unaligned_size;
-        // store the real payload before the 64-byte aligned payload
-        *(uint32_t*)(aligned_block_payload - 4) = block_payload;
-        // return the 64-byte aligned payload
-        Mask_irq(mask_irq);  // enable all interrupts
-        return (lli_t*)aligned_block_payload;
-      }
-    } else {
-      // go to the next free block
-      block_header = get_nextfree(block_header);
-    }
-  }
-  printf("There is not enough HEAP memory to allocate LLI! $stop\n");
-  return NULL;
-}
-
-void free_LLI(lli_t* ptr) {
-  uint32_t last_byte = *(uint32_t*)((uint32_t)ptr - 4);
-  if (last_byte & 0x1) {
-    // if this is a header, normal free
-    free((void*)ptr);
-  } else {
-    // this is a 64-byte aligned block, find real payload start
-    uint32_t real_payload = *(uint32_t*)((uint32_t)ptr - 4);
-    free((void*)real_payload);
-  }
-}
-
 

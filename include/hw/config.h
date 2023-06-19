@@ -1,12 +1,20 @@
 #ifndef __HW_CONFIG_H
 #define __HW_CONFIG_H
 
-#define NUM_PACKET             2
-#define MAX_BUFFER             8
-#define MAX_DEP                6
-#define MAX_NXT                3
-#define MAX_RESULT             12
-#define MAX_DMA_TRANSMIT_BLOCK 16
+/* In actor_t
+ * fifo_t* in[MAXIN];
+ * fifo_t* out[MAXRES][MAXOUT];
+ * MAXIN  = MAX_DEP + 1
+ * MAXOUT = MAX_NXT + 1
+ * MAXRES = MAX_RESULT + 1
+ */
+
+#define NUM_PACKET        2   // initial inject number of packet
+#define MAX_BUFFER        8   // depth of fifo
+#define MAX_DEP           6   // max number of dependencies
+#define MAX_NXT           3   // max number of each result's successor
+#define MAX_RESULT        12  // max number of different result
+#define MAX_DMA_LLI_BLOCK 16  // max support LLI number of each DMA channel in one transmission
 
 // in actor_t, fifo_t* out[MAXRES][MAXOUT]
 // MAXRES -> MAX_RESULT

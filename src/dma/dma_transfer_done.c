@@ -17,14 +17,12 @@ static msg_t* msg;
 static void scheduler_pass_result() {
   actor_t* actor       = block->actor;
   uint32_t token_index = 0;
-  // node_t* p      = token_list->tail->prev;
 
   // pass the result to successors i -> different result |  j -> different fifo
   for (int i = 0; actor->out[i][0] != NULL; i++) {
     // real token
     if (msg->token_array[token_index] != LAST_TOKEN) {
       for (int j = 0; actor->out[i][j] != NULL; j++) {
-        // token_t* original_token = (token_t*)p->item;
         token_t* original_token = (token_t*)msg->token_array[token_index];
         // if its the first fifo of this result
         if (j == 0) {
@@ -71,12 +69,8 @@ static inline void recycle_garbage(void) {
 
 void dma_transmit_done_handler(uint32_t channel_index) {
   /* catch current DMA's transfer information */
-  msg            = msg_array[channel_index];
-  lli_t* lli     = msg->lli;
-  uint32_t llp   = (uint32_t)msg->lli->CHx_LLP;
-  lli_t* nxt_lli = (lli_t*)llp;
-  block          = msg->block;
-  // token_list     = msg->token_list;
+  msg   = msg_array[channel_index];
+  block = msg->block;
 
   /* judge whether code/data transfer OR result transfer */
   if ((block->flags & BLOCK_RESULT) == 0) {
@@ -90,17 +84,8 @@ void dma_transmit_done_handler(uint32_t channel_index) {
     _clear_block_flag(block);
   }
 
-  /* free this transfer's linked list */
-  while (lli != nxt_lli) {
-    free_LLI(lli);
-    lli     = nxt_lli;
-    llp     = (uint32_t)msg->lli->CHx_LLP;
-    nxt_lli = (lli_t*)llp;
-  }
-  free_LLI(lli);
-  /* Note that by default, this interrupt is not triggered repeatedly.
-   * Which means one transfer would not be triggered more than once,
-   * otherwise free_LLI would free a free memory block.
+  /* In previous verison, we should free LLI descriptor's memory space
+   * now we do not have to free these memory blocks
    */
 }
 
