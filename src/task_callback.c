@@ -51,7 +51,7 @@ static inline void alloc_result(void) {
     }
   } else {
     // dynamic dependencies
-    printf("Dynamic dependecies detected\n");
+    // printf("Dynamic dependecies detected\n");
     for (int i = 0; i < block_ret_num; i++) {
       uint32_t RetAddr = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETADDRREG_OFFSET(i));
       uint32_t RetLen  = READ_BURST_32(cur_block->base_addr, BLOCK_CTRLREGS_OFFSET + VENUSBLOCK_RETLENREG_OFFSET(i));

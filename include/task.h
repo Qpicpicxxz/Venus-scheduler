@@ -12,11 +12,8 @@
 #define INFORM_DMA_IS_VECTOR(x) ((x)&0x80000000)
 // this flag is set in task_callback.c (alloc_result) functions,
 // TODO: for scalar packeting, should consider how to reserve/distinguish scalar data index
-// for now, I just have some scalar data, so I can give scalar index in fire_check.c (ready_create) functions
+// for now, I just have some scalar data, so I can give scalar index in fire_check.c-fire_check()functions
 // so we have to explicit represent the dependent actor's dependent index
-#define SCALAR_LABEL              0
-#define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
-#define SCALAR_LEN                4
 #define PSEUDO_TOKEN_LABEL        666
 #define LAST_TOKEN                987
 

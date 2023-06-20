@@ -4,10 +4,21 @@
 #### 目前的最优化版本
 
 ### 更改记录
+#### 编译优化
+目前开到`-O3`级别
+> `-O0`：不做任何优化
+>
+> `-O1`：尝试减小生成代码尺寸，缩短执行时间
+>
+> `-O2`：执行几乎所有的不包含时间和空间折中的优化
+>
+> `-O3`：自动内联简单的函数到被调用函数中
+>
+> `-Os`：主要对程序的尺寸进行优化
 #### 直接轮询
 最初的调度器设计因为考虑到盲目轮询的不确定性，所以设计了一个ready actor的方案，会在每次有新的数据流入FIFO的时候进行一次ready actor的遍历搜寻操作，将本轮就绪的actor添加至一个全局的ready list链表中，这样做是为了后续在调度的时候可以从链表里有选择地发射actor。但是完成这个功能所需的调度耗时代价较大，每遍历到一个就绪actor就需要取出其依赖数据，创建相应的描述符并将其挂载到actor的dependent list上。创建一个只有一个依赖数据的ready actor并挂在到全局ready list上，大致需要5200条指令，耗时0.347ms，这一部分时间是除开轮询额外的负载，开销较大，所以此版本退化为直接轮询，遇到就绪actor就发射的模式。
 
-#### 返回值乱序
+#### 暂不判定返回值乱序
 调度器最初对返回值乱序的处理程序是基于链表的遍历穿插的，但现今评估调度处理时间的时候，发现链表的动态创建、链接和销毁操作及其耗费时间资源，所以现在此版本[2023-06-01]先删去判断返回值乱序的逻辑，后续再根据数组或其它方案处理。
 
 #### 内联优化
@@ -23,6 +34,30 @@ inline uint8_t fifo_empty(fifo_t* F) { return (F->wptr == F->rptr); }
 #define CHx_LLI_SIZE 0x400                              // support up to 16 LLI in each transmission
 #define LLI_CH(n)    (0xc0000000 + (n * CHx_LLI_SIZE))  // each channel's LLI addressmap
 #define LLI_SIZE     0x40                               // LLI occupy 64-byte memory space
+```
+```
+- malloc_LLI()
++ create_LLI(){
+  lli_index++;
+  return (lli_t*)(LLI_CH(free_channel_index) + LLI_SIZE * lli_index);
+}
+```
+
+#### 传输token链表改为数组
+DMA进行传输时每个channel对应的消息结构体更改如下
+```
+typedef struct message {
+- lli_t* lli;
+  block_t* block;
+- list_t* token_list;
++ uint32_t token_array[MAX_DMA_TRANSMIT_BLOCK];
+} msg_t;
+```
+在链接channel每一轮传输的LLI的时候，不使用链表链接token，而是按序摆放在数组中
+```
+- insert(msg->token_list, create_node((uint32_t)token));
++ msg->token_array[token_index] = (uint32_t)token;
++ token_index++;
 ```
 
 ### 定量结果分析
@@ -108,7 +143,7 @@ malloc_LLI时间 `0.065ms`
 [          1823769000] [Software printf] VENUS_SCHEDULER: Dynamic dependecies detected
                        /* 后继第一个Ratematch开始执行 */  0.644ms
 [          2,399,929,000] [CLUSTER_  0_BLOCK_  1 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
-[          2470607000] [Software printf] CLUSTER_0_BLOCK_1: running task1_simplified_rate_match
+[          2,470,607,000] [Software printf] CLUSTER_0_BLOCK_1: running task1_simplified_rate_match
                        /* 后继第二个Ratematch开始执行 */
 [          2561378000] [CLUSTER_  0_BLOCK_  0 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
 [          2632056000] [Software printf] CLUSTER_0_BLOCK_0: running task2_simplified_rate_match
@@ -130,6 +165,42 @@ malloc_LLI时间 `0.0077ms`
 [         16,971,821,000] [SCHEDULER core status]: index:     269527 	 fetch: 80001b98 	 instr: ff010113 	 disassembler: ADDI   x2, x2, -16 	 (x2 = x2 + -16)
 [         16,979,535,000] [SCHEDULER core status]: index:     269657 	 fetch: 80001de0 	 instr: 00008067 	 disassembler: JALR   x0, x1, 0 	 (x0 = x1 + 0)
 ```
+
+#### LLI分配方式修改+代码修改R-I版本 `138.3kb` [2023-6-20]
+```
+[          1269508000] [Software printf] CLUSTER_0_BLOCK_0: HELLO FORNERRUNNER!
+                      /* 前继Task执行完毕Block拉高中断 */
+[          1,377,858,000] [SCHEDULER core status]: index:      17432 	 fetch: 80000020 	 instr: 0200a10b 	 disassembler: SETQ    q2, x1       	 (q2 = x1)
+                      /* DMA结果传输完成拉高中断 */  0.2653ms
+[          1,643,162,000] [SCHEDULER core status]: index:      21557 	 fetch: 80000020 	 instr: 0200a10b 	 disassembler: SETQ    q2, x1       	 (q2 = x1)
+                      /* 后继第一个Ratematch开始执行 */  0.1192ms
+[          1,762,427,000] [CLUSTER_  0_BLOCK_  1 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
+[          1833106000] [Software printf] CLUSTER_0_BLOCK_1: running task1_simplified_rate_match
+                      /* 后继第二个Ratematch开始执行 */  0.055ms
+[          1,817,339,000] [CLUSTER_  0_BLOCK_  0 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
+[          1888017000] [Software printf] CLUSTER_0_BLOCK_0: running task2_simplified_rate_match
+                      /* 后继第三个Ratematch开始执行 */  0.1415ms
+[          1,958,839,000] [CLUSTER_  1_BLOCK_  0 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
+[          2029517000] [Software printf] CLUSTER_1_BLOCK_0: running task0_simplified_rate_match
+[         15893559000] [Software printf] CLUSTER_0_BLOCK_1: Task 1 verify = 0
+[         15948471000] [Software printf] CLUSTER_0_BLOCK_0: Task 2 verify = 0
+[         16089971000] [Software printf] CLUSTER_1_BLOCK_0: Task 0 verify = 0
+                      /* 最后一个Ratematch执行完毕，调度触发Interleave */
+[         16,090,987,000] [CLUSTER_  1_BLOCK_  0 core status]: index:     597773 	 fetch: 80000a0c 	 instr: 02010113 	 disassembler: ADDI   x2, x2, 32 	 (x2 = x2 + 32)
+                      /* Interleave开始执行 */  0.151ms
+[         16,241,607,000] [CLUSTER_  0_BLOCK_  1 core status]: index:          0 	 fetch: 80000000 	 instr: 00000093 	 disassembler: ADDI   x1, x0, 0 	 (x1 = x0 + 0)
+[         16282950000] [Software printf] CLUSTER_0_BLOCK_1: HELLO INTERLEAVE!
+[         16313668000] [Software printf] CLUSTER_0_BLOCK_1: codeBlockNum : 8
+[         16408703000] [Software printf] CLUSTER_0_BLOCK_1: codeAfterRM address: 0x80100020, 0x801026d8, 0x80104d90 $stop
+```
+malloc `4.5us`
+```
+[         16,103,085,000] [SCHEDULER core status]: index:     247712 	 fetch: 80001ee8 	 instr: ff010113 	 disassembler: ADDI   x2, x2, -16 	 (x2 = x2 + -16)
+[         16,107,594,000] [SCHEDULER core status]: index:     247789 	 fetch: 800020e0 	 instr: fc1ff06f 	 disassembler: JAL    x0, -64 		 (x0 = pc + 4; pc += -64)
+
+[         16,097,661,000] [SCHEDULER core status]: index:     247619 	 fetch: 80001ee8 	 instr: ff010113 	 disassembler: ADDI   x2, x2, -16 	 (x2 = x2 + -16)
+[         16,102,169,000] [SCHEDULER core status]: index:     247696 	 fetch: 800020e0 	 instr: fc1ff06f 	 disassembler: JAL    x0, -64 		 (x0 = pc + 4; pc += -64)
+```
 **区分scalar和vector**
 
 数据流模型的主体虽然是数据，但是若**fifo**中只流动着各个数据对应的指针，那么调度器无从知晓这些数据的流向以及状态。目前data涉及两个比较重要的属性：
@@ -140,7 +211,7 @@ malloc_LLI时间 `0.0077ms`
 
    - 其中，在block中断返回的时候（`task_callback.c` - `alloc_result()`），会去读取block的Control Registers，这时可以知道返回值的具体信息（scalar / vector / length），此时会赋值一次`token->attr`，表明从block那里获取到的token信息。
 
-   - 在创建满足发射条件的actor`ready_create()`的时候，会根据当前actor的信息来决定具体的`token->attr`的值。
+   - 在（`fire_check.c` - `actor_check()`）时会根据`token->attr`的值来计算DMA数据搬运的具体偏移量`offset`。
 
 ```c
 /* data descriptor */
@@ -162,13 +233,6 @@ typedef struct token {
 /* fire_check.c - inform_dma() - 用来判断是否是vector data */
 #define INFORM_DMA_IS_VECTOR(x) ((x)&0x80000000)
 
-/* task_callback.c - alloc_result() - 在读取block的Ret寄存器的时候用来标注是否是标量 */
-#define SCALAR_LABEL              0
-
-/* fire_check.c - ready_create() - 用来判断是否是scalar data */
-#define READY_CREATE_IS_SCALAR(x) (x == SCALAR_LABEL)
-#define SCALAR_LEN                4
-
 /* 存储在DDR中的一个表，我可以根据这个每个标号地址来判断这是个什么样子的向量 (还没写)
  * +-----+
  * | V10 |
@@ -181,7 +245,7 @@ typedef struct token {
  ···
 ```
 
-**Tips**
+**VCS联调记录**
 
 1. 在软件中暂停vcs仿真：`printf("anything u want to console $stop\n")`
 
@@ -223,7 +287,7 @@ typedef struct token {
 
     - 调度器上电`actor_init.c`，动态创建actor以及fifo的描述符，每两个actor之间的依赖关系都用一个特定的fifo表示（也就是DAG图中有多少线就有多少个fifo），并将所有的actor串在`actor_l`的链表上。
 
-    - 调度器轮询任务`fire_check.c`，首先执行一次`ready_search()`，将满足发射条件的actor串在`ready_l`的链表上。调度器初始化完毕后，跳转至`actor_check()`循环，当有空闲的block以及`ready_l`不为空的时候，进行actor的发射。(Crop之后的版本删除了这个ready actor)
+    - 调度器轮询任务`fire_check.c`，直接遍历`actor_l`上的各个actor，当有空闲block以及当前actor的所有依赖都就绪时，调度器进行actor的发射。
 
       - 其中发射之前调度器会将此actor的任务发射顺序（比如首先是block 0_00发射了这个actor，然后block 1_01发射了这个actor）记录在actor的描述符中，后续可以判断block返回是否乱序。(Crop版本中暂未添加判断返回值乱序的步骤)
 
@@ -231,11 +295,11 @@ typedef struct token {
 
       - 通知DMA`dma/dma_lli_create.c - dma_transfer_link()`，此时调度器可以从`token->attr`中知道当前数据搬移的目的偏移地址，调度器会将task code以及所有dependencies创建的LLI串在一起，统一交给一路DMA Channel进行传输。
 
-    - DMA拉高中断`dma/dma_transfer_done.c - dma_transmit_done_handler()`，首先调度器会根据当前Channel的index判断是哪一批传输完成了`msg.h`，接着释放分配的LLI空间，判断block的flag（`BLOCK_RESULT`），来确定是返回值传输完成了还是任务发射准备好了。
+    - DMA拉高中断`dma/dma_transfer_done.c - dma_transmit_done_handler()`，首先调度器会根据当前Channel的index判断是哪一批传输完成了`msg.h`，判断block的flag（`BLOCK_RESULT`），来确定是返回值传输完成了还是任务发射准备好了。
 
-      - 前者将会将返回值输入后续的fifo，并清空block的flag，接着调用一次`ready_search()`，来将新的满足发射条件的actor串进`ready_l`。(Crop版本中没有)
+      - 前者将会将返回值输入后续的fifo，并清空block的flag
 
-      - 后者将会打开相应block的soft reset，启动block的软复位，进行计算工作。
+      - 后者将会打开相应block的soft reset，启动block的软复位，进行计算工作，随后检测此block执行task所需依赖数据的生命周期，进行过期数据释放。
 
     - block拉高中断`task_callback.c - block_handler()`，首先会将block的flag设置为`BLOCK_RESULT`，然后读取block的Control Registers来知晓返回值具体信息（个数、长度），接着将所有数据的LLI串起来通知一路DMA Channel进行传输。
 
