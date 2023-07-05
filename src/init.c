@@ -1,4 +1,4 @@
-#include "block.h"
+#include "cluster.h"
 #include "hw/addressmap.h"
 #include "hw/config.h"
 #include "hw/devctrl.h"
@@ -9,46 +9,56 @@
 
 msg_t* msg_array[DMAC_NUMBER_OF_CHANNELS];
 static msg_t msg_0;
-static msg_t msg_1;
-static msg_t msg_2;
-static msg_t msg_3;
-static msg_t msg_4;
-static msg_t msg_5;
-static msg_t msg_6;
-static msg_t msg_7;
+// static msg_t msg_1;
+// static msg_t msg_2;
+// static msg_t msg_3;
+// static msg_t msg_4;
+// static msg_t msg_5;
+// static msg_t msg_6;
+// static msg_t msg_7;
 
 void msg_array_init(void) {
   /* Bind msg with DMA channel */
   msg_array[0] = &msg_0;
-  msg_array[1] = &msg_1;
-  msg_array[2] = &msg_2;
-  msg_array[3] = &msg_3;
-  msg_array[4] = &msg_4;
-  msg_array[5] = &msg_5;
-  msg_array[6] = &msg_6;
-  msg_array[7] = &msg_7;
+  // msg_array[1] = &msg_1;
+  // msg_array[2] = &msg_2;
+  // msg_array[3] = &msg_3;
+  // msg_array[4] = &msg_4;
+  // msg_array[5] = &msg_5;
+  // msg_array[6] = &msg_6;
+  // msg_array[7] = &msg_7;
   /* Allocate msg's token list space */
   memset(msg_0.token_array, 0, sizeof(msg_0.token_array));
-  memset(msg_1.token_array, 0, sizeof(msg_1.token_array));
-  memset(msg_2.token_array, 0, sizeof(msg_2.token_array));
-  memset(msg_3.token_array, 0, sizeof(msg_3.token_array));
-  memset(msg_4.token_array, 0, sizeof(msg_4.token_array));
-  memset(msg_5.token_array, 0, sizeof(msg_5.token_array));
-  memset(msg_6.token_array, 0, sizeof(msg_6.token_array));
-  memset(msg_7.token_array, 0, sizeof(msg_7.token_array));
+  // memset(msg_1.token_array, 0, sizeof(msg_1.token_array));
+  // memset(msg_2.token_array, 0, sizeof(msg_2.token_array));
+  // memset(msg_3.token_array, 0, sizeof(msg_3.token_array));
+  // memset(msg_4.token_array, 0, sizeof(msg_4.token_array));
+  // memset(msg_5.token_array, 0, sizeof(msg_5.token_array));
+  // memset(msg_6.token_array, 0, sizeof(msg_6.token_array));
+  // memset(msg_7.token_array, 0, sizeof(msg_7.token_array));
 }
 
-block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
+// block_t block_stru[MAX_NUM_CLUSTERS][MAX_NUM_BLOCKS];
 
-void block_struct_init() {
+// void block_struct_init() {
+//   for (int i = 0; i < MAX_NUM_CLUSTERS; i++) {
+//     for (int j = 0; j < MAX_NUM_BLOCKS; j++) {
+//       // initialize all the block's base address into block descriptor
+//       block_stru[i][j].base_addr = VENUS_CLUSTER_BLOCK_BASE_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j);
+//       // initialize all block flag into zero
+//       block_stru[i][j].flags = 0;
+//       block_stru[i][j].actor = NULL;
+//     }
+//   }
+// }
+
+cluster_t cluster_stru[MAX_NUM_CLUSTERS];
+
+void cluster_struct_init() {
   for (int i = 0; i < MAX_NUM_CLUSTERS; i++) {
-    for (int j = 0; j < MAX_NUM_BLOCKS; j++) {
-      // initialize all the block's base address into block descriptor
-      block_stru[i][j].base_addr = VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j);
-      // initialize all block flag into zero
-      block_stru[i][j].flags = 0;
-      block_stru[i][j].actor = NULL;
-    }
+    cluster_stru[i].base_addr = VENUS_CLUSTER_BASE_ADDR(i);
+    cluster_stru[i].flags     = 0;
+    cluster_stru[i].dag_num   = 0;
   }
 }
 
@@ -62,7 +72,8 @@ void devctrl_init(void) {
   // 使能AHB和DMA
   WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_AHB_DEV_RST_OFFSET, VENUS_AHB_DMA_EN);
   // 使能DEBUG UART
-  WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_APB_DEV_RST_OFFSET, VENUS_DEBUG_UART_EN);
+  // WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_APB_DEV_RST_OFFSET, VENUS_DEBUG_UART_EN);
+  WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_APB_DEV_RST_OFFSET, 0x00000003);
   // Test 2023-4-18: 测试，开启0_00 0_01 1_00 1_01 block
   WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(0), 0x80000003);
   WRITE_BURST_32(VENUS_DEVCTRL_ADDR, VENUS_CLUSTER_DEV_RST_OFFSET_CLUSTER(1), 0x80000003);

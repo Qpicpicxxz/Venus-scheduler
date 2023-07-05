@@ -5,7 +5,7 @@ ENTRY( _start )
 # venus/src/rtl/venus/scheduler/scheduler_core_wrapper.sv
 MEMORY
 {
-	ram   (wxa!ri) : ORIGIN = 0x80000000, LENGTH = 1024M
+	ram   (wxa!ri) : ORIGIN = 0x10040000, LENGTH = 255M
 }
 
 SECTIONS
@@ -37,11 +37,17 @@ SECTIONS
 	} >ram
 
 # python end jacklight
-	
+
+	.dag : {
+		PROVIDE(_dag_start = .);
+		*(.dag)
+		PROVIDE(_dag_end = .);
+	} >ram
+
 	.padding :{
 		*(.padding)
 	} >ram
-	
+
 	.bss :{
 		PROVIDE(_bss_start = .);
 		*(.bss.stack)
@@ -58,5 +64,6 @@ SECTIONS
 	PROVIDE(_heap_start = _bss_end);
 	PROVIDE(_heap_size = _memory_end - _heap_start);
 }
+
 
 

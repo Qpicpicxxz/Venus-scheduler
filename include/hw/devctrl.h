@@ -2,6 +2,7 @@
 #define __HW_DEVCTRL_H_
 
 /* [PPT.69]  Venus DevCtrl Module Register address offset and initial values */
+/* Update: [P.115] Soc DevCtrl Register Map (Multi-level) */
 #define VENUS_SCHEDULER_CORE_RST_OFFSET         0x00
 #define VENUS_AHB_DEV_RST_OFFSET                0x04
 #define VENUS_APB_DEV_RST_OFFSET                0x08

@@ -231,3 +231,4 @@ inline void CFG_config(uint32_t free_channel_index) {
 }
 
 #endif /* __DMA_H_ */
+

@@ -5,11 +5,13 @@ extern void venus_uart_init(void);
 extern void irq_init(void);
 extern void dma_init(void);
 extern void heap_init(void);
-extern void block_struct_init(void);
+// extern void block_struct_init(void);
+extern void cluster_struct_init(void);
 extern void msg_array_init(void);
 
 /* actor_init.c */
-extern void actor_launch(void);
+// extern void actor_launch(void);
+extern void cluster_launch(void);
 
 extern int printf(const char* s, ...);
 extern void uart_init(void);
@@ -31,9 +33,10 @@ void start_kernel(void) {
   irq_init();
   dma_init();
   heap_init();
-  block_struct_init();
+  cluster_struct_init();
   msg_array_init();
-  actor_launch();
+  // actor_launch();
+  cluster_launch();
   // vcs_stop();
   // vcs_stop();
   // test_uart();

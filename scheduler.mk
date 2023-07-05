@@ -20,18 +20,16 @@ SRCS_C = \
 		$(SOURCE)/irq.c \
 		$(SOURCE)/mem_alloc.c \
 		$(SOURCE)/linked_list.c \
-		$(SOURCE)/fire_check.c \
 		$(SOURCE)/actor_init.c \
-		$(SOURCE)/actor_create.c \
-		$(SOURCE)/task_callback.c \
+		$(SOURCE)/dag_callback.c \
 		$(SOURCE)/padding.c \
 		$(DMA)/dma_irq.c \
 		$(DMA)/dma_lli_create.c \
-		$(DMA)/dma_transfer_done.c \
-		$(TASK)/dag.c
+		$(DMA)/dma_transfer_done.c 
 
 SRCS_BIN = $(patsubst $(TASKCODE)/%.c, $(TASKBIN)/%_bin.c, $(wildcard $(TASKCODE)/*.c))
-		 
+
 OBJS = $(SRCS_ASM:.S=.o)
 OBJS += $(SRCS_C:.c=.o)
 OBJS += $(SRCS_BIN:.c=.o)
+

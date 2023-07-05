@@ -14,11 +14,12 @@
 // TODO: for scalar packeting, should consider how to reserve/distinguish scalar data index
 // for now, I just have some scalar data, so I can give scalar index in fire_check.c-fire_check()functions
 // so we have to explicit represent the dependent actor's dependent index
-#define PSEUDO_TOKEN_LABEL        666
-#define LAST_TOKEN                987
+#define PSEUDO_TOKEN_LABEL 666
+#define LAST_TOKEN         987
 
 #include "actor.h"
 #include "block.h"
+#include "cluster.h"
 #include "common.h"
 #include "fifo.h"
 #include "linkedlist.h"

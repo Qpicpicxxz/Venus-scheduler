@@ -5,6 +5,12 @@ TEXT_START: 	.word _text_start
 .global TEXT_END
 TEXT_END:	.word _text_end
 
+.global DAG_START
+DAG_START:    .word _dag_start
+
+.global DAG_END
+DAG_END:      .word _dag_end
+
 .global DATA_START
 DATA_START: 	.word _data_start
 

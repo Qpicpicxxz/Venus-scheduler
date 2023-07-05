@@ -11,7 +11,7 @@
 
 #define NUM_PACKET        2   // initial inject number of packet
 #define MAX_BUFFER        8   // depth of fifo
-#define MAX_DEP           6   // max number of dependencies
+#define MAX_DEP           10  // max number of dependencies
 #define MAX_NXT           3   // max number of each result's successor
 #define MAX_RESULT        12  // max number of different result
 #define MAX_DMA_LLI_BLOCK 16  // max support LLI number of each DMA channel in one transmission

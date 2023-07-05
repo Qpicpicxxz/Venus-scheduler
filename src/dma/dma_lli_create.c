@@ -47,7 +47,7 @@ inline static lli_t* create_LLI() {
   return (lli_t*)(LLI_CH(free_channel_index) + LLI_SIZE * lli_index);
 }
 
-void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block, token_t* token) {
+void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, cluster_t* cluster, token_t* token) {
   // printf("dst: %p, src: %p, len: %p, block: %p, token: %p\n", dst, src, len, block, token);
   /* create linked list for DMA transfer */
   uint64_t destination_addr         = (uint64_t)dst;
@@ -79,7 +79,7 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
   }
 
   // if not the last data chunk of this DMA channel transfer round
-  if (block == NULL) {
+  if (cluster == NULL) {
     for (int i = 0; i < total_chunk; i++) {
       // if its the last chunk to be transmitted
       if (i == total_chunk - 1) {
@@ -130,7 +130,7 @@ void dma_transfer_link(uint32_t dst, uint32_t src, uint32_t len, block_t* block,
       }
     }
     // last data to transfer, bind relative descripotr and enable DMA channel...
-    msg->block                    = block;
+    msg->cluster                  = cluster;
     msg->token_array[token_index] = LAST_TOKEN;
     CFG_config(free_channel_index);
     DMAC_CHx_specify_first_lli((lli_t*)LLI_CH(free_channel_index), free_channel_index);

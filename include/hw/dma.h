@@ -33,8 +33,9 @@
 #define DMAC_CH_INTR_SIGNAL_ENABLE_REG_OFFSET_CH(ch_num) (0x100 * ((ch_num) + 1) + 0x090)
 #define DMAC_CH_INTR_CLEAR_REG_OFFSET_CH(ch_num)         (0x100 * ((ch_num) + 1) + 0x098)
 
-#define DMA_MAX_TRANSFER_LENGTH (2048 * 8)
-#define DMAC_NUMBER_OF_CHANNELS 8
+// #define DMA_MAX_TRANSFER_LENGTH (2048 * 8) // previous verison - 16k
+#define DMA_MAX_TRANSFER_LENGTH (4 * 1024 * 1024)  // 4MB
+#define DMAC_NUMBER_OF_CHANNELS 1
 #define EN_SOFT_RST             0x1
 
 #endif /* __HW_DMA_H__ */

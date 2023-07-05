@@ -2,10 +2,10 @@
 #include "ratematch/ratematch.h"
 
 //=====================input data======================
-// uint32_t pssch_G = 69120;
-// uint32_t rvIdx = 0;
-// uint32_t codeBlockID = 2;//start from zero
-// uint32_t codeBlockNum = 8;
+uint32_t pssch_G_2 = 69120;
+uint32_t rvIdx_2 = 0;
+uint32_t codeBlockID_2 = 2;//start from zero
+uint32_t codeBlockNum_2 = 8;
 
 struct PSSCH_Para psschPara_2 = {
     .psschNum = 1,          // 1

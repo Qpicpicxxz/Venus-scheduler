@@ -2,6 +2,11 @@
 #include "ratematch/ratematch_dataset_input_0.h"
 #include "ratematch/ratematch_dataset_input_1.h"
 #include "ratematch/ratematch_dataset_input_2.h"
+#include "ratematch/ratematch_dataset_input_3.h"
+#include "ratematch/ratematch_dataset_input_4.h"
+#include "ratematch/ratematch_dataset_input_5.h"
+#include "ratematch/ratematch_dataset_input_6.h"
+#include "ratematch/ratematch_dataset_input_7.h"
 
 #define OUTPUT_NUM 6
 

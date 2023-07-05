@@ -5,7 +5,6 @@
 #include "types.h"
 #include "ulib.h"
 
-
 // VENUS_DEBUG_UART_ADDR is VCS console log
 
 /* Function: Transmit a byte */
@@ -89,7 +88,7 @@ void venus_uart_init(void) {
   // Scheduler config all the block's debug uart
   for (int i = 0; i < NUM_BLOCKS; i++) {
     for (int j = 0; j < NUM_CLUSTERS; j++) {
-      uart_init(VENUS_CLUSTER_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j) + BLOCK_DEBUGUART_OFFSET);
+      uart_init(VENUS_CLUSTER_BLOCK_BASE_ADDR + CLUSTER_OFFSET(i) + BLOCK_OFFSET(j) + BLOCK_DEBUGUART_OFFSET);
     }
   }
 }
